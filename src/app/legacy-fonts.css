@@ -1,0 +1,28 @@
+@font-face {
+  font-family: 'Roboto Condensed';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/legacy/roboto-condensed.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Indie Flower';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/legacy/indie-flower.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Syne Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/legacy/syne-mono.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Xanh Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/legacy/xanh-mono.ttf) format('truetype');
+}

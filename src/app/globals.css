@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme inline { --font-sans: Arial, Helvetica, sans-serif; }
+body { background: #f7f5ef; color: #242a22; font-family: Arial, Helvetica, sans-serif; }
+::selection { background: #c7dfce; }
+a:focus-visible, button:focus-visible { outline: 3px solid #166534; outline-offset: 5px; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 650; line-height: 1.2; letter-spacing: -0.035em; }
+h2 { font-size: 1.1rem; font-weight: 650; }
+h3 { font-weight: 600; }
+.hero-title { font-size: clamp(2.8rem, 6vw, 4.8rem); }
+.intro { margin: 1rem 0 2rem; color: #57534e; line-height: 1.7; }
+.card { padding: 1.5rem; border: 1px solid #dedbd2; border-radius: 1rem; background: #fffdf8; }
+.form-stack { display: flex; flex-direction: column; gap: 1.25rem; }
+.form-stack label { display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.9rem; font-weight: 500; }
+input:not([type="checkbox"]), select, textarea { width: 100%; border: 1px solid #a8a29e; padding: 0.7rem 0.85rem; border-radius: 0.5rem; color: #242a22; background: white; font: inherit; }
+input:focus, select:focus, textarea:focus { outline: 2px solid #166534; outline-offset: 2px; }
+.badge { display: inline-block; width: fit-content; border-radius: 999px; background: #e7eee6; color: #164e3b; padding: 0.25rem 0.7rem; font-size: 0.75rem; }
+.button { display: inline-flex; align-items: center; justify-content: center; width: fit-content; background: #164e3b; color: white; padding: 0.7rem 1.1rem; border-radius: 0.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.button.secondary { color: #164e3b; background: transparent; border: 1px solid #b7c6ba; }
+.button:disabled { opacity: 0.55; cursor: wait; }
+.hint { color: #69635b; font-size: 0.8rem; font-weight: 400; line-height: 1.6; }
+.notice { padding: 0.9rem; border-radius: 0.5rem; font-size: 0.9rem; line-height: 1.6; }
+.notice.error { background: #fef2f2; color: #991b1b; }
+.notice.success { background: #ecfdf5; color: #065f46; }
+.form-stack .check-label { flex-direction: row; align-items: center; gap: 0.7rem; }
+.secret-text { white-space: pre-wrap; overflow-wrap: anywhere; border: 1px solid #dedbd2; border-radius: 0.5rem; padding: 1rem; background: #f7f5ef; font-size: 0.9rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+td, th { text-align: left; padding: 0.85rem 0.65rem; border-bottom: 1px solid #e7e5e4; vertical-align: top; }
+th { color: #57534e; font-weight: 600; }

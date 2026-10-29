@@ -1,0 +1,478 @@
+{
+  "home": {
+    "title": "let's talk coffee",
+    "isActive": false,
+    "cardInfo": [
+      {
+        "title": "Our Courses",
+        "text": "We offer a few courses and you can register from the website. Click on read more to read through the various courses and modules we offer. Also register and come learn with us if any of the courses interest you.",
+        "link": "/registration"
+      },
+      {
+        "title": "Our Team",
+        "text": "We are comprised of a board with members coming to a total of 7. Click down below and get to know them all.",
+        "link": "/team"
+      },
+      {
+        "title": "Got any questions?",
+        "text": "We provide a simple form that you can fill and let us know of any questions, comments or feedback you have for us. Get in touch and let's talk",
+        "link": "/contact"
+      }
+    ]
+  },
+  "philosophy": {
+    "title": "experience love at first sip",
+    "values": [
+      {
+        "title": "Care",
+        "src": "/legacy/care.f17f39e1.png",
+        "text": "We show care throughout our full cycle of the industry, our local community, baristas, roasters, producers and delivering exceptional solutions affecting the coffee chain"
+      },
+      {
+        "title": "Entrepreneurial Spirit",
+        "src": "/legacy/entrepreneur.062c62e2.png",
+        "text": "We treat challenges as opportunities, problem-solve & work creativity to get things done "
+      },
+      {
+        "title": "A.b.m.f",
+        "src": "/legacy/connections.78038315.jpg",
+        "text": "Strangers are simply friends we haven’t made yet; we seek new connections & look for the win-win in every situation"
+      },
+      {
+        "title": "Teamwork",
+        "src": "/legacy/teamwork.e6f6b290.jpg",
+        "text": "To collaborate, cooperate, communicate and work together. Developing valued partnerships with our partners"
+      },
+      {
+        "title": "Dependable",
+        "src": "/legacy/dependable.4d9b8bc7.jpg",
+        "text": "To be reliable, loyal and trustworthy, guaranteeing that we can be counted on, no matter what in order to deliver the promises"
+      },
+      {
+        "title": "Openness",
+        "src": "/legacy/openness.311bf081.jpg",
+        "text": "K.B.O believes that transparency and accountability, communication coupled with innovation are key in meeting expectations."
+      },
+      {
+        "title": "Fairness",
+        "src": "/legacy/fairness.5593d9a5.png",
+        "text": "At K.B.O, we believe that all men and women including the youth need to be given opportunities to improve or maintain their wellbeing. We apply methods that encourage the participation of all baristas in knowledge, growth and skills to fully participate in processes, and above all promote active listening to and respecting everyone’s opinions."
+      },
+      {
+        "title": "Feedback",
+        "src": "/legacy/feedback.png",
+        "text": "We acknowledge that providing timely responses and constant communication is key in building long term business relations and working partnership."
+      },
+      {
+        "title": "Efficiency",
+        "src": "/legacy/efficient.e5bba094.png",
+        "text": "K.B.O believes that Professional attitude and being honest together with ensuring that people have what they need to perform” is key in meeting everyone’s expectations. It also believes in developing a strong staff team, driven by their respective set key performance targets, but all aimed at feeding into the K.B.O mission and vision. This is by encouraging self-growth and self-respect among Ourselves and partners."
+      },
+      {
+        "title": "Equality",
+        "src": "/legacy/equality.970c0f62.jpg",
+        "text": "In order to achieve dignity K.B.O cultivates a culture of respect by promoting “treating everyone the way you want to be treated, and dealt with transparently."
+      }
+    ],
+    "philosophy": [
+      {
+        "title": "Purpose",
+        "text": "Game changer in coffee industry "
+      },
+      {
+        "title": "Our Mission",
+        "text": "To inspire and nurture youth in coffee skills profession"
+      },
+      {
+        "title": "Our Vision",
+        "text": "To establish Kenya Barista Organization as a Premier Barista Guild in Africa"
+      }
+    ]
+  },
+  "team": [
+    {
+      "name": "Wesley Yeaman",
+      "role": "C.E.O.",
+      "image": "/legacy/bad768f54255e946.jpg"
+    },
+    {
+      "name": "Charles Hillary",
+      "role": "Chair Person.",
+      "image": "/legacy/caa57fe4c182a2cf.jpg"
+    },
+    {
+      "name": "Beatrice Ogidho",
+      "role": "Deputy Chair Person.",
+      "image": "/legacy/062d05cf5715e7fc.jpg"
+    },
+    {
+      "name": "Barbra",
+      "role": "Treasurer.",
+      "image": "/legacy/d65346d912f34a5d.jpg"
+    },
+    {
+      "name": "Edward",
+      "role": "Secretary General.",
+      "image": "/legacy/37f07478ff0f89e6.jpg"
+    },
+    {
+      "name": "Ann Kyule",
+      "role": "Board Member.",
+      "image": "/legacy/eac33574f5f2ccdd.jpg"
+    },
+    {
+      "name": "Tony Nthuli",
+      "role": "Board Member.",
+      "image": "/legacy/abedaf22ad4a606c.jpeg"
+    }
+  ],
+  "gallery": [
+    {
+      "src": "/legacy/78e8d0025a0e2223.jpg",
+      "alt": "Kenya Barista Organization photo 1"
+    },
+    {
+      "src": "/legacy/484b5cd378beff4a.jpg",
+      "alt": "Kenya Barista Organization photo 2"
+    },
+    {
+      "src": "/legacy/f4520367477c8819.jpg",
+      "alt": "Kenya Barista Organization photo 3"
+    },
+    {
+      "src": "/legacy/de8b54e2045b31b5.jpg",
+      "alt": "Kenya Barista Organization photo 4"
+    },
+    {
+      "src": "/legacy/00b73d0c53c7ffc0.jpg",
+      "alt": "Kenya Barista Organization photo 5"
+    },
+    {
+      "src": "/legacy/cbae0d47fdac82fb.jpg",
+      "alt": "Kenya Barista Organization photo 6"
+    },
+    {
+      "src": "/legacy/7ffe3c225e0e48ea.jpg",
+      "alt": "Kenya Barista Organization photo 7"
+    },
+    {
+      "src": "/legacy/aa211392b5502a57.jpg",
+      "alt": "Kenya Barista Organization photo 8"
+    },
+    {
+      "src": "/legacy/dc279a135609d518.jpg",
+      "alt": "Kenya Barista Organization photo 9"
+    },
+    {
+      "src": "/legacy/90faddb4a4d62ac1.jpg",
+      "alt": "Kenya Barista Organization photo 10"
+    },
+    {
+      "src": "/legacy/07336a388094083f.jpg",
+      "alt": "Kenya Barista Organization photo 11"
+    },
+    {
+      "src": "/legacy/032ec9ca97dcdf5a.jpg",
+      "alt": "Kenya Barista Organization photo 12"
+    },
+    {
+      "src": "/legacy/a5319098f214849b.jpg",
+      "alt": "Kenya Barista Organization photo 13"
+    },
+    {
+      "src": "/legacy/5db29d32906cf91a.jpg",
+      "alt": "Kenya Barista Organization photo 14"
+    },
+    {
+      "src": "/legacy/e66ded7604318e85.jpg",
+      "alt": "Kenya Barista Organization photo 15"
+    },
+    {
+      "src": "/legacy/e97f3bd070b2e630.jpg",
+      "alt": "Kenya Barista Organization photo 16"
+    },
+    {
+      "src": "/legacy/9573431413c23bc5.jpg",
+      "alt": "Kenya Barista Organization photo 17"
+    },
+    {
+      "src": "/legacy/0197659a0daeffe1.jpg",
+      "alt": "Kenya Barista Organization photo 18"
+    },
+    {
+      "src": "/legacy/fda841c1bc6af096.jpg",
+      "alt": "Kenya Barista Organization photo 19"
+    },
+    {
+      "src": "/legacy/fe17d49a672bb1b2.jpg",
+      "alt": "Kenya Barista Organization photo 20"
+    },
+    {
+      "src": "/legacy/cae772f348ee63c7.jpg",
+      "alt": "Kenya Barista Organization photo 21"
+    },
+    {
+      "src": "/legacy/a43c33ec50fa939d.jpg",
+      "alt": "Kenya Barista Organization photo 22"
+    },
+    {
+      "src": "/legacy/baf8d883327111d1.jpg",
+      "alt": "Kenya Barista Organization photo 23"
+    },
+    {
+      "src": "/legacy/102a25557327e00a.jpg",
+      "alt": "Kenya Barista Organization photo 24"
+    },
+    {
+      "src": "/legacy/14ca61598ebba85c.jpg",
+      "alt": "Kenya Barista Organization photo 25"
+    },
+    {
+      "src": "/legacy/10cfeb849bb88cba.jpg",
+      "alt": "Kenya Barista Organization photo 26"
+    },
+    {
+      "src": "/legacy/f3b4f1ed24a04e1b.jpg",
+      "alt": "Kenya Barista Organization photo 27"
+    },
+    {
+      "src": "/legacy/03f4527efc982aaf.jpg",
+      "alt": "Kenya Barista Organization photo 28"
+    },
+    {
+      "src": "/legacy/b1ae9e1ea065be8f.jpg",
+      "alt": "Kenya Barista Organization photo 29"
+    },
+    {
+      "src": "/legacy/515881428aab3224.jpg",
+      "alt": "Kenya Barista Organization photo 30"
+    },
+    {
+      "src": "/legacy/03f5aa290726e417.jpg",
+      "alt": "Kenya Barista Organization photo 31"
+    },
+    {
+      "src": "/legacy/232e14b81ed5d287.jpg",
+      "alt": "Kenya Barista Organization photo 32"
+    },
+    {
+      "src": "/legacy/b22f66cd961a8a46.jpg",
+      "alt": "Kenya Barista Organization photo 33"
+    }
+  ],
+  "shop": [
+    {
+      "src": "/legacy/fdab74ee80a9d606.jpg",
+      "alt": "Syrups"
+    },
+    {
+      "src": "/legacy/59ad641451503478.jpg",
+      "alt": "Steaming Jugs"
+    },
+    {
+      "src": "/legacy/2b87b2c9dbf300fd.jpg",
+      "alt": "Hario V60"
+    },
+    {
+      "src": "/legacy/19e01ca6d1138e7d.jpg",
+      "alt": "Wooden Knockbox"
+    },
+    {
+      "src": "/legacy/cdefa200dc1a2708.jpg",
+      "alt": "Gooseneck Kettle"
+    },
+    {
+      "src": "/legacy/bf1840fde4a0708f.jpg",
+      "alt": "Wall Plunger"
+    },
+    {
+      "src": "/legacy/36bc8919cb9423fe.jpg",
+      "alt": "Drippers"
+    },
+    {
+      "src": "/legacy/ffdcf3dbe6b2ae9c.jpg",
+      "alt": "V60 Set"
+    },
+    {
+      "src": "/legacy/5089142f82d60f6a.jpg",
+      "alt": "Filter Papers"
+    },
+    {
+      "src": "/legacy/a8794d158847ef91.jpg",
+      "alt": "Aeropress"
+    },
+    {
+      "src": "/legacy/cb9533621ecf297e.jpg",
+      "alt": "Coffee Grinder"
+    },
+    {
+      "src": "/legacy/82095f4c36c1aa37.jpg",
+      "alt": "Grinder Brush"
+    },
+    {
+      "src": "/legacy/32dea0bdb70d0562.jpg",
+      "alt": "Aeropress Filters"
+    },
+    {
+      "src": "/legacy/e51c4fee14561ab0.jpg",
+      "alt": "Pitchers"
+    },
+    {
+      "src": "/legacy/676834999b508966.jpg",
+      "alt": "Kalita"
+    },
+    {
+      "src": "/legacy/b4c8c7efb4c59a0d.jpg",
+      "alt": "Clear Plunger"
+    },
+    {
+      "src": "/legacy/df23017c8e749073.jpg",
+      "alt": "Tamper"
+    },
+    {
+      "src": "/legacy/14b0433a749b38c8.jpg",
+      "alt": "The OCD"
+    },
+    {
+      "src": "/legacy/7d122da216f166ec.jpg",
+      "alt": "Kalita Sizes"
+    },
+    {
+      "src": "/legacy/98ae0ed07dd3df70.jpg",
+      "alt": "Coffee Scale"
+    },
+    {
+      "src": "/legacy/a82f9413268ca4f5.jpg",
+      "alt": "Origin"
+    },
+    {
+      "src": "/legacy/37b6abceb21c33cf.jpg",
+      "alt": "Shaker"
+    },
+    {
+      "src": "/legacy/2fa0836b86a4b074.jpg",
+      "alt": "Sauces"
+    },
+    {
+      "src": "/legacy/f65105b946b90ddd.jpg",
+      "alt": "Scoop"
+    },
+    {
+      "src": "/legacy/6cd3db266c2a45f4.jpg",
+      "alt": "Coffee Scale"
+    },
+    {
+      "src": "/legacy/c0b8aa8b8b9f83ca.jpg",
+      "alt": "Salt Rimmer"
+    },
+    {
+      "src": "/legacy/db5ecfcd6b883569.jpg",
+      "alt": "Coffee Cup"
+    },
+    {
+      "src": "/legacy/21485c4436a400ab.jpg",
+      "alt": "Head Brush"
+    },
+    {
+      "src": "/legacy/3ac0147f31151ff7.jpg",
+      "alt": "Espresso Machine"
+    },
+    {
+      "src": "/legacy/8995a5d71a535e02.jpg",
+      "alt": "Clear cups"
+    },
+    {
+      "src": "/legacy/d386d14bda38e42a.jpg",
+      "alt": "Bar Spoon"
+    }
+  ],
+  "assets": {
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/espresso1_GDVEp2pck3.jpg": "/legacy/618eb162acd91d16.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/espresso_SEpfcT6Kw.jpg": "/legacy/3261330b7b8c0776.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/filter-coffee-guide_BYufuSVvrIT.jpg": "/legacy/6d81e431f1765bb7.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/drip_maker_lhY-LDFRto.jpg": "/legacy/0a08ee093d1f21de.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/contact_x9bSUfu0xB.jpg": "/legacy/125b0b6567b87353.jpg",
+    "https://images.squarespace-cdn.com/content/v1/584f6bbef5e23149e5522201/1517173876960-R6XNFRUXLTB6X7UA406G/ke17ZwdGBToddI8pDm48kFrp_qyUzk4B0LLw7aKBMLJZw-zPPgdn4jUwVcJE1ZvWQUxwkmyExglNqGp0IvTJZUJFbgE-7XRK3dMEBRBhUpy_OAb7JUX4sJCa2e92dI3Sr0sjchmr1J40pNs_Ke4Gush9BT0oY8DSHmcNomZoRcc/coffee-plants-field.jpg": "/legacy/63e7a18371bf1819.jpg",
+    "https://images.nidux.net/eyJidWNrZXQiOiJuaWR1eC1zdG9yZXMiLCJrZXkiOiIyODc3XC8xMDUwNjNfcHJvZHVjdF81YzkzYWMzNTYwNjMxLmpwZyIsImVkaXRzIjp7InRvRm9ybWF0IjoicG5nIiwicmVzaXplIjp7IndpZHRoIjo1OTksImhlaWdodCI6ODAwLCJmaXQiOiJjb250YWluIiwiYmFja2dyb3VuZCI6eyJyIjoyNTUsImciOjI1NSwiYiI6MjU1LCJhbHBoYSI6MH19fX0=--374ba30fac2a6fadd00176283ef0e6ce07c7b4dc1ebbbffc350ce2e7c3853131": "",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/milk_steaming_RBK2Pkiw5.jpg": "/legacy/3ce416e2a55a5492.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/types-of-coffee_LsZAtO6Tn.jpg": "/legacy/59df3569910fb5de.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/grades_ii-ww5S0_x3w5.jpg": "/legacy/51a751af2aa571d9.jpg",
+    "https://varieties.worldcoffeeresearch.org/content/5-varieties/0-sl28/sl28-kenya-2.jpg": "",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0110_miS-q39fhdve.jpg": "/legacy/484b5cd378beff4a.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0098_bRsLMOdwX.jpg": "/legacy/78e8d0025a0e2223.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0132__W-EENnKcEGq.jpg": "/legacy/00b73d0c53c7ffc0.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0130_mJHVXJBM9.jpg": "/legacy/de8b54e2045b31b5.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0131_4bQezQjiL.jpg": "/legacy/f4520367477c8819.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0127_k_qeHeJLR.jpg": "/legacy/cbae0d47fdac82fb.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0122_rq572W_Iz.jpg": "/legacy/7ffe3c225e0e48ea.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0124_K1oFPWEo3.jpg": "/legacy/90faddb4a4d62ac1.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0125_uSFbNpAhO.jpg": "/legacy/aa211392b5502a57.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0123_O0i-1imDnX.jpg": "/legacy/dc279a135609d518.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0112_2p_v3--_e9-S.jpg": "/legacy/a5319098f214849b.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0111_bJxl8y4aBCnw.jpg": "/legacy/e66ded7604318e85.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0108_aCuPGVygp.jpg": "/legacy/5db29d32906cf91a.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0109_eyLpontA75.jpg": "/legacy/9573431413c23bc5.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0106_h14PsL-SY.jpg": "/legacy/e97f3bd070b2e630.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0104_ZPTe7uX1k.jpg": "/legacy/fe17d49a672bb1b2.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0103_DkPRW270Ix.jpg": "/legacy/fda841c1bc6af096.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0107_nfe5MrxGR.jpg": "/legacy/0197659a0daeffe1.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0101_HQ7Y5ro-F.jpg": "/legacy/baf8d883327111d1.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0105_5ucEUgdOa.jpg": "/legacy/cae772f348ee63c7.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0099_dEzolFhi5.jpg": "/legacy/a43c33ec50fa939d.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0102_s7sC2oXc0kGe.jpg": "/legacy/102a25557327e00a.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0100_ropJe70H2hpa.jpg": "/legacy/14ca61598ebba85c.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0128_SxU6220wh.jpg": "/legacy/07336a388094083f.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0126_UY4ZATyI9.jpg": "/legacy/032ec9ca97dcdf5a.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0115_RJnBnPDFv.jpg": "/legacy/10cfeb849bb88cba.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0116_GexVuaqGLvfh.jpg": "/legacy/f3b4f1ed24a04e1b.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0114_LHZ6ZQIL7.jpg": "/legacy/03f4527efc982aaf.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0113_fZ_q6tJLkw.jpg": "/legacy/b1ae9e1ea065be8f.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/syrups_XrdmD-lLzTfr.jpg": "/legacy/fdab74ee80a9d606.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0121_NEcvZRycE.jpg": "/legacy/515881428aab3224.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/steamJugs_jBgtXpEeWhwy.jpg": "/legacy/59ad641451503478.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/HarioV60__2__1QM9GwTmv.jpg": "/legacy/2b87b2c9dbf300fd.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/gooseneckKettle__3__k1jkmcwynKBrw.jpg": "/legacy/cdefa200dc1a2708.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/knockBox__2__OGn1AlR9Q.jpg": "/legacy/19e01ca6d1138e7d.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/drippers_kbP6mkXjB.jpg": "/legacy/36bc8919cb9423fe.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/wallPlunger_ziRC_yWYaue4J.jpg": "/legacy/bf1840fde4a0708f.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/filters_N36mUA9vfUXH.jpg": "/legacy/5089142f82d60f6a.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/V60_Set_gACq07nl_.jpg": "/legacy/ffdcf3dbe6b2ae9c.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/aeropress__2__YDtWZtwpj.jpg": "/legacy/a8794d158847ef91.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/grinder__4__kpemVyl1TLWR.jpg": "/legacy/cb9533621ecf297e.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/grinderBrush_1vE_iKdXF.jpg": "/legacy/82095f4c36c1aa37.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/aeropressFilters_Va04m7GVoW.jpg": "/legacy/32dea0bdb70d0562.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/pitchers_LjR1fIllq.jpg": "/legacy/e51c4fee14561ab0.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0117_ID85xWy1A.jpg": "/legacy/03f5aa290726e417.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/kalita_4jJWtlyYp.jpg": "/legacy/676834999b508966.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/tamper__2__bmrFwObFC5.jpg": "/legacy/df23017c8e749073.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/kalita_sizes__2__5R0tWKpIJ6.jpg": "/legacy/7d122da216f166ec.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/scale__3__XlQyfcB2UE.jpg": "/legacy/98ae0ed07dd3df70.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0118_yvaQs_mcq.jpg": "/legacy/232e14b81ed5d287.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/the_ocd_QdxmCzD3Wv.jpg": "/legacy/14b0433a749b38c8.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/shaker_lZUfcuZIEp.jpg": "/legacy/37b6abceb21c33cf.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/origin_11b--27hxA.jpg": "/legacy/a82f9413268ca4f5.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/Gallery/IMG-20201109-WA0129_3xmKjeU2e.jpg": "/legacy/b22f66cd961a8a46.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/sauces_kFnVCIi3KR.jpg": "/legacy/2fa0836b86a4b074.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/scoop_WiY2ffpYXJ.jpg": "/legacy/f65105b946b90ddd.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/scale_yaTl9c52vi.jpg": "/legacy/6cd3db266c2a45f4.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/salt_rimmer_wTUnouiiM.jpg": "/legacy/c0b8aa8b8b9f83ca.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/clearPlunger__3__LlO81wr8O.jpg": "/legacy/b4c8c7efb4c59a0d.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/espresso_machine__2__2J3x0lZHQU.jpg": "/legacy/3ac0147f31151ff7.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/headBrush__2__mGmhJsTGEHJK.jpg": "/legacy/21485c4436a400ab.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/coffeeCup__2__TO4aWVrJp.jpg": "/legacy/db5ecfcd6b883569.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/clearCup_LlrnYQWCyN_-p.jpg": "/legacy/8995a5d71a535e02.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/texture_5IgW-9uC6RnM.jpg": "/legacy/8a71e0469f6ed114.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/shop/bar_spoon_ZhLPRN9h6.jpg": "/legacy/d386d14bda38e42a.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/jowam_iDzN1TSEvYNC.jpeg": "/legacy/a2b0140df4c0dd24.jpeg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/plantation_PCEkF9nvO.jpg": "/legacy/7639892215865f4d.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/itl.cat_barista-wallpaper_1261628_Nm2mYG8oRuR.png": "/legacy/bf01e7ab24082517.png",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/barbra_B7FjcoVx4.jpg": "/legacy/d65346d912f34a5d.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/beatrice_HpJtyuLTn.jpg": "/legacy/062d05cf5715e7fc.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/edward_7gZYz3U-xRQhR.jpg": "/legacy/37f07478ff0f89e6.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/courses_xfs8iQ-5p.jpg": "/legacy/2a60aa25a674f55d.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/IMG-20201114-WA0000_1__AUu45nNFV.jpg": "/legacy/eac33574f5f2ccdd.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/tony_6-kZJl0pPsvI.jpeg": "/legacy/abedaf22ad4a606c.jpeg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/wesley_xIgXFSq63mpN.jpg": "/legacy/bad768f54255e946.jpg",
+    "https://ik.imagekit.io/qxekjpfx0b/KBO/charles_6LS2fs5i4.jpg": "/legacy/caa57fe4c182a2cf.jpg"
+  }
+}

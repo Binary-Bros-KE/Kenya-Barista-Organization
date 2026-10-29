@@ -1,0 +1,16 @@
+import Link from "next/link";
+import { ManualReversal } from "@/components/manual-reversal";
+import { pageActor } from "@/lib/access";
+import { getDb } from "@/lib/db";
+import { Workspace } from "@/components/workspace";
+import { MpesaSettingsForm } from "@/components/mpesa-settings";
+import { listMpesaSettings } from "@/server/mpesa-settings";
+import { PaymentRecheck } from "@/components/payment-recheck";
+import { formatFee } from "@/lib/job-format";
+export const dynamic="force-dynamic";
+export default async function Page(){
+ const actor=await pageActor(true),db=getDb();const configurations=await listMpesaSettings(db,actor);
+ const orders=await db.paymentOrder.findMany({select:{id:true,status:true,amountMinor:true,application:{select:{id:true,status:true,user:{select:{email:true}},job:{select:{title:true}}}},reviews:{select:{id:true,note:true,evidenceReference:true,createdAt:true,actor:{select:{email:true}}},orderBy:{createdAt:"desc"},take:20},refunds:{select:{id:true,providerReference:true,completedAt:true,status:true},orderBy:{createdAt:"desc"}},attempts:{select:{id:true,status:true,receiptNumber:true,reviewReason:true},orderBy:{createdAt:"desc"},take:1}},orderBy:{createdAt:"desc"},take:100});
+ return <Workspace name={actor.user.name||actor.user.email} admin><h1>M-Pesa payments</h1><p className="intro">Configure Paybill and Till collections and track application fees.</p><p className="mb-5"><Link className="button secondary" href="/admin/payments/review">Open payment review queue</Link></p><MpesaSettingsForm configurations={configurations} /><section className="mt-8"><h2>Recent payments</h2><p className="hint mb-5">Latest 100 payment orders. Reconciliation checks pending transactions; Reversals are completed manually outside the site and recorded below.</p><div className="grid gap-4">{orders.map(order=><article className="card" key={order.id}><h3><Link href={`/admin/payments/${order.id}`}>{order.application.job.title}</Link></h3><p>{order.application.user.email}</p><p>{formatFee(order.amountMinor)} · {order.status==="REFUNDED"?"REVERSED":order.status} · Application {order.application.status}</p><p className="hint break-all">Application reference: {order.application.id}</p>{order.attempts[0]?.receiptNumber&&<p>Receipt: {order.attempts[0].receiptNumber}</p>}{order.attempts[0]?.reviewReason&&<p className="notice error">Review: {order.attempts[0].reviewReason}</p>}{order.refunds.filter(refund=>refund.status==="COMPLETED").map(refund=><p key={refund.id}>Reversed manually  -  Reference: {refund.providerReference}  -  {refund.completedAt?.toISOString()}</p>)}{order.reviews.length>0&&<details className="mt-4"><summary>Private reversal audit trail</summary>{order.reviews.map(review=><div className="mt-3" key={review.id}><p>{review.actor?.email||"System"} - {review.createdAt.toISOString()}</p><p>{review.note}</p><p>Reference: {review.evidenceReference}</p></div>)}</details>}{order.status==="SUCCEEDED"&&order.attempts[0]?.status==="SUCCEEDED"&&<ManualReversal orderId={order.id} attemptId={order.attempts[0].id} />}{["PENDING","NEEDS_REVIEW"].includes(order.status)&&<PaymentRecheck orderId={order.id} />}</article>)}{!orders.length&&<p>No payment orders yet.</p>}</div></section></Workspace>;
+}
+

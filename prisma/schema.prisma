@@ -1,0 +1,536 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PlatformRole {
+  APPLICANT
+  ADMIN
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum MembershipRole {
+  OWNER
+  RECRUITER
+}
+
+enum JobStatus {
+  DRAFT
+  PENDING_REVIEW
+  CHANGES_REQUESTED
+  PUBLISHED
+  CLOSED
+  ARCHIVED
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  SHORTLISTED
+  HIRED
+  REJECTED
+  WITHDRAWN
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  NEEDS_REVIEW
+  REFUNDED
+}
+
+enum RefundStatus {
+  REQUESTED
+  APPROVED
+  COMPLETED
+  DECLINED
+  CANCELLED
+}
+
+enum MpesaKind {
+  PAYBILL
+  TILL
+}
+
+enum MpesaEnvironment {
+  SANDBOX
+  LIVE
+}
+
+model MpesaConfiguration {
+  id                String @id @default(cuid())
+  label             String
+  kind              MpesaKind
+  environment       MpesaEnvironment
+  businessShortCode String
+  tillNumber        String?
+  credentialsCipher String
+  enabled           Boolean @default(false)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  attempts          PaymentAttempt[]
+}
+
+model MpesaSettingsLock {
+  id String @id @default("platform")
+}
+
+model User {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  name            String?
+  emailVerifiedAt DateTime?     @db.Timestamptz(3)
+  emailVerified   Boolean       @default(false)
+  image           String?
+  twoFactorEnabled Boolean      @default(false)
+  notificationEmails Boolean    @default(true)
+  role            PlatformRole  @default(APPLICANT)
+  status          AccountStatus @default(ACTIVE)
+  createdAt       DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime      @updatedAt @db.Timestamptz(3)
+  profile         ApplicantProfile?
+  memberships     OrganisationMember[]
+  applications    Application[]
+  documents       Document[]
+  notifications   Notification[]
+  auditEntries    AuditLog[]
+  sessions        Session[]
+  accounts        Account[]
+  twoFactors      TwoFactor[]
+  sentInvitations EmployerInvitation[]
+  createdJobs     Job[] @relation("JobCreator")
+  reviewedJobs    Job[] @relation("JobReviewer")
+  jobHistory      JobStatusHistory[]
+  applicationResponses ApplicationResponse[]
+  paymentReviews PaymentReview[]
+  requestedRefunds RefundRecord[] @relation("RefundRequester")
+  reviewedRefunds RefundRecord[] @relation("RefundReviewer")
+  completedRefunds RefundRecord[] @relation("RefundCompleter")
+}
+
+model ApplicantProfile {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  fullName   String?
+  phone      String?
+  location   String?
+  summary    String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model Organisation {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  suspendedAt  DateTime? @db.Timestamptz(3)
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+  members      OrganisationMember[]
+  jobs         Job[]
+  invitations  EmployerInvitation[]
+}
+
+model Session {
+  id            String   @id @default(cuid())
+  token         String   @unique
+  userId        String
+  expiresAt     DateTime @db.Timestamptz(3)
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+  ipAddress     String?
+  userAgent     String?
+  mfaVerifiedAt DateTime? @db.Timestamptz(3)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Account {
+  id                    String   @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamptz(3)
+  refreshTokenExpiresAt DateTime? @db.Timestamptz(3)
+  scope                 String?
+  password              String?
+  createdAt             DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime @updatedAt @db.Timestamptz(3)
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([identifier])
+  @@index([expiresAt])
+}
+
+model TwoFactor {
+  id                      String   @id @default(cuid())
+  userId                  String   @unique
+  secret                  String
+  backupCodes             String
+  verified                Boolean  @default(false)
+  failedVerificationCount Int      @default(0)
+  lockedUntil             DateTime? @db.Timestamptz(3)
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+}
+
+model EmployerInvitation {
+  id             String         @id @default(cuid())
+  organisationId String
+  email          String
+  role           MembershipRole @default(RECRUITER)
+  tokenHash      String         @unique
+  createdById    String
+  expiresAt      DateTime       @db.Timestamptz(3)
+  acceptedAt     DateTime?      @db.Timestamptz(3)
+  revokedAt      DateTime?      @db.Timestamptz(3)
+  createdAt      DateTime       @default(now()) @db.Timestamptz(3)
+  organisation   Organisation   @relation(fields: [organisationId], references: [id], onDelete: Restrict)
+  createdBy      User           @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@index([organisationId, email])
+  @@index([email, expiresAt])
+}
+
+model PlatformBootstrap {
+  id          String   @id
+  completedAt DateTime @default(now()) @db.Timestamptz(3)
+}
+
+model OrganisationMember {
+  id             String         @id @default(cuid())
+  userId         String
+  organisationId String
+  role           MembershipRole @default(RECRUITER)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  organisation   Organisation   @relation(fields: [organisationId], references: [id], onDelete: Restrict)
+  createdAt      DateTime       @default(now()) @db.Timestamptz(3)
+
+  @@unique([userId, organisationId])
+  @@index([organisationId])
+}
+
+model Job {
+  id                  String    @id @default(cuid())
+  organisationId      String
+  slug                String    @unique
+  title               String
+  description         String
+  location            String
+  category            String
+  employmentType      String
+  status              JobStatus @default(DRAFT)
+  applicationFeeMinor Int
+  currency            String    @default("KES") @db.Char(3)
+  deadline            DateTime  @db.Timestamptz(3)
+  publishedAt         DateTime? @db.Timestamptz(3)
+  closedAt            DateTime? @db.Timestamptz(3)
+  version             Int       @default(1)
+  createdById         String?
+  reviewedById        String?
+  reviewedAt          DateTime? @db.Timestamptz(3)
+  reviewNote          String?
+  createdAt           DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime  @updatedAt @db.Timestamptz(3)
+  organisation        Organisation @relation(fields: [organisationId], references: [id], onDelete: Restrict)
+  applications        Application[]
+  createdBy           User? @relation("JobCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  reviewedBy          User? @relation("JobReviewer", fields: [reviewedById], references: [id], onDelete: Restrict)
+  history             JobStatusHistory[]
+  notifications       Notification[]
+
+  @@index([status, deadline])
+  @@index([organisationId, status])
+}
+
+model JobStatusHistory {
+  id         String    @id @default(cuid())
+  jobId      String
+  actorId    String?
+  fromStatus JobStatus?
+  toStatus   JobStatus
+  note       String?
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  job        Job      @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([jobId, createdAt])
+}
+
+model PlatformSettings {
+  id                         String   @id @default("platform")
+  defaultApplicationFeeMinor Int?
+  updatedAt                  DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model Application {
+  id               String            @id @default(cuid())
+  userId           String
+  jobId            String
+  status           ApplicationStatus @default(DRAFT)
+  coverLetter      String            @default("")
+  version          Int               @default(1)
+  applicationFeeMinor Int            @default(0)
+  currency         String            @default("KES") @db.Char(3)
+  submissionSnapshot Json?
+  submittedAt      DateTime?         @db.Timestamptz(3)
+  createdAt        DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime          @updatedAt @db.Timestamptz(3)
+  user             User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  job              Job               @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  paymentOrder     PaymentOrder?
+  documents        ApplicationDocument[]
+  statusHistory    ApplicationStatusHistory[]
+  responses        ApplicationResponse[]
+  notifications    Notification[]
+
+  @@unique([userId, jobId])
+  @@index([jobId, status])
+  @@index([userId, updatedAt])
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  userId      String
+  storageKey  String   @unique
+  filename    String
+  mimeType    String
+  sizeBytes   Int
+  scanStatus  String   @default("PENDING")
+  sha256      String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  applications ApplicationDocument[]
+  @@index([userId, createdAt])
+}
+
+model ApplicationDocument {
+  applicationId String
+  documentId    String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Restrict)
+  document      Document    @relation(fields: [documentId], references: [id], onDelete: Restrict)
+
+  @@id([applicationId, documentId])
+  @@index([documentId])
+}
+
+model PaymentOrder {
+  id            String        @id @default(cuid())
+  applicationId String        @unique
+  amountMinor   Int
+  currency      String        @default("KES") @db.Char(3)
+  status        PaymentStatus @default(PENDING)
+  version       Int @default(1)
+  reviewHold    Boolean @default(false)
+  frozenSnapshot Json?
+  paidAt        DateTime?     @db.Timestamptz(3)
+  createdAt     DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime      @updatedAt @db.Timestamptz(3)
+  application   Application   @relation(fields: [applicationId], references: [id], onDelete: Restrict)
+  attempts      PaymentAttempt[]
+  reviews       PaymentReview[]
+  refunds       RefundRecord[]
+}
+
+model PaymentAttempt {
+  id                String        @id @default(cuid())
+  paymentOrderId    String
+  idempotencyKey    String        @unique
+  checkoutRequestId String?       @unique
+  merchantRequestId String?
+  receiptNumber     String?       @unique
+  status            PaymentStatus @default(PENDING)
+  resultCode        String?
+  configurationId   String?
+  payerCipher       String?
+  callbackTokenHash String? @unique
+  evidenceCipher    String?
+  queryAfter        DateTime @default(now()) @db.Timestamptz(3)
+  queryLeaseUntil   DateTime? @db.Timestamptz(3)
+  reviewReason      String?
+  configuration     MpesaConfiguration? @relation(fields: [configurationId], references: [id], onDelete: Restrict)
+  createdAt         DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime      @updatedAt @db.Timestamptz(3)
+  paymentOrder      PaymentOrder  @relation(fields: [paymentOrderId], references: [id], onDelete: Restrict)
+  events            PaymentEvent[]
+  reviews           PaymentReview[]
+  refund            RefundRecord?
+
+  @@index([paymentOrderId, status])
+}
+
+model PaymentEvent {
+  id               String   @id @default(cuid())
+  paymentAttemptId String?
+  deduplicationKey String   @unique
+  kind             String
+  resultCode       String?
+  receivedAt       DateTime @default(now()) @db.Timestamptz(3)
+  processedAt      DateTime? @db.Timestamptz(3)
+  paymentAttempt   PaymentAttempt? @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+
+  @@index([paymentAttemptId])
+}
+
+model PaymentReview {
+  id String @id @default(cuid())
+  paymentOrderId String
+  paymentAttemptId String?
+  refundId String?
+  actorId String?
+  action String
+  note String
+  evidenceReference String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  order PaymentOrder @relation(fields: [paymentOrderId], references: [id], onDelete: Restrict)
+  attempt PaymentAttempt? @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  refund RefundRecord? @relation(fields: [refundId], references: [id], onDelete: Restrict)
+  actor User? @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  @@index([paymentOrderId, createdAt])
+}
+
+model RefundRecord {
+  id String @id @default(cuid())
+  paymentOrderId String
+  paymentAttemptId String @unique
+  amountMinor Int
+  currency String @default("KES") @db.Char(3)
+  status RefundStatus @default(REQUESTED)
+  version Int @default(1)
+  reason String
+  requestedById String
+  reviewedById String?
+  completedById String?
+  providerReference String? @unique
+  completedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  order PaymentOrder @relation(fields: [paymentOrderId], references: [id], onDelete: Restrict)
+  attempt PaymentAttempt @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  requestedBy User @relation("RefundRequester", fields: [requestedById], references: [id], onDelete: Restrict)
+  reviewedBy User? @relation("RefundReviewer", fields: [reviewedById], references: [id], onDelete: Restrict)
+  completedBy User? @relation("RefundCompleter", fields: [completedById], references: [id], onDelete: Restrict)
+  reviews PaymentReview[]
+  @@index([status, createdAt])
+}
+
+model ApplicationStatusHistory {
+  id            String            @id @default(cuid())
+  applicationId String
+  fromStatus    ApplicationStatus
+  toStatus      ApplicationStatus
+  message       String?
+  createdAt     DateTime          @default(now()) @db.Timestamptz(3)
+  application   Application       @relation(fields: [applicationId], references: [id], onDelete: Restrict)
+
+  @@index([applicationId, createdAt])
+}
+
+model ApplicationResponse {
+  id            String @id @default(cuid())
+  applicationId String
+  authorId      String
+  source        String
+  senderLabel   String
+  body          String
+  status        ApplicationStatus
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Restrict)
+  author        User @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([applicationId, createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      String
+  title     String
+  body      String @default("")
+  href      String @default("/dashboard")
+  eventId   String?
+  audience  String @default("APPLICANT")
+  applicationId String?
+  jobId     String?
+  deliveryStatus String @default("PENDING")
+  attempts  Int @default(0)
+  availableAt DateTime @default(now()) @db.Timestamptz(3)
+  leaseToken String?
+  leaseUntil DateTime? @db.Timestamptz(3)
+  lastError String?
+  sentAt DateTime? @db.Timestamptz(3)
+  readAt    DateTime? @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  event     OutboxEvent? @relation(fields: [eventId], references: [id], onDelete: Restrict)
+  application Application? @relation(fields: [applicationId], references: [id], onDelete: Restrict)
+  job Job? @relation(fields: [jobId], references: [id], onDelete: Restrict)
+
+  @@index([userId, readAt, createdAt])
+  @@unique([eventId, userId])
+  @@index([deliveryStatus, availableAt])
+}
+
+model OutboxEvent {
+  id               String   @id @default(cuid())
+  deduplicationKey String   @unique
+  kind             String
+  aggregateId      String
+  attempts         Int      @default(0)
+  availableAt      DateTime @default(now()) @db.Timestamptz(3)
+  processedAt      DateTime? @db.Timestamptz(3)
+  failedAt         DateTime? @db.Timestamptz(3)
+  leaseToken       String?
+  leaseUntil       DateTime? @db.Timestamptz(3)
+  recipientCursor  String?
+  lastError        String?
+  notifications    Notification[]
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([processedAt, availableAt])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorId     String?
+  action      String
+  entityType  String
+  entityId    String
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  actor       User?    @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([entityType, entityId, createdAt])
+}

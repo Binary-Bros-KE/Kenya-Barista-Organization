@@ -1,0 +1,56 @@
+{
+  "name": "barista-platform",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "postinstall": "prisma generate",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "tsx --test --test-concurrency=1 tests/*.test.ts",
+    "auth:setup": "node scripts/auth-setup.mjs",
+    "admin:bootstrap": "tsx scripts/bootstrap-admin.ts",
+    "mail:preview": "node scripts/mail-preview.mjs",
+    "jobs:close-expired": "tsx scripts/close-expired-jobs.ts",
+    "cvs:scan": "tsx scripts/scan-cvs.ts",
+    "payments:setup": "node scripts/payment-setup.mjs",
+    "payments:reconcile": "tsx scripts/reconcile-payments.ts",
+    "notifications:run": "tsx scripts/notification-worker.ts",
+    "notifications:work": "tsx scripts/notification-worker.ts --watch",
+    "db:generate": "prisma generate",
+    "db:local": "prisma dev --name barista-platform --port 51213 --db-port 51214 --shadow-db-port 51215",
+    "db:validate": "prisma validate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@better-auth/prisma-adapter": "1.7.10",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "better-auth": "1.7.10",
+    "dotenv": "18.0.8",
+    "next": "16.4.1",
+    "nodemailer": "10.1.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^20",
+    "@types/nodemailer": "8.0.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "prisma": "7.10.1",
+    "tailwindcss": "^4",
+    "tsx": "4.23.15",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  }
+}

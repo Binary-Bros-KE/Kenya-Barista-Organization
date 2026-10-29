@@ -1,0 +1,18 @@
+[Unit]
+Description=Barista staging bounded job (%i)
+After=network-online.target postgresql.service
+ConditionPathExists=/home/evans/barista-platform/current/.next/BUILD_ID
+
+[Service]
+Type=oneshot
+User=evans
+Group=evans
+WorkingDirectory=/home/evans/barista-platform/current
+ExecStart=/usr/bin/flock -n -E 0 /home/evans/barista-platform/shared/%i.lock /bin/bash /home/evans/barista-platform/current/deploy/staging/run.sh %i
+TimeoutStartSec=15min
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/evans/barista-platform

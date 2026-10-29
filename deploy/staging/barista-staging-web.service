@@ -1,0 +1,24 @@
+[Unit]
+Description=Barista staging web application
+After=network-online.target postgresql.service
+Wants=network-online.target
+ConditionPathExists=/home/evans/barista-platform/current/.next/BUILD_ID
+
+[Service]
+Type=simple
+User=evans
+Group=evans
+WorkingDirectory=/home/evans/barista-platform/current
+ExecStart=/bin/bash /home/evans/barista-platform/current/deploy/staging/run.sh web
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=90
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/evans/barista-platform
+
+[Install]
+WantedBy=multi-user.target

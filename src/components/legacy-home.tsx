@@ -1,0 +1,6 @@
+import Link from "next/link";
+import { PublicShell } from "./public-shell";
+import content from "@/content/legacy-site.json";
+export function LegacyHome() {
+  return <PublicShell fullWidth><main><h1 className="sr-only">Kenya Barista Organization</h1><section className="legacy-home-panels">{content.home.cardInfo.map(item => <article key={item.title}><h2>{item.title}</h2><p>{item.text}</p><Link href={item.link}>Read More...</Link></article>)}</section><section className="legacy-quote" style={{ backgroundImage: `url("${content.assets["https://ik.imagekit.io/qxekjpfx0b/KBO/types-of-coffee_LsZAtO6Tn.jpg"]}")` }}><blockquote>“ We show care throughout our full cycle of the industry, our local community, baristas, roasters, producers and delivering exceptional solutions affecting the coffee chain ”</blockquote></section><section className="legacy-mission"><div><h2>Purpose</h2><p>Game changer in coffee industry</p></div><div><h2>Our Mission</h2><p>To inspire and nurture youth in coffee skills profession</p></div><div><h2>Our vision</h2><p>To establish Kenya Barista Organization as a Premier Barista Guild in Africa</p><Link href="/philosophy" className="legacy-outline-button">Our Philosophy</Link></div></section></main></PublicShell>;
+}
