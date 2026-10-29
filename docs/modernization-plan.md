@@ -5,8 +5,8 @@ The owner approved modernizing both the application and public website. Complete
 | Stage | Scope | Status |
 | --- | --- | --- |
 | 1 | Responsive coffee-themed sidebar, mobile drawer, logo and contextual header | Deployed |
-| 2 | Dashboard overview: real role-aware summaries, recent work, account essentials and quick actions | Current stage |
-| 3 | Profile and CVs: clear form sections, upload/screening states and document management | Awaiting go-ahead |
+| 2 | Dashboard overview: real role-aware summaries, recent work, account essentials and quick actions | Deployed |
+| 3 | Profile and CVs: clear form sections, upload/screening states and document management | Current stage |
 | 4 | Applicant applications, details, responses and withdrawal experience | Awaiting go-ahead |
 | 5 | Applicant payments and notification inbox | Awaiting go-ahead |
 | 6 | Security, authenticator setup and remaining account states | Awaiting go-ahead |
