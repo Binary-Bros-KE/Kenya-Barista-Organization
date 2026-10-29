@@ -3,6 +3,7 @@ import "./globals.css";
 import "./workspace.css";
 import "./overview.css";
 import "./profile.css";
+import "./applications.css";
 import "./legacy-fonts.css";
 import "./legacy.css";
 import "./legacy-spacing.css";
