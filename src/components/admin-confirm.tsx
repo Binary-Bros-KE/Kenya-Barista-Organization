@@ -1,0 +1,2 @@
+"use client";
+export function AdminConfirm({ label, explanation, busy, onConfirm }: { label: string; explanation: string; busy: boolean; onConfirm: () => void }) { return <details className="admin-confirm"><summary>{label}</summary><div><p>{explanation}</p><button type="button" disabled={busy} onClick={onConfirm}>Confirm {label.toLowerCase()}</button><button type="button" disabled={busy} onClick={event => event.currentTarget.closest("details")?.removeAttribute("open")}>Cancel</button></div></details>; }

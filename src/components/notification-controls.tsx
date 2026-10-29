@@ -15,7 +15,7 @@ export function MarkNotificationRead({ id }: { id: string }) {
  return <div className="inbox-read-control"><button disabled={busy} onClick={async () => { setBusy(true); setMessage(""); try { await postJson("/api/notifications/"+id+"/read", {}); router.refresh(); } catch (failure) { setMessage(failure instanceof Error ? failure.message : "Unable to mark this update as read."); } finally { setBusy(false); } }}>{busy ? "Marking..." : "Mark as read"}</button><p role="alert">{message}</p></div>;
 }
 export function RetryNotification({id,target}:{id:string;target:"event"|"delivery"}){
- const [busy,setBusy]=useState(false),[message,setMessage]=useState("");const router=useRouter();
- return <div><button className="button secondary mt-3" disabled={busy} onClick={async()=>{setBusy(true);try{await postJson("/api/admin/notifications/retry",{id,target});setMessage("Queued for the worker.");router.refresh();}catch(e){setMessage((e as Error).message);}finally{setBusy(false);}}}>Retry failed {target==="event"?"event":"email"}</button><p role="status">{message}</p></div>;
+ const [busy,setBusy]=useState(false),[message,setMessage]=useState(""),[failed,setFailed]=useState(false);const router=useRouter();
+ return <div className="admin-retry-control"><button className="button secondary mt-3" disabled={busy} onClick={async()=>{setBusy(true);setMessage("");setFailed(false);try{await postJson("/api/admin/notifications/retry",{id,target});setMessage("Queued for the worker.");router.refresh();}catch(e){setFailed(true);setMessage((e as Error).message);}finally{setBusy(false);}}}>Retry failed {target==="event"?"event":"email"}</button><p role={failed?"alert":"status"} className={message?"admin-feedback "+(failed?"is-error":"is-success"):""}>{message}</p></div>;
 }
 
