@@ -2,20 +2,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { postJson } from "./auth-form";
-import { applicationStatusLabels,reviewTransitions } from "@/lib/application-format";
-export function RecruitmentActions({id,version,status,paused}:{id:string;version:number;status:string;paused:boolean}){
- const router=useRouter(),[busy,setBusy]=useState(false),[message,setMessage]=useState("");
- const transitions=reviewTransitions[status]||[];
- if(status==="WITHDRAWN")return <p className="notice">The applicant withdrew. Further responses and CV downloads are unavailable.</p>;
- if(paused)return <p className="notice">This organisation is suspended. Responses are paused.</p>;
- return <form key={version} className="card form-stack" onSubmit={async e=>{
- e.preventDefault();setBusy(true);setMessage("");const form=e.currentTarget,values=new FormData(form);
- try{await postJson("/api/employer/applications/"+id+"/responses",{version,message:values.get("message"),...(values.get("status")?{status:values.get("status")}:{})});form.reset();setMessage("Response saved and visible to the applicant.");router.refresh();}
- catch(e){setMessage((e as Error).message);router.refresh();}finally{setBusy(false);}
- }}>
- <h2>Respond to the applicant</h2><label>Action<select name="status"><option value="">Send a response without changing status</option>{transitions.map(s=><option key={s} value={s}>{applicationStatusLabels[s as keyof typeof applicationStatusLabels]}</option>)}</select></label>
- <label>Message to the applicant<textarea name="message" minLength={2} maxLength={4000} rows={6} required /></label>
- <p className="hint">Every message here is visible to the applicant. Status changes are final once marked Hired or Not selected.</p><button disabled={busy} className="button">{busy?"Saving...":"Send response"}</button><p role="status">{message}</p></form>;
+import { applicationStatusLabels, reviewTransitions } from "@/lib/application-format";
+export function RecruitmentActions({ id, version, status, paused }: { id: string; version: number; status: string; paused: boolean }) {
+ const router = useRouter(), [busy,setBusy] = useState(false), [message,setMessage] = useState(""), [error,setError] = useState(false);
+ const transitions = reviewTransitions[status] || [];
+ if (status === "WITHDRAWN") return <section className="employer-panel employer-response-form"><h2>Application withdrawn</h2><p className="employer-inline-warning">The applicant withdrew. Further responses and CV downloads are unavailable.</p></section>;
+ if (paused) return <section className="employer-panel employer-response-form"><h2>Responses paused</h2><p className="employer-inline-warning">This organisation is suspended. Responses are paused.</p></section>;
+ return <form key={version} className="employer-panel employer-response-form" aria-busy={busy} onSubmit={async event => {
+ event.preventDefault(); setBusy(true); setMessage(""); setError(false); const form=event.currentTarget, values=new FormData(form);
+ try { await postJson("/api/employer/applications/"+id+"/responses", { version, message: values.get("message"), ...(values.get("status") ? { status: values.get("status") } : {}) }); form.reset(); setMessage("Response saved and visible to the applicant."); router.refresh(); }
+ catch (failure) { setError(true); setMessage(failure instanceof Error ? failure.message : "Unable to send response."); router.refresh(); } finally { setBusy(false); }
+ }}><span className="employer-eyebrow">KEEP THE CONVERSATION MOVING</span><h2>Respond to the applicant</h2><p>Send a helpful update and choose the next step when you are ready.</p><fieldset disabled={busy}><label htmlFor="recruitment-action">Recruitment action<select id="recruitment-action" name="status"><option value="">Send a message without changing status</option>{transitions.map(next => <option key={next} value={next}>{applicationStatusLabels[next as keyof typeof applicationStatusLabels]}</option>)}</select></label><label htmlFor="recruitment-message">Message to the applicant<textarea id="recruitment-message" name="message" minLength={2} maxLength={4000} rows={7} required placeholder="Share feedback, interview arrangements or the next steps for this role."/></label></fieldset><p className="employer-response-note">Every message here is visible to the applicant. Status changes are final once marked Hired or Not selected.</p><button className="employer-primary" disabled={busy}>{busy ? "Sending..." : "Send response"}</button><p role={error?"alert":"status"} className={message?"employer-feedback "+(error?"is-error":"is-success"):""}>{message}</p></form>;
 }
 export function WithdrawApplication({ id, version }: { id: string; version: number }) {
  const router = useRouter(), [busy, setBusy] = useState(false), [message, setMessage] = useState("");

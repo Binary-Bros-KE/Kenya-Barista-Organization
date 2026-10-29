@@ -1,0 +1,3 @@
+import Link from "next/link";
+export function EmployerHeading({ title, description, eyebrow = "EMPLOYER WORKSPACE", back }: { title: string; description: string; eyebrow?: string; back?: { href: string; label: string } }) { return <header className="employer-heading">{back && <Link className="employer-back" href={back.href}>&larr; {back.label}</Link>}<span className="employer-eyebrow">{eyebrow}</span><h1>{title}</h1><p>{description}</p></header>; }
+export function EmployerEmpty({ title, children }: { title: string; children: React.ReactNode }) { return <div className="employer-empty"><span className="employer-empty-mark" aria-hidden="true">KBO</span><h2>{title}</h2><div>{children}</div></div>; }

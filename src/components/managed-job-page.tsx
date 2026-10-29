@@ -1,3 +1,4 @@
+import { EmployerHeading } from "./employer-ui";
 import { notFound } from "next/navigation";
 import { jobPageActor } from "@/lib/job-page-access";
 import { getDb } from "@/lib/db";
@@ -9,5 +10,5 @@ export async function ManagedJobPage({ id, admin = false }: { id: string; admin?
   const actor = await jobPageActor(admin);
   try { await getManagedJob(getDb(), actor, id); }
   catch (error) { if (error instanceof AccessError && error.status === 404) notFound(); throw error; }
-  return <Workspace name={actor.user.name || actor.user.email} admin={actor.user.role === "ADMIN"}><h1>{admin ? "Review job posting" : "Manage job posting"}</h1><p className="intro">Review the saved details and choose the next action.</p><JobEditor id={id} admin={actor.user.role === "ADMIN"} /></Workspace>;
+  return <Workspace name={actor.user.name || actor.user.email} admin={actor.user.role === "ADMIN"}><div className="employer-workspace"><EmployerHeading title={admin ? "Review this opportunity" : "Bring your opportunity to life."} description="Review the saved posting, follow feedback and choose its next step." back={{ href: admin ? "/admin/jobs" : "/employer/jobs", label: "Job postings" }}/><JobEditor id={id} admin={actor.user.role === "ADMIN"} /></div></Workspace>;
 }

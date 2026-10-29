@@ -6,6 +6,7 @@ import "./profile.css";
 import "./applications.css";
 import "./activity.css";
 import "./security.css";
+import "./employer.css";
 import "./legacy-fonts.css";
 import "./legacy.css";
 import "./legacy-spacing.css";
