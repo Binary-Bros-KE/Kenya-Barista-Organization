@@ -1,0 +1,11 @@
+[Unit]
+Description=Check verified Barista staging updates every two minutes
+
+[Timer]
+OnBootSec=45s
+OnUnitInactiveSec=2min
+AccuracySec=10s
+Unit=barista-staging-deploy.service
+
+[Install]
+WantedBy=timers.target

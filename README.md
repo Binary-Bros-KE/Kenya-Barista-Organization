@@ -135,3 +135,7 @@ Applicant profiles, private PDF CV uploads, and application drafts are available
 Target: the owner's VPS, with Nginx/HTTPS, the web application, PostgreSQL on a private network, private object storage, and a background worker. Preserve existing VPS services and mail DNS. Production credentials, backup/restore verification, monitoring, migration rollout, and deployment packaging belong to the deployment phase.
 
 Use [the accounts guide](docs/accounts.md) to register, verify email through the development mailbox, and bootstrap the initial administrator. Daraja credentials are not required yet. SMTP credentials are optional for local development and required outside it. Search indexing remains disabled until launch content is ready.
+
+## Automatic staging updates
+
+After the one-time VPS setup, push main and staging deploys after GitHub checks pass. See [automatic deployment](docs/automatic-deployment.md) for setup, status, retries and database change limits.
