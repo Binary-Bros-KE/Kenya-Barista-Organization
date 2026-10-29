@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SecurityMark } from "@/components/security-mark";
 import { notFound } from "next/navigation";
 import { pageActor } from "@/lib/access";
 import { getDb } from "@/lib/db";
@@ -24,13 +25,13 @@ export default async function Page({ params,searchParams }: { params: Promise<{ 
  const rawPage=Number((await searchParams).responsePage||1),responsePage=Number.isInteger(rawPage)?Math.min(Math.max(rawPage,1),100000):1;
  const responses=await applicantResponses(db,actor,application.id,responsePage);
  const open = application.job.status==="PUBLISHED" && application.job.deadline>new Date() && !application.job.organisation.suspendedAt;
- return <div className="application-workspace"><Link className="application-back" href="/dashboard/applications">? All applications</Link>
+ return <div className="application-workspace"><Link className="application-back" href="/dashboard/applications">&larr; All applications</Link>
   <header className="application-detail-heading"><div><span className="application-eyebrow">{application.job.organisation.name}</span><h1>{application.job.title}</h1></div><span className={"application-status status-"+application.status.toLowerCase()}>{applicationStatusLabels[application.status]}</span></header>
-  <div className="application-guidance"><span aria-hidden="true">{application.status === "DRAFT" ? "?" : "?"}</span><div><h2>{application.status === "DRAFT" ? editable ? "Make this application yours" : "Your saved details are protected" : applicationStatusLabels[application.status]}</h2><p>{applicationGuidance(application.status, editable)}</p></div></div>
+  <div className="application-guidance"><span aria-hidden="true"><SecurityMark/></span><div><h2>{application.status === "DRAFT" ? editable ? "Make this application yours" : "Your saved details are protected" : applicationStatusLabels[application.status]}</h2><p>{applicationGuidance(application.status, editable)}</p></div></div>
   {!open && <p className="application-warning" role="status">This job is currently unavailable. New payments and submissions are paused. Your application history is still available below.</p>}
-  <dl className="application-facts"><div><dt>Application fee</dt><dd>{formatFee(application.applicationFeeMinor)}</dd></div><div><dt>Job deadline ? Nairobi time</dt><dd>{formatDeadline(application.job.deadline)}</dd></div><div><dt>Application reference</dt><dd className="application-reference">{application.id}</dd></div></dl>
+  <dl className="application-facts"><div><dt>Application fee</dt><dd>{formatFee(application.applicationFeeMinor)}</dd></div><div><dt>Job deadline &middot; Nairobi time</dt><dd>{formatDeadline(application.job.deadline)}</dd></div><div><dt>Application reference</dt><dd className="application-reference">{application.id}</dd></div></dl>
   <div className="application-detail-grid"><div className="application-editor"><DraftForm key={editable?"editable":"locked"} id={application.id} version={application.version} coverLetter={application.coverLetter} selected={application.documents[0]?.document.id || ""} documents={documents} editable={editable} />
-    <div className="application-profile-link"><div><strong>Keep your career toolkit ready</strong><p>Manage your professional details and upload or replace a CV.</p></div><Link href="/dashboard/profile">Profile & CVs ?</Link></div></div>
+    <div className="application-profile-link"><div><strong>Keep your career toolkit ready</strong><p>Manage your professional details and upload or replace a CV.</p></div><Link href="/dashboard/profile">Profile &amp; CVs &#8594;</Link></div></div>
     <aside className="application-payment-panel" aria-label="Application payment and submission">{(open || payment) ? <PaymentCheckout applicationId={application.id} version={application.version} amountMinor={application.applicationFeeMinor} phone={profile?.phone||""} options={open?options:[]} status={payment?.status||null} reviewHold={payment?.reviewHold||false} applicationStatus={application.status} receipt={latest?.receiptNumber||null} reviewReason={latest?.reviewReason||null} /> : <section className="application-panel"><h2>Submissions paused</h2><p>This role is not accepting new payments or submissions.</p></section>}<p className="application-fee-note">Your fee is saved with this draft. Payment does not guarantee employment.</p></aside>
   </div>
   <ApplicationResponses result={responses} />

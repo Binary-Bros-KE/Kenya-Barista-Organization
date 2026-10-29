@@ -27,6 +27,6 @@ export function DraftForm({ id, version, coverLetter, selected, documents, edita
   <p id="application-document-help" className="application-help">You can save a draft with a CV that is still screening. It must pass screening before you pay and submit.</p>
   {selected && !available.some(doc => doc.id === selected) && <p className="application-warning">Your attached CV is unavailable. Choose another CV and save your draft.</p>}
   {!available.length && <p className="application-warning">No available CVs yet. <a href="/dashboard/profile">Upload a PDF on your profile</a>, then return to attach it.</p>}</fieldset>
-  <div className="application-draft-footer"><p>Save your changes before requesting payment.</p><button className="application-primary" disabled={busy}>{busy ? "Saving?" : "Save draft"}</button></div><p className={message ? "application-feedback " + (error ? "is-error" : "is-success") : ""} role={error ? "alert" : "status"}>{message}</p>
+  <div className="application-draft-footer"><p>Save your changes before requesting payment.</p><button className="application-primary" disabled={busy}>{busy ? "Saving..." : "Save draft"}</button></div><p className={message ? "application-feedback " + (error ? "is-error" : "is-success") : ""} role={error ? "alert" : "status"}>{message}</p>
  </form>;
 }

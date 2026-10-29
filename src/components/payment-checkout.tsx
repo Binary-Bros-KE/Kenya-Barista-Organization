@@ -32,6 +32,6 @@ export function PaymentCheckout({applicationId,version,amountMinor,phone,options
  <label className="flex items-start gap-3"><input type="checkbox" required /><span>I agree to pay {formatFee(amountMinor)} for this application. Payment does not guarantee employment.</span></label>
  <button className="button" disabled={busy||!options.length}>{busy?"Requesting...":"Pay and submit application"}</button></form>}
  {status&&!terminal&&status!=="SUCCEEDED"&&<button className="button secondary" disabled={busy} onClick={async()=>{setBusy(true);setMessage("");setError(false);try{await postJson("/api/applications/"+applicationId+"/payments/refresh",{});setMessage("Payment status checked. If it is still pending, wait at least 30 seconds before checking again.");key.current=null;router.refresh();}catch(e){setError(true);setMessage((e as Error).message);}finally{setBusy(false);}}}>Check payment status</button>}
- <Link className="checkout-history-link" href="/dashboard/payments">View payment history ?</Link><p role={error?"alert":"status"} className={message?"activity-feedback "+(error?"is-error":"is-success"):""}>{message}</p></section>;
+ <Link className="checkout-history-link" href="/dashboard/payments">View payment history &#8594;</Link><p role={error?"alert":"status"} className={message?"activity-feedback "+(error?"is-error":"is-success"):""}>{message}</p></section>;
 }
 

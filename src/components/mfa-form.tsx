@@ -1,34 +1,37 @@
 "use client";
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SecurityMark } from "./security-mark";
 import { postJson } from "./auth-form";
-
-export function MfaForm({ enabled, verified }: { enabled: boolean; verified: boolean }) {
-  const router = useRouter();
-  const [enrolment, setEnrolment] = useState<{ totpURI: string; backupCodes: string[] } | null>(null);
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [saved, setSaved] = useState(false);
-  async function enable(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setBusy(true); setError("");
-    try { const data = await postJson("/api/auth/two-factor/enable", { password: String(new FormData(event.currentTarget).get("password")), method: "totp" }); setEnrolment(data); }
-    catch (error) { setError(error instanceof Error ? error.message : "Unable to start setup"); }
-    finally { setBusy(false); }
-  }
-  async function verify(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setBusy(true); setError("");
-    try {
-      await postJson("/api/auth/two-factor/verify-totp", { code: String(new FormData(event.currentTarget).get("code")).trim(), trustDevice: false });
-      setEnrolment(null); router.refresh();
-    } catch (error) { setError(error instanceof Error ? error.message : "Unable to verify code"); }
-    finally { setBusy(false); }
-  }
-  return <div className="form-stack max-w-xl">
-    {error && <p role="alert" className="notice error">{error}</p>}
-    {enabled && verified ? <p className="notice success">Two-factor authentication is enabled and verified for this session.</p> : <>
-      {!enabled && !enrolment && <form onSubmit={enable} className="form-stack"><p>Add your account to an authenticator app. You will also receive recovery codes.</p><label>Confirm your password<input type="password" name="password" required autoComplete="current-password" maxLength={128} /></label><button disabled={busy} className="button">{busy ? "Please wait…" : "Set up authenticator"}</button></form>}
-      {enrolment && <div className="card form-stack"><h2>Save your authenticator key</h2><p className="hint">In your authenticator app, choose to enter a setup key manually. Select a time-based account and enter this key:</p><code className="secret-text">{new URL(enrolment.totpURI).searchParams.get("secret")}</code><h3>Save these recovery codes somewhere private</h3><p className="hint">Each recovery code can be used once if you lose access to your authenticator.</p><pre className="secret-text">{enrolment.backupCodes.join("\n")}</pre><label className="check-label"><input type="checkbox" checked={saved} onChange={event => setSaved(event.target.checked)} />I have saved my recovery codes</label></div>}
-      {(enabled || enrolment) && <form onSubmit={verify} className="form-stack"><label>Six-digit authenticator code<input name="code" required pattern="[0-9]{6}" inputMode="numeric" autoComplete="one-time-code" /></label><button className="button" disabled={busy || Boolean(enrolment && !saved)}>{busy ? "Verifying…" : "Verify code"}</button></form>}
-    </>}
-  </div>;
+import { parseAuthenticatorEnrolment, type AuthenticatorEnrolment } from "@/lib/security-view";
+export function MfaForm({ enabled, verified, admin = false }: { enabled: boolean; verified: boolean; admin?: boolean }) {
+ const router = useRouter();
+ const [enrolment, setEnrolment] = useState<AuthenticatorEnrolment | null>(null);
+ const [error, setError] = useState(""); const [message, setMessage] = useState(""); const [busy, setBusy] = useState(false); const [saved, setSaved] = useState(false); const [revealKey, setRevealKey] = useState(false); const [revealCodes, setRevealCodes] = useState(false); const [backup, setBackup] = useState(false);
+ async function enable(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault(); const form = event.currentTarget; const password = String(new FormData(form).get("password")); setBusy(true); setError(""); setMessage("");
+  try { const data = await postJson("/api/auth/two-factor/enable", { password, method: "totp" }); setEnrolment(parseAuthenticatorEnrolment(data)); setSaved(false); setRevealKey(false); setRevealCodes(false); form.reset(); }
+  catch (failure) { setError(failure instanceof Error ? failure.message : "Unable to start setup."); } finally { setBusy(false); }
+ }
+ async function verify(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault(); const form = event.currentTarget; const code = String(new FormData(form).get("code")).trim(); setBusy(true); setError(""); setMessage("");
+  try { await postJson("/api/auth/two-factor/" + (backup && !enrolment ? "verify-backup-code" : "verify-totp"), { code, trustDevice: false }); form.reset(); setEnrolment(null); setRevealKey(false); setRevealCodes(false); setBackup(false); setMessage("Code accepted. Refreshing your session status..."); router.refresh(); }
+  catch (failure) { setError(failure instanceof Error ? failure.message : "Unable to verify your code."); } finally { setBusy(false); }
+ }
+ function downloadCodes() {
+  if (!enrolment) return;
+  const text = ["Kenya Barista Organization - recovery codes", "Keep these private. Each code can be used once.", "", ...enrolment.backupCodes].join(String.fromCharCode(10));
+  const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" })); const link = document.createElement("a"); link.href = url; link.download = "kbo-recovery-codes.txt"; document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); setMessage("Recovery-code download requested. Check that the file saved before continuing.");
+ }
+ const complete = enabled && verified;
+ return <section className="security-panel security-authenticator" aria-labelledby="authenticator-heading" aria-busy={busy}><div className="security-panel-heading"><span className="security-symbol" aria-hidden="true"><SecurityMark/></span><div><span className="security-eyebrow">TWO-FACTOR AUTHENTICATION</span><h2 id="authenticator-heading">Your authenticator</h2></div><span className={"security-badge " + (complete ? "is-protected" : "is-pending")}>{complete ? "Verified" : enabled ? "Verify session" : "Not enabled"}</span></div>
+ {complete ? <div className="security-complete"><span aria-hidden="true"><SecurityMark checked/></span><h3>Another layer of protection.</h3><p>Two-factor authentication is enabled and verified for this session. Keep your authenticator and recovery codes somewhere safe.</p>{admin ? <Link className="security-primary" href="/admin">Open administration</Link> : <Link className="security-secondary" href="/dashboard">Back to your account</Link>}<p className="security-help">You will be asked for a second-factor code when signing in again.</p></div> : <>
+ <ol className="security-steps" aria-label="Authenticator setup progress"><li aria-current={!enrolment && !enabled ? "step" : undefined}><span>1</span>Confirm password</li><li aria-current={enrolment ? "step" : undefined}><span>2</span>Save your keys</li><li aria-current={enabled && !enrolment ? "step" : undefined}><span>3</span>Verify code</li></ol>
+ {!enabled && !enrolment && <form className="security-form" onSubmit={enable}><h3>Start with your password</h3><p>Use a time-based authenticator app to generate sign-in codes. Setup also gives you one-time recovery codes.</p><label htmlFor="security-password">Confirm your password<input id="security-password" type="password" name="password" required autoComplete="current-password" maxLength={128} disabled={busy}/></label><button className="security-primary" disabled={busy}>{busy ? "Starting setup..." : "Set up authenticator"}</button></form>}
+ {enrolment && <div className="security-enrolment"><section><h3>1. Add a time-based account</h3><p>In your authenticator app, choose manual setup. Name the account Kenya Barista Organization, choose a time-based code and enter the setup key below.</p><button className="security-text-button" type="button" aria-expanded={revealKey} aria-controls="security-setup-key" onClick={() => setRevealKey(!revealKey)}>{revealKey ? "Hide setup key" : "Reveal setup key"}</button><div id="security-setup-key" className="security-secret">{revealKey ? <code>{enrolment.secret}</code> : <span>Setup key hidden</span>}</div></section><section><h3>2. Save your recovery codes</h3><p>Each code works once if you lose access to your authenticator. Keep them private, separate from your phone. They will be hidden when setup is finished.</p><div className="security-secret-actions"><button type="button" className="security-text-button" aria-expanded={revealCodes} aria-controls="security-recovery-codes" onClick={() => setRevealCodes(!revealCodes)}>{revealCodes ? "Hide recovery codes" : "Reveal recovery codes"}</button><button type="button" className="security-text-button" onClick={downloadCodes}>Download codes</button></div><div id="security-recovery-codes" className="security-secret">{revealCodes ? <ul>{enrolment.backupCodes.map((code, index) => <li key={index}><code>{code}</code></li>)}</ul> : <span>Recovery codes hidden</span>}</div><label className="security-check"><input type="checkbox" checked={saved} onChange={event => setSaved(event.target.checked)} disabled={busy}/><span>I have saved my recovery codes somewhere private.</span></label></section></div>}
+ {(enabled || enrolment) && <form className="security-form security-verify" onSubmit={verify}><h3>{enrolment ? "3. Verify your first code" : "Verify this session"}</h3><p>{backup && !enrolment ? "Enter one of your saved recovery codes. A successful verification uses that code permanently." : "Open your authenticator and enter the current six-digit code. If it has just changed, use the newest code."}</p><label htmlFor="security-code">{backup && !enrolment ? "Recovery code" : "Six-digit authenticator code"}<input key={backup ? "backup" : "totp"} id="security-code" name="code" required pattern={backup && !enrolment ? undefined : "[0-9]{6}"} maxLength={backup && !enrolment ? 100 : 6} inputMode={backup && !enrolment ? "text" : "numeric"} autoComplete="one-time-code" autoCapitalize="none" spellCheck={false} disabled={busy}/></label>{enabled && !enrolment && <label className="security-check"><input type="checkbox" checked={backup} disabled={busy} onChange={event => { setBackup(event.target.checked); setError(""); setMessage(""); }}/><span>Use a recovery code instead</span></label>}{enrolment && !saved && <p className="security-help">Save your recovery codes and tick the confirmation above to continue.</p>}<button className="security-primary" disabled={busy || !!enrolment && !saved}>{busy ? "Verifying..." : "Verify and secure session"}</button></form>}
+ </>}
+ {error && <p role="alert" className="security-feedback is-error">{error}</p>}{message && !complete && <p role="status" className="security-feedback is-success">{message}</p>}
+ </section>;
 }

@@ -8,8 +8,8 @@ The owner approved modernizing both the application and public website. Complete
 | 2 | Dashboard overview: real role-aware summaries, recent work, account essentials and quick actions | Deployed |
 | 3 | Profile and CVs: clear form sections, upload/screening states and document management | Deployed |
 | 4 | Applicant applications, details, responses and withdrawal experience | Deployed |
-| 5 | Applicant payments and notification inbox | Current stage |
-| 6 | Security, authenticator setup and remaining account states | Awaiting go-ahead |
+| 5 | Applicant payments and notification inbox | Deployed |
+| 6 | Security, authenticator setup and remaining account states | Current stage |
 | 7 | Employer organisations, job editor/listings and applicant review | Awaiting go-ahead |
 | 8 | Administration: accounts, organisations, job review, payment settings/review and delivery queue | Awaiting go-ahead |
 | 9 | Public website design direction, homepage and shared navigation/footer | Awaiting go-ahead |
@@ -24,3 +24,5 @@ Stage 2 uses only read queries, reuses profile validation and notification audie
 Stage 4 preserves owner filtering on every application list/count query and existing detail/response access checks. Status filters retain pagination context. Draft editing retains version checks, screening eligibility and payment locks. Responses are rendered as text in Nairobi time. Withdrawal retains explicit confirmation and never initiates a payment reversal.
 
 Stage 5 keeps payment records and summaries scoped to the applicant, and reuses notification audience/MFA filtering. Completed manual reversals show recorded references; no automated reversal API is called. Checkout retains its idempotency keys, payment holds and polling behavior, with corrected browser phone validation and reversal wording. No schema changes.
+
+Stage 6 keeps administrator MFA mandatory and applicant MFA optional. Session verification comes from the server, not a local success flag. Setup keys/recovery codes stay in component memory, remain hidden until revealed and are cleared after successful verification. Recovery-code downloads require a user action, and a saved-code acknowledgement still gates initial verification. No account, session or database policy changes.
