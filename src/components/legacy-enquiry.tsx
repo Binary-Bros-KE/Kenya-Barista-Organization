@@ -1,18 +1,16 @@
 "use client";
 import { useState } from "react";
-const email = "info@kenyabaristaorg.co.ke";
+import { contactInfo } from "@/content/site-brand";
+import { enquiryDraft } from "@/lib/enquiry-draft";
 export function LegacyEnquiry({ course = false }: { course?: boolean }) {
-  const [message, setMessage] = useState("");
-  return <form className="legacy-enquiry form-stack" onSubmit={event => {
-    event.preventDefault(); const fields = new FormData(event.currentTarget), lines: string[] = [];
-    fields.forEach((value, key) => lines.push(`${key}: ${String(value)}`));
-    const subject = course ? `Course registration enquiry: ${fields.get("Course Taken")}` : String(fields.get("Subject") || "Contact enquiry");
-    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
-    setMessage("Your email app has been requested. Review the draft and send it to complete your enquiry. Nothing has been submitted on this site.");
-  }}><h2 className="text-center">{course ? "Register and Join Us" : "Contact Us"}</h2>
-    {course ? <div className="legacy-form-row"><label>First Name<input name="First Name" required maxLength={120} autoComplete="given-name" /></label><label>Last Name<input name="Last Name" required maxLength={120} autoComplete="family-name" /></label></div> : <label>Name*<input name="Name" required maxLength={120} autoComplete="name" /></label>}
-    <label>Email Address*<input name="Email Address" required type="email" maxLength={254} autoComplete="email" /></label>
-    {course ? <><label>Phone Number<input name="Phone Number" required type="tel" maxLength={30} autoComplete="tel" /></label><label>Gender<select name="Gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></label><label>Nationality<input name="Nationality" maxLength={120} /></label><label>Age<input name="Age" type="number" min={1} max={120} /></label><label>Course Taken<select name="Course Taken" required><option value="">Select a course</option><option>Barista Course</option><option>Roasting Course</option></select></label></> : <><label>Subject*<input name="Subject" required maxLength={160} /></label><label>Message Content*<textarea name="Message" required rows={6} maxLength={3000} /></label></>}
-    <p className="hint">This opens an email draft to {email}. Send the email from your email app. {course && "The organisation will confirm course availability and registration details."}</p><button className="button" type="submit">{course ? "Email registration enquiry" : "Prepare email"}</button><p role="status">{message}</p>
-  </form>;
+ const [message,setMessage]=useState(""),[error,setError]=useState(false);
+ return <form className="content-enquiry" onChange={()=>setMessage("")} onSubmit={event=>{
+ event.preventDefault();setMessage("");setError(false);const fields=[...new FormData(event.currentTarget).entries()].map(([key,value])=>[key,String(value)] as [string,string]);
+ try{window.location.href=enquiryDraft(fields,course);setMessage("Your email draft has been requested. Review it and send it from your email app to complete your enquiry. Nothing has been submitted on this site.");}
+ catch{setError(true);setMessage("Your email app could not be opened. Email KBO directly using the address below.");}
+ }}><div className="content-form-heading"><span className="site-eyebrow">{course?"TAKE YOUR NEXT STEP":"START A CONVERSATION"}</span><h2>{course?"Enquire about a course":"Send us an enquiry"}</h2><p>{course?"Tell us a little about yourself and the course you are interested in.":"Questions about coffee, courses or employer access? We would like to hear from you."}</p></div>
+ {course?<div className="content-field-row"><label>First name<input name="First Name" required maxLength={120} autoComplete="given-name"/></label><label>Last name<input name="Last Name" required maxLength={120} autoComplete="family-name"/></label></div>:<label>Your name<input name="Name" required maxLength={120} autoComplete="name"/></label>}
+ <label>Email address<input name="Email Address" required type="email" maxLength={254} autoComplete="email"/></label>
+ {course?<><div className="content-field-row"><label>Phone number<input name="Phone Number" type="tel" required maxLength={30} autoComplete="tel"/></label><label>Course of interest<select name="Course Taken" required><option value="">Choose a course</option><option>Barista Course</option><option>Roasting Course</option></select></label></div><div className="content-field-row"><label>Gender <span>Optional</span><select name="Gender"><option value="">Choose an option</option><option>Male</option><option>Female</option><option>Other</option></select></label><label>Age <span>Optional</span><input name="Age" type="number" min={1} max={120}/></label></div><label>Nationality <span>Optional</span><input name="Nationality" maxLength={120}/></label></>:<><label>Subject<input name="Subject" required maxLength={160}/></label><label>Your message<textarea name="Message" required rows={6} maxLength={3000}/></label></>}
+ <div className="content-email-note"><strong>This opens your email app.</strong><p>Review and send the draft there. This form does not send a message directly.{course&&" KBO will confirm course availability and registration details."}</p></div><button className="site-button" type="submit">{course?"Prepare course enquiry":"Open email draft"}<span aria-hidden="true">&#8599;</span></button><a className="content-form-email" href={"mailto:"+contactInfo.email}>{contactInfo.email}</a><p role={error?"alert":"status"} className={message?"content-feedback "+(error?"is-error":"is-success"):""}>{message}</p></form>;
 }

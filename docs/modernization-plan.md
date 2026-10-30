@@ -12,8 +12,8 @@ The owner approved modernizing both the application and public website. Complete
 | 6 | Security, authenticator setup and remaining account states | Deployed |
 | 7 | Employer organisations, job editor/listings and applicant review | Deployed |
 | 8 | Administration: accounts, organisations, job review, payment settings/review and delivery queue | Deployed |
-| 9 | Public website design direction, homepage and shared navigation/footer | Current stage |
-| 10 | Courses, about/philosophy, team, gallery, contact and coffee guides | Awaiting go-ahead |
+| 9 | Public website design direction, homepage and shared navigation/footer | Deployed |
+| 10 | Courses, about/philosophy, team, gallery, contact and coffee guides | Current stage |
 | 11 | Public jobs/detail/application entry and authentication pages aligned to the new website | Awaiting go-ahead |
 | 12 | Cross-device visual, keyboard and end-to-end journey polish | Awaiting go-ahead |
 
@@ -32,3 +32,5 @@ Stage 7 modernizes organisation workspaces, posting cards/editor/workflow histor
 Stage 8 gives administration consistent navigation, responsive management cards and confirmations for access changes. Loaded-record search is explicitly limited to the latest 50 records. Payment evidence, merchant credential revision/encryption rules, manual reversal confirmation and retry semantics are unchanged. Administration still requires server-verified MFA. No schema changes.
 
 Stage 9 introduces a cream/forest-green editorial homepage and shared public header/footer using existing KBO assets, mission and contact details. Course registration and job-account registration remain distinct. Navigation preserves all public, guide, sign-in and workspace routes, with native modal mobile navigation. Inner content pages retain their existing content for the following stages. No invented statistics, testimonials, course fees or employment guarantees; no schema or authentication changes.
+
+Stage 10 modernizes courses/enquiries, philosophy, team, gallery/product showcase, contact and all four guide frames. Existing team details, core values, course brochures, product images and complete guide HTML are retained. Course fees/dates require confirmation with KBO. Enquiries still prepare an email draft rather than submit to a server. Gallery retains modal keyboard navigation and focus restoration; article tabs/accordions retain their existing behavior. No schema, account or payment changes.
