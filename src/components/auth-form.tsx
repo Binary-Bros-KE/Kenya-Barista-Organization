@@ -1,7 +1,9 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+import { applicationReturnPath, authDestination } from "@/lib/auth-destination";
 
 type Mode = "sign-in" | "register" | "forgot-password" | "reset-password" | "verify-email" | "two-factor";
 const labels: Record<Mode, string> = { "sign-in": "Sign in", register: "Create account", "forgot-password": "Send reset link", "reset-password": "Save new password", "verify-email": "Resend verification email", "two-factor": "Verify and continue" };
@@ -15,6 +17,8 @@ export async function postJson(url: string, body: unknown) {
 
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
+  const [next,setNext] = useState("/dashboard");
+  useEffect(()=>{setNext(applicationReturnPath(new URLSearchParams(window.location.search).get("next")));},[]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -27,25 +31,25 @@ export function AuthForm({ mode }: { mode: Mode }) {
     try {
       if (mode === "sign-in") {
         const data = await postJson("/api/auth/sign-in/email", { email, password, rememberMe: false });
-        router.push(data.twoFactorRedirect ? "/two-factor" : "/dashboard"); router.refresh();
+        router.push(data.twoFactorRedirect ? authDestination("/two-factor",next) : next); router.refresh();
       } else if (mode === "register") {
-        await postJson("/api/auth/sign-up/email", { email, password, name: String(form.get("name") || "").trim(), callbackURL: `${window.location.origin}/sign-in?verified=1` });
-        router.push("/verify-email");
+        await postJson("/api/auth/sign-up/email", { email, password, name: String(form.get("name") || "").trim(), callbackURL: window.location.origin + authDestination("/sign-in?verified=1",next) });
+        router.push(authDestination("/verify-email",next));
       } else if (mode === "forgot-password") {
-        await postJson("/api/auth/request-password-reset", { email, redirectTo: `${window.location.origin}/reset-password` });
+        await postJson("/api/auth/request-password-reset", { email, redirectTo: window.location.origin + authDestination("/reset-password",next) });
         setMessage("If an account exists for this email, a password reset link will arrive shortly.");
       } else if (mode === "verify-email") {
-        await postJson("/api/auth/send-verification-email", { email, callbackURL: `${window.location.origin}/sign-in?verified=1` });
+        await postJson("/api/auth/send-verification-email", { email, callbackURL: window.location.origin + authDestination("/sign-in?verified=1",next) });
         setMessage("If verification is needed, a new link will arrive shortly.");
       } else if (mode === "reset-password") {
         const token = new URLSearchParams(window.location.search).get("token");
         if (!token) throw new Error("Open a valid password reset link from your email first.");
         await postJson("/api/auth/reset-password", { token, newPassword: password });
-        window.history.replaceState(null, "", "/reset-password");
+        window.history.replaceState(null, "", authDestination("/reset-password",next));
         setMessage("Password updated. You can now sign in with your new password.");
       } else {
         await postJson(`/api/auth/two-factor/${backup ? "verify-backup-code" : "verify-totp"}`, { code: String(form.get("code") || "").trim(), trustDevice: false });
-        router.push("/dashboard"); router.refresh();
+        router.push(next); router.refresh();
       }
     } catch (error) { setError(error instanceof Error ? error.message : "Unable to complete this request"); }
     finally { setBusy(false); }
@@ -60,7 +64,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
     {error && <p role="alert" className="notice error">{error}</p>}
     {message && <p role="status" className="notice success">{message}</p>}
     <button className="button" disabled={busy}>{busy ? "Please wait…" : labels[mode]}</button>
-    {mode === "sign-in" && <div className="flex flex-wrap justify-between gap-3 text-sm"><Link href="/forgot-password">Forgot password?</Link><Link href="/verify-email">Verify email</Link></div>}
-    {mode === "sign-in" ? <p className="hint">New here? <Link href="/register">Create an account</Link></p> : <Link href="/sign-in" className="text-sm underline">Back to sign in</Link>}
+    {mode === "sign-in" && <div className="flex flex-wrap justify-between gap-3 text-sm"><Link href={authDestination("/forgot-password",next)}>Forgot password?</Link><Link href={authDestination("/verify-email",next)}>Verify email</Link></div>}
+    {mode === "sign-in" ? <p className="hint">New here? <Link href={authDestination("/register",next)}>Create an account</Link></p> : <Link href={authDestination("/sign-in",next)} className="text-sm underline">Back to sign in</Link>}
   </form>;
 }

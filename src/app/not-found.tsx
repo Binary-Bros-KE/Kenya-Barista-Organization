@@ -1,5 +1,4 @@
-import Link from "next/link";
 
-export default function NotFound() {
-  return <main className="mx-auto max-w-xl px-6 py-24"><p className="text-sm text-stone-500">404</p><h1 className="mt-3 text-3xl font-semibold">Page not found</h1><Link href="/" className="mt-6 inline-block underline">Return home</Link></main>;
-}
+import Link from "next/link";
+import {ContentPage} from "@/components/content-page";
+export default function NotFound(){return <ContentPage eyebrow="PAGE NOT FOUND" title="Let's find your way back." intro="This link may have changed, or the opportunity may no longer be available."><div className="career-state"><h2>There's more to explore.</h2><p>Browse current coffee opportunities or return to the Kenya Barista homepage.</p><div className="polish-recovery-actions"><Link href="/jobs" className="site-button">Explore opportunities &#8594;</Link><Link href="/" className="site-text-link">Back to home &#8594;</Link></div></div></ContentPage>;}

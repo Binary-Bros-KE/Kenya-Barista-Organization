@@ -1,4 +1,5 @@
 "use client";
+import { publicArticleHtml } from "@/lib/public-photo";
 import { useEffect, useId, useRef } from "react";
 export function LegacyArticle({ html }: { html: string }) {
   const root = useRef<HTMLDivElement>(null), prefix = useId();
@@ -22,5 +23,5 @@ export function LegacyArticle({ html }: { html: string }) {
     }); return () => cleanup.forEach(fn => fn());
   }, [html, prefix]);
   // Only reviewed, build-time HTML recovered from the owner's archive is passed here.
-  return <div ref={root} className="legacy-article" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <div ref={root} className="legacy-article" dangerouslySetInnerHTML={{ __html: publicArticleHtml(html) }} />;
 }

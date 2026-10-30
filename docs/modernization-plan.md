@@ -14,8 +14,8 @@ The owner approved modernizing both the application and public website. Complete
 | 8 | Administration: accounts, organisations, job review, payment settings/review and delivery queue | Deployed |
 | 9 | Public website design direction, homepage and shared navigation/footer | Deployed |
 | 10 | Courses, about/philosophy, team, gallery, contact and coffee guides | Deployed |
-| 11 | Public jobs/detail/application entry and authentication pages aligned to the new website | Current stage |
-| 12 | Cross-device visual, keyboard and end-to-end journey polish | Awaiting go-ahead |
+| 11 | Public jobs/detail/application entry and authentication pages aligned to the new website | Deployed |
+| 12 | Cross-device visual, keyboard and end-to-end journey polish | Current stage |
 
 Use actual records and honest empty states. Platform summaries and review queues require administrator MFA. Personal account summaries and notifications must preserve ownership and existing visibility rules. Schema changes remain separately reviewed; these visual stages should not need them.
 
@@ -36,3 +36,7 @@ Stage 9 introduces a cream/forest-green editorial homepage and shared public hea
 Stage 10 modernizes courses/enquiries, philosophy, team, gallery/product showcase, contact and all four guide frames. Existing team details, core values, course brochures, product images and complete guide HTML are retained. Course fees/dates require confirmation with KBO. Enquiries still prepare an email draft rather than submit to a server. Gallery retains modal keyboard navigation and focus restoration; article tabs/accordions retain their existing behavior. No schema, account or payment changes.
 
 Stage 11 aligns public job search, cards, detail and application entry with the website, and embeds every authentication/invitation page in the shared public frame. Existing query validation, visibility filters, fee/deadline data, account endpoints, MFA and application submission rules remain unchanged. No schema changes.
+
+Stage 12 adds smaller WebP delivery copies while retaining original photo files and archive content. It aligns not-found/access-denied pages with the website, improves focus visibility and prevents mobile form text zoom. Public browser checks and isolated CI integration tests validate the main journeys; no real payment requests or live applicant data are created by QA.
+
+The application-entry sign-in journey retains a strictly validated local job return path through registration, email verification, password recovery and MFA. Untrusted external/privileged redirect destinations fall back to the dashboard; all server access checks remain in place.

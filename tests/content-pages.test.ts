@@ -1,3 +1,4 @@
+import { publicPhoto, publicArticleHtml } from "../src/lib/public-photo";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
@@ -38,7 +39,7 @@ test("courses retain both brochures, venue and separate job-account entry", () =
 });
 test("team and philosophy preserve every supplied member, role and core value", () => {
  const team=render(createElement(Team),"/team"),philosophy=render(createElement(Philosophy),"/philosophy");
- for(const member of content.team){assert.ok(team.includes(member.name));assert.ok(team.includes(member.role));assert.ok(team.includes(member.image));}
+ for(const member of content.team){assert.ok(team.includes(member.name));assert.ok(team.includes(member.role));assert.ok(team.includes(publicPhoto(member.image)));}
  for(const value of content.philosophy.values)assert.ok(philosophy.includes(value.title),value.title);
  assert.ok(philosophy.includes('14 June 2014')); assert.ok(philosophy.includes('Constitution of KBO'));
 });
@@ -49,7 +50,7 @@ test("contact page retains direct contact channels and field limits", () => {
 });
 test("gallery and product showcase preserve source images without introducing a purchase flow", () => {
  const html=render(createElement(Gallery),"/gallery");
- for(const photo of [...content.gallery,...content.shop]){assert.ok(html.includes(photo.src),photo.src);assert.ok(existsSync(resolve(process.cwd(),"public"+photo.src)),photo.src);}
+ for(const photo of [...content.gallery,...content.shop]){assert.ok(html.includes(publicPhoto(photo.src,"small")),photo.src);assert.ok(existsSync(resolve(process.cwd(),"public"+photo.src)),photo.src);}
  assert.ok(html.includes('Online purchasing is coming soon')); assert.ok(html.includes('Product showcase viewer')); assert.ok(!html.includes('Add to cart'));
 });
 test("gallery viewer starts closed, labels controls and handles unavailable/single-image sets", () => {
@@ -58,6 +59,6 @@ test("gallery viewer starts closed, labels controls and handles unavailable/sing
  assert.ok(html.includes('aria-describedby=')); assert.ok(!/<dialog[^>]*open/.test(html)); assert.equal((html.match(/disabled=""/g)||[]).length,2);
 });
 test("all coffee guides retain complete original articles and interactive tab/accordion markup", () => {
- for(const slug of Object.keys(guides) as (keyof typeof guides)[]){const html=render(createElement(LegacyGuidePage,{slug}),"/"+slug);assert.ok(html.includes(guides[slug].html),slug+" article preserved");assert.ok(html.includes('aria-label="Coffee guide articles"'));assert.ok([...html.matchAll(/<a[^>]*>/g)].some(([tag])=>tag.includes('href="/'+slug+'"')&&tag.includes('aria-current="page"')));assert.ok(html.includes('id="main-content"'));}
+ for(const slug of Object.keys(guides) as (keyof typeof guides)[]){const html=render(createElement(LegacyGuidePage,{slug}),"/"+slug);assert.ok(html.includes(publicArticleHtml(guides[slug].html)),slug+" article preserved");assert.ok(html.includes('aria-label="Coffee guide articles"'));assert.ok([...html.matchAll(/<a[^>]*>/g)].some(([tag])=>tag.includes('href="/'+slug+'"')&&tag.includes('aria-current="page"')));assert.ok(html.includes('id="main-content"'));}
  const bean=render(createElement(LegacyGuidePage,{slug:"bean"}),"/bean");assert.ok(bean.includes('data-legacy-tabs'));assert.ok(bean.includes('<details'));
 });

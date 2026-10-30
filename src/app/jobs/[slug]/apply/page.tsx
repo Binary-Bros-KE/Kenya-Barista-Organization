@@ -6,7 +6,7 @@ import { getPublicJob } from "@/server/public-jobs";
 import { AccessError } from "@/server/errors";
 export const dynamic = "force-dynamic";
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
- await pageActor(); const {slug}=await params; let job;
+ const {slug}=await params; await pageActor(false,`/jobs/${slug}/apply`); let job;
  try { job=await getPublicJob(getDb(),slug); } catch(e) { if(e instanceof AccessError && e.status===404) notFound(); throw e; }
  return <CareerFrame><ApplicationEntryContent job={job}/></CareerFrame>;
 }
