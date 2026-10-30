@@ -52,7 +52,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   }
   const emailNeeded = !["reset-password", "two-factor"].includes(mode);
   const passwordNeeded = ["sign-in", "register", "reset-password"].includes(mode);
-  return <form onSubmit={submit} className="form-stack">
+  return <form onSubmit={submit} className="form-stack account-form" aria-busy={busy}>
     {mode === "register" && <label>Full name<input name="name" autoComplete="name" required minLength={2} maxLength={100} /></label>}
     {emailNeeded && <label>Email address<input name="email" type="email" autoComplete="email" required maxLength={254} /></label>}
     {passwordNeeded && <label>{mode === "reset-password" ? "New password" : "Password"}<input name="password" type="password" autoComplete={mode === "sign-in" ? "current-password" : "new-password"} required minLength={mode === "sign-in" ? 1 : 12} maxLength={128} />{mode !== "sign-in" && <span className="hint">Use 12–128 characters. A long, unique passphrase works well.</span>}</label>}
