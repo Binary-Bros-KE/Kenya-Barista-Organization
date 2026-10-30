@@ -11,8 +11,8 @@ The owner approved modernizing both the application and public website. Complete
 | 5 | Applicant payments and notification inbox | Deployed |
 | 6 | Security, authenticator setup and remaining account states | Deployed |
 | 7 | Employer organisations, job editor/listings and applicant review | Deployed |
-| 8 | Administration: accounts, organisations, job review, payment settings/review and delivery queue | Current stage |
-| 9 | Public website design direction, homepage and shared navigation/footer | Awaiting go-ahead |
+| 8 | Administration: accounts, organisations, job review, payment settings/review and delivery queue | Deployed |
+| 9 | Public website design direction, homepage and shared navigation/footer | Current stage |
 | 10 | Courses, about/philosophy, team, gallery, contact and coffee guides | Awaiting go-ahead |
 | 11 | Public jobs/detail/application entry and authentication pages aligned to the new website | Awaiting go-ahead |
 | 12 | Cross-device visual, keyboard and end-to-end journey polish | Awaiting go-ahead |
@@ -30,3 +30,5 @@ Stage 6 keeps administrator MFA mandatory and applicant MFA optional. Session ve
 Stage 7 modernizes organisation workspaces, posting cards/editor/workflow history and applicant search/review. Job approval actions, unsaved-change guards, fee authority, organisation membership/suspension checks, paid-submission scope, frozen applicant snapshots and CV protections remain enforced by the existing services. No schema or permissions changes.
 
 Stage 8 gives administration consistent navigation, responsive management cards and confirmations for access changes. Loaded-record search is explicitly limited to the latest 50 records. Payment evidence, merchant credential revision/encryption rules, manual reversal confirmation and retry semantics are unchanged. Administration still requires server-verified MFA. No schema changes.
+
+Stage 9 introduces a cream/forest-green editorial homepage and shared public header/footer using existing KBO assets, mission and contact details. Course registration and job-account registration remain distinct. Navigation preserves all public, guide, sign-in and workspace routes, with native modal mobile navigation. Inner content pages retain their existing content for the following stages. No invented statistics, testimonials, course fees or employment guarantees; no schema or authentication changes.

@@ -11,6 +11,7 @@ import "./admin.css";
 import "./legacy-fonts.css";
 import "./legacy.css";
 import "./legacy-spacing.css";
+import "./site.css";
 
 export const metadata: Metadata = {
   title: { default: "Kenya Barista Organization", template: "%s | Kenya Barista Organization" },
