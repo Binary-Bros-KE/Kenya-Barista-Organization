@@ -40,3 +40,5 @@ Stage 11 aligns public job search, cards, detail and application entry with the 
 Stage 12 adds smaller WebP delivery copies while retaining original photo files and archive content. It aligns not-found/access-denied pages with the website, improves focus visibility and prevents mobile form text zoom. Public browser checks and isolated CI integration tests validate the main journeys; no real payment requests or live applicant data are created by QA.
 
 The application-entry sign-in journey retains a strictly validated local job return path through registration, email verification, password recovery and MFA. Untrusted external/privileged redirect destinations fall back to the dashboard; all server access checks remain in place.
+
+Browser QA found forward Tab traversal could leave the native mobile modal in Chrome. Mobile navigation and gallery now explicitly wrap first/last enabled, visible controls while retaining native Escape and focus restoration.
