@@ -12,7 +12,7 @@ export function SiteHeader() {
  function closeDropdowns() { nav.current?.querySelectorAll("details[open]").forEach(item=>item.removeAttribute("open")); }
  useEffect(()=>{ dialog.current?.close(); setOpen(false); nav.current?.querySelectorAll("details[open]").forEach(item=>item.removeAttribute("open")); },[pathname]);
  useEffect(()=>{ if (!open) return; const previous=document.body.style.overflow; document.body.style.overflow="hidden"; return()=>{document.body.style.overflow=previous;}; },[open]);
- useEffect(()=>{ const media=window.matchMedia("(min-width: 1100px)"); const resize=()=>{if(media.matches){dialog.current?.close();setOpen(false);}}; media.addEventListener("change",resize); return()=>media.removeEventListener("change",resize); },[]);
+ useEffect(()=>{ const media=window.matchMedia("(min-width: 1250px)"); const resize=()=>{if(media.matches){dialog.current?.close();setOpen(false);}}; media.addEventListener("change",resize); return()=>media.removeEventListener("change",resize); },[]);
  useEffect(()=>{ const outside=(event:PointerEvent)=>{if(nav.current&&!nav.current.contains(event.target as Node))nav.current.querySelectorAll("details[open]").forEach(item=>item.removeAttribute("open"));}; document.addEventListener("pointerdown",outside); return()=>document.removeEventListener("pointerdown",outside); },[]);
  function active(href:string) { return pathname===href||(href!=="/"&&pathname.startsWith(href+"/")); }
  const links=(items:string[][])=>items.map(([label,href])=><Link key={href} href={href} aria-current={active(href)?"page":undefined} onClick={()=>{closeMenu();closeDropdowns();}}>{label}</Link>);

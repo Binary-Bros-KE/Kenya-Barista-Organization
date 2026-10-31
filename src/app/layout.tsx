@@ -15,6 +15,7 @@ import "./site.css";
 import "./content.css";
 import "./careers.css";
 import "./polish.css";
+import "./readability.css";
 
 export const metadata: Metadata = {
   title: { default: "Kenya Barista Organization", template: "%s | Kenya Barista Organization" },
