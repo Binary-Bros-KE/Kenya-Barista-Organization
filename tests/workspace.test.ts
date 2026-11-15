@@ -5,9 +5,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PathnameContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { Workspace } from "../src/components/workspace";
 
-function render(pathname: string, admin: boolean) {
+function render(pathname: string, admin: boolean, recruiter = false) {
   return renderToStaticMarkup(createElement(PathnameContext.Provider, { value: pathname }, createElement(Workspace, {
-    name: "Coffee Professional", admin, children: createElement("h1", null, "Existing tab content"),
+    name: "Coffee Professional", admin, recruiter, children: createElement("h1", null, "Existing tab content"),
   })));
 }
 function activeLinks(html: string) {
@@ -20,6 +20,7 @@ test("normal account navigation preserves applicant routes and hides admin contr
   for (const route of ["/dashboard/profile", "/dashboard/applications", "/dashboard/payments", "/dashboard/notifications", "/dashboard/security", "/jobs"])
     assert.ok(html.includes(`href="${route}"`), route);
   assert.ok(!html.includes('href="/admin'));
+  assert.ok(!html.includes('href="/employer'), "Job seekers without recruiter access see no employer tabs");
   assert.ok(html.includes("Existing tab content"));
   assert.ok(html.includes('src="/brand-logo.png"'));
   assert.deepEqual(activeLinks(html), ["/dashboard"]);
@@ -32,9 +33,12 @@ test("administrator navigation includes restricted sections without duplicate ac
   for (const route of ["/admin", "/admin/jobs", "/admin/payments", "/admin/notifications"]) assert.ok(html.includes(`href="${route}"`));
   assert.deepEqual(activeLinks(html), ["/admin/jobs"]);
 });
-test("employer detail routes highlight the correct navigation group", () => {
-  assert.deepEqual(activeLinks(render("/employer/jobs/new", false)), ["/employer/jobs"]);
-  assert.deepEqual(activeLinks(render("/employer/organisations/example", false)), ["/employer"]);
+test("recruiters see recruiting and job-seeker tabs, and employer routes highlight the right one", () => {
+  const html = render("/dashboard", false, true);
+  for (const route of ["/employer/applications", "/employer/jobs", "/dashboard/profile", "/dashboard/applications", "/dashboard/payments", "/dashboard/notifications", "/dashboard/security"]) assert.ok(html.includes(`href="${route}"`), route);
+  assert.ok(html.includes("Recruiter workspace"));
+  assert.deepEqual(activeLinks(render("/employer/jobs/new", false, true)), ["/employer/jobs"]);
+  assert.deepEqual(activeLinks(render("/employer/applications/example", false, true)), ["/employer/applications"]);
 });
 test("mobile drawer and desktop collapse expose named accessible controls", () => {
   const html = render("/dashboard/security", true);

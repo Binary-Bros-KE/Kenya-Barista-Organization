@@ -7,11 +7,11 @@ export const metadata = { title: "Coffee jobs in Kenya", description: "Discover 
 export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams;
   const result = publicJobQuery.safeParse(Object.fromEntries(Object.entries(params).map(([key, value]) => [key, Array.isArray(value) ? value[0] : value])));
-  if (!result.success) return <CareerFrame><JobSearchContent query={{page:1}} data={null} organisations={[]} invalid/></CareerFrame>;
+  if (!result.success) return <CareerFrame hero><JobSearchContent query={{page:1}} data={null} employers={[]} invalid/></CareerFrame>;
   const query = result.data;
   let data: Awaited<ReturnType<typeof listPublicJobs>> | null = null;
-  let organisations: Awaited<ReturnType<typeof publicJobFacets>> = [];
-  try { [data, organisations] = await Promise.all([listPublicJobs(getDb(), query), publicJobFacets(getDb())]); }
+  let employers: Awaited<ReturnType<typeof publicJobFacets>> = [];
+  try { [data, employers] = await Promise.all([listPublicJobs(getDb(), query), publicJobFacets(getDb())]); }
   catch { logEvent("error", "jobs.public_page_unavailable"); }
-  return <CareerFrame><JobSearchContent query={query} data={data} organisations={organisations}/></CareerFrame>;
+  return <CareerFrame hero><JobSearchContent query={query} data={data} employers={employers}/></CareerFrame>;
 }

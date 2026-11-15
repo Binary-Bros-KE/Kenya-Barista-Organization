@@ -5,9 +5,9 @@ import { test } from "node:test";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { createAuth } from "../src/server/auth";
-import { resolveActor, assertAdmin, requireOrganisation } from "../src/server/access";
+import { resolveActor, assertAdmin } from "../src/server/access";
 import { bootstrapAdmin } from "../src/server/bootstrap";
-import { acceptInvitation, createOrganisation, inviteEmployer, revokeInvitation, revokeMembership, setOrganisationSuspended, setUserSuspended } from "../src/server/employers";
+import { setAccountType, setUserSuspended } from "../src/server/employers";
 import type { MailMessage } from "../src/server/mail";
 
 function totp(secret: string) {
@@ -23,7 +23,7 @@ function totp(secret: string) {
   return String((digest.readUInt32BE(offset) & 0x7fffffff) % 1000000).padStart(6, "0");
 }
 
-test("accounts, MFA, invitations, tenant isolation, and account recovery", { skip: process.env.RUN_DB_TESTS !== "true" || !process.env.AUTH_TEST_DATABASE_URL, timeout: 180000 }, async t => {
+test("accounts, MFA, recruiter access, tenant isolation, and account recovery", { skip: process.env.RUN_DB_TESTS !== "true" || !process.env.AUTH_TEST_DATABASE_URL, timeout: 180000 }, async t => {
   const connectionString = process.env.AUTH_TEST_DATABASE_URL!;
   const databaseUrl = new URL(connectionString);
   assert.ok(["localhost", "127.0.0.1", "[::1]"].includes(databaseUrl.hostname), "Use a local isolated test database");
@@ -35,7 +35,6 @@ test("accounts, MFA, invitations, tenant isolation, and account recovery", { ski
   const baseURL = "http://localhost:3000";
   const auth = createAuth(db, { secret: randomBytes(48).toString("base64url"), baseURL, deliver });
   const userIds: string[] = [];
-  const organisationIds: string[] = [];
   let bootstrapped = false;
   let sequence = 0;
   const subnet = randomBytes(1)[0];
@@ -93,13 +92,12 @@ test("accounts, MFA, invitations, tenant isolation, and account recovery", { ski
       await verify(adminClient, adminUser.email);
       assert.equal((await signIn(adminClient, adminUser.email)).status, 200);
     });
-    await t.test("bootstrap is one-time and administrator access requires verified MFA", async () => {
+    await t.test("bootstrap is one-time and administrator access needs only the role", async () => {
       await bootstrapAdmin(db, adminUser.email); bootstrapped = true;
       await assert.rejects(bootstrapAdmin(db, adminUser.email), { code: "BOOTSTRAP_COMPLETE" });
       await assert.rejects(resolveActor(db, auth, adminClient.headers()), { status: 401 });
       assert.equal((await signIn(adminClient, adminUser.email)).status, 200);
-      const actor = await resolveActor(db, auth, adminClient.headers());
-      assert.throws(() => assertAdmin(actor), { code: "MFA_REQUIRED" });
+      assertAdmin(await resolveActor(db, auth, adminClient.headers()));
     });
     const oldSessionClient = client();
     assert.equal((await signIn(oldSessionClient, adminUser.email)).status, 200);
@@ -112,9 +110,8 @@ test("accounts, MFA, invitations, tenant isolation, and account recovery", { ski
       assert.equal(verifyResult.status, 200, `MFA verify failed (${String(verifyResult.data.code)})`);
       assertAdmin(await resolveActor(db, auth, adminClient.headers()));
     });
-    // Sessions created before enrollment do not acquire second-factor proof.
-    const stale = await resolveActor(db, auth, oldSessionClient.headers());
-    assert.throws(() => assertAdmin(stale), { code: "MFA_REQUIRED" });
+    // Two-factor is optional for administrators, so sessions created before enrollment keep access.
+    assertAdmin(await resolveActor(db, auth, oldSessionClient.headers()));
     await t.test("password-only MFA challenge is unauthenticated and backup codes are single-use", async () => {
       const challenger = client();
       assert.equal((await signIn(challenger, adminUser.email)).data.twoFactorRedirect, true);
@@ -133,35 +130,18 @@ test("accounts, MFA, invitations, tenant isolation, and account recovery", { ski
     const admin = await resolveActor(db, auth, adminClient.headers());
     const employerActor = await resolveActor(db, auth, employerClient.headers());
     const otherActor = await resolveActor(db, auth, otherClient.headers());
-    const first = await createOrganisation(db, admin, { name: "First Test Employer", slug: `first-${suffix}` }); organisationIds.push(first.id);
-    const second = await createOrganisation(db, admin, { name: "Second Test Employer", slug: `second-${suffix}` }); organisationIds.push(second.id);
-    async function invitation() {
-      const issued = await inviteEmployer(db, admin, { organisationId: first.id, email: employer.email, role: "RECRUITER" }, { baseURL, deliver });
-      const message = messages.findLast(message => message.to === employer.email && message.subject.includes("invitation"))!;
-      const url = new URL(message.text.match(/https?:\/\/\S+/)![0]);
-      return { id: issued.id, token: new URLSearchParams(url.hash.slice(1)).get("token")! };
-    }
-    await t.test("invitations reject wrong emails, expired/revoked links, and replay", async () => {
-      const expired = await invitation();
-      await assert.rejects(acceptInvitation(db, otherActor, expired.token), { code: "INVITATION_EMAIL_MISMATCH" });
-      const stored = await db.employerInvitation.findUniqueOrThrow({ where: { id: expired.id } }); assert.notEqual(stored.tokenHash, expired.token);
-      await db.employerInvitation.update({ where: { id: expired.id }, data: { expiresAt: new Date(Date.now() - 1000) } });
-      await assert.rejects(acceptInvitation(db, employerActor, expired.token), { code: "INVITATION_UNAVAILABLE" });
-      const revoked = await invitation(); await revokeInvitation(db, admin, revoked.id);
-      await assert.rejects(acceptInvitation(db, employerActor, revoked.token), { code: "INVITATION_UNAVAILABLE" });
-      const valid = await invitation(); await acceptInvitation(db, employerActor, valid.token);
-      await assert.rejects(acceptInvitation(db, employerActor, valid.token), { code: "INVITATION_UNAVAILABLE" });
+    await t.test("administrators switch accounts between job seeker and recruiter", async () => {
+      await assert.rejects(setAccountType(db, employerActor, { email: employer.email, role: "RECRUITER" }), { status: 403 });
+      await assert.rejects(setAccountType(db, admin, { email: "missing-" + suffix + "@example.invalid", role: "RECRUITER" }), { code: "ACCOUNT_NOT_FOUND" });
+      await assert.rejects(setAccountType(db, admin, { userId: admin.user.id, role: "APPLICANT" }), { code: "ADMIN_ACCOUNT" });
+      await assert.rejects(setAccountType(db, admin, { email: employer.email, role: "ADMIN" }), "Administrators cannot be created here");
+      assert.equal((await setAccountType(db, admin, { email: employer.email.toUpperCase(), role: "RECRUITER" })).role, "RECRUITER");
+      assert.equal((await resolveActor(db, auth, employerClient.headers())).user.role, "RECRUITER", "The change applies to the existing session");
+      assert.equal((await resolveActor(db, auth, otherClient.headers())).user.role, "APPLICANT");
+      assert.equal((await setAccountType(db, admin, { userId: employer.id, role: "APPLICANT" })).role, "APPLICANT");
+      assert.equal((await resolveActor(db, auth, employerClient.headers())).user.role, "APPLICANT");
     });
-    await t.test("employer access is scoped and revocable", async () => {
-      await requireOrganisation(db, employerActor, first.id);
-      await assert.rejects(requireOrganisation(db, employerActor, second.id), { status: 404 });
-      await assert.rejects(createOrganisation(db, employerActor, { name: "Forbidden", slug: "forbidden" }), { status: 403 });
-      await setOrganisationSuspended(db, admin, first.id, true);
-      await assert.rejects(requireOrganisation(db, employerActor, first.id), { status: 404 });
-      await setOrganisationSuspended(db, admin, first.id, false);
-      const membership = await requireOrganisation(db, employerActor, first.id);
-      await revokeMembership(db, admin, membership.id);
-      await assert.rejects(requireOrganisation(db, employerActor, first.id), { status: 404 });
+    await t.test("suspension signs an account out and blocks sign-in until reactivated", async () => {
       await setUserSuspended(db, admin, employer.id, true);
       await assert.rejects(resolveActor(db, auth, employerClient.headers()), { status: 401 });
       assert.equal((await signIn(employerClient, employer.email)).status, 403);
@@ -196,12 +176,9 @@ test("accounts, MFA, invitations, tenant isolation, and account recovery", { ski
   } finally {
     if (userIds.length) {
       await db.auditLog.deleteMany({ where: { actorId: { in: userIds } } });
-      await db.employerInvitation.deleteMany({ where: { createdById: { in: userIds } } });
-      await db.organisationMember.deleteMany({ where: { userId: { in: userIds } } });
       await db.verification.deleteMany({ where: { value: { in: userIds } } });
       await db.user.deleteMany({ where: { id: { in: userIds } } });
     }
-    if (organisationIds.length) await db.organisation.deleteMany({ where: { id: { in: organisationIds } } });
     if (bootstrapped) await db.platformBootstrap.deleteMany({ where: { id: "initial-admin" } });
     await db.$disconnect();
   }

@@ -7,7 +7,7 @@ export function RecruitmentActions({ id, version, status, paused }: { id: string
  const router = useRouter(), [busy,setBusy] = useState(false), [message,setMessage] = useState(""), [error,setError] = useState(false);
  const transitions = reviewTransitions[status] || [];
  if (status === "WITHDRAWN") return <section className="employer-panel employer-response-form"><h2>Application withdrawn</h2><p className="employer-inline-warning">The applicant withdrew. Further responses and CV downloads are unavailable.</p></section>;
- if (paused) return <section className="employer-panel employer-response-form"><h2>Responses paused</h2><p className="employer-inline-warning">This organisation is suspended. Responses are paused.</p></section>;
+ if (paused) return <section className="employer-panel employer-response-form"><h2>Responses paused</h2><p className="employer-inline-warning">This recruiter's account is suspended. Responses are paused.</p></section>;
  return <form key={version} className="employer-panel employer-response-form" aria-busy={busy} onSubmit={async event => {
  event.preventDefault(); setBusy(true); setMessage(""); setError(false); const form=event.currentTarget, values=new FormData(form);
  try { await postJson("/api/employer/applications/"+id+"/responses", { version, message: values.get("message"), ...(values.get("status") ? { status: values.get("status") } : {}) }); form.reset(); setMessage("Response saved and visible to the applicant."); router.refresh(); }

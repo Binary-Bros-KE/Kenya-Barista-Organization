@@ -16,11 +16,10 @@ export type Actor = Awaited<ReturnType<typeof resolveActor>>;
 
 export function assertAdmin(actor: Actor) {
   if (actor.user.role !== "ADMIN") throw new AccessError(403, "FORBIDDEN", "Administrator access required");
-  if (!actor.user.twoFactorEnabled || !actor.session.mfaVerifiedAt) throw new AccessError(403, "MFA_REQUIRED", "Verify two-factor authentication to access administration");
 }
 
-export async function requireOrganisation(db: PrismaClient, actor: Actor, organisationId: string) {
-  const membership = await db.organisationMember.findUnique({ where: { userId_organisationId: { userId: actor.user.id, organisationId } }, include: { organisation: true } });
-  if (!membership || membership.organisation.suspendedAt) throw new AccessError(404, "NOT_FOUND", "Organisation not found");
-  return membership;
+
+// Recruiters manage only their own jobs and applicants; demoting a recruiter removes that access immediately.
+export function assertRecruiter(actor: Actor) {
+  if (actor.user.role !== "RECRUITER") throw new AccessError(403, "FORBIDDEN", "Recruiter access required");
 }

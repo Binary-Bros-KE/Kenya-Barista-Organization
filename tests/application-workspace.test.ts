@@ -34,7 +34,7 @@ test("list, filtered total and all-status summaries retain the applicant ownersh
  assert.equal(calls.rows.select.submissionSnapshot, undefined);
 });
 test("filtered list pagination keeps status and escapes employer-provided text", () => {
- const html = render(createElement(ApplicationList, { items: [{ id: "a", status: "DRAFT", applicationFeeMinor: 10000, updatedAt: new Date("2026-10-29T10:00:00Z"), _count: { responses: 1 }, job: { title: "<script>unsafe</script>", organisation: { name: "Coffee Co" } } }], total: 50, counts: { DRAFT: 50 }, page: 2, status: "DRAFT" }));
+ const html = render(createElement(ApplicationList, { items: [{ id: "a", status: "DRAFT", applicationFeeMinor: 10000, updatedAt: new Date("2026-10-29T10:00:00Z"), _count: { responses: 1 }, job: { title: "<script>unsafe</script>", recruiter: { name: "Coffee Co" } } }], total: 50, counts: { DRAFT: 50 }, page: 2, status: "DRAFT" }));
  assert.ok(html.includes('status=DRAFT&amp;page=3')); assert.ok(html.includes('href="/dashboard/applications?status=DRAFT"'));
  assert.ok(html.includes('&lt;script&gt;unsafe&lt;/script&gt;')); assert.ok(!html.includes('<script>unsafe'));
  assert.ok(html.includes('aria-current="page"')); assert.ok(html.includes('1 response or update'));

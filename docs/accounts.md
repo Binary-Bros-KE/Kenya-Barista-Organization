@@ -45,31 +45,38 @@ This command:
 - Uses a unique database bootstrap marker to prevent a second initial setup.
 - Revokes that account's existing sessions and records an audit event.
 
-Sign in again, open `/dashboard/security`, and set up an authenticator app. Enter the displayed setup key manually as a time-based account, save the recovery codes privately, and verify a six-digit authenticator code. Then open `/admin`.
+Sign in again and open `/admin`.
 
-Administrator routes require both an active database role and second-factor proof for the current session. A session opened before authenticator enrollment does not gain that proof automatically. Subsequent sign-ins require a second factor. Recovery codes are single-use. Trusted-device bypass is disabled.
+Administrator routes require an active, verified account with the administrator database role. Two-factor authentication is optional for every account, administrators included (a deliberate client decision, November 2026). An account that enables it at `/dashboard/security` is asked for a code on each sign-in. Recovery codes are single-use. Trusted-device bypass is disabled.
 
 There is no public HTTP bootstrap endpoint or web endpoint for arbitrary administrator promotion. Further administrator lifecycle/recovery procedures should be designed before a production launch; do not delete the bootstrap marker to make extra administrators.
 
-## Invite an employer
+## Account types
 
-1. In `/admin`, create an organisation with a unique lowercase short name.
-2. In Invitations, choose the active organisation, recipient email, and membership role.
-3. The recipient registers or signs in using that exact email address and verifies it.
-4. The recipient reopens the invitation email and selects Accept employer invitation.
-5. Their organisations appear under `/employer`.
+Every account has one type:
 
-Invitation links expire after 48 hours, are consumed once, and contain a random token whose hash alone is stored in the database. The token is carried in the URL fragment, so it is not sent in page-request URLs or referrer headers. Reissuing an invitation revokes previous unused links for the same email and organisation. A database constraint also prevents concurrent duplicate unused invitations.
+| Type | What it can do |
+| --- | --- |
+| Job seeker | Build a profile, upload CVs and apply for jobs. Every new registration starts here. |
+| Recruiter | Everything a job seeker can do, plus post jobs and review the people who apply to them. |
+| Super admin | Run the platform: accounts, recruiters, job approvals, payments and the delivery queue. |
 
-Only administrators can invite employers. Both owner and recruiter memberships are restricted to their organisation; neither grants platform administration. Job permissions will be implemented with job management in the next phase.
+There are no companies or teams. A recruiter is an independent account, and each job belongs to the recruiter who posted it. Job listings show the recruiter's account name as the employer, so a business can name its recruiter account after itself.
 
-Administrators can revoke pending invitations, remove employer memberships, suspend organisations, and suspend non-administrator accounts. Account suspension revokes sessions. Organisation suspension and membership removal are checked on each protected organisation request. Administrator accounts cannot be suspended through this console.
+Administrators switch accounts between job seeker and recruiter:
+
+- In `/admin/accounts`, open the person and choose **Account type → Recruiter** (or **Job seeker**).
+- In `/admin` (Recruiters), use **Add recruiter** with the person's account email, or open a recruiter and choose **Change to job seeker**.
+
+Changes apply immediately, including to someone who is signed in. A recruiter changed back to a job seeker keeps their jobs on record but can no longer manage them or see their applicants. Administrator accounts cannot be changed here, and only the bootstrap command creates the initial administrator.
+
+Administrators can suspend and reactivate non-administrator accounts. Suspension signs the person out everywhere and, for a recruiter, hides their jobs from the public site.
 
 ## Password recovery and sign-out
 
 - `/forgot-password` sends a reset link with a 30-minute lifetime and a generic response.
 - `/reset-password` consumes the reset token and revokes all existing sessions.
-- MFA remains required for an administrator after a password reset.
+- A password reset does not remove two-factor authentication from an account that enabled it.
 - Sign-out invalidates the database session.
 - An expired, suspended, or unverified account cannot use protected application routes.
 
@@ -91,7 +98,7 @@ AUTH_SECRET=your-private-generated-secret
 
 Use port 465 with `SMTP_SECURE=true` if required by the provider. With `SMTP_SECURE=false`, the sender requires STARTTLS. SMTP authentication must include both username and password or neither. Configure SPF, DKIM, and DMARC with the selected provider.
 
-Production rejects development mailbox mode. Verification and password-reset mail is scheduled after the HTTP response to keep SMTP latency out of account-existence responses. Delivery failures emit a fixed event without addresses or tokens; the user can request another link. Durable delivery retries and the background worker remain part of the notifications phase. Administrator invitations report delivery failures and revoke the undelivered invitation.
+Production rejects development mailbox mode. Verification and password-reset mail is scheduled after the HTTP response to keep SMTP latency out of account-existence responses. Delivery failures emit a fixed event without addresses or tokens; the user can request another link. Durable delivery retries and the background worker remain part of the notifications phase.
 
 On the VPS, expose the application only through its reverse proxy, overwrite incoming forwarded client-IP headers, rate-limit traffic at the proxy, and omit sensitive URL query strings from access logs. Do not trust client-supplied forwarding headers from an exposed Node port.
 
@@ -101,10 +108,9 @@ On the VPS, expose the application only through its reverse proxy, overwrite inc
 | --- | --- |
 | `/register`, `/sign-in`, recovery and verification screens | Public |
 | `/dashboard`, `/dashboard/security` | Verified active account |
-| `/admin` and `/api/admin/*` | Administrator with verified MFA session |
+| `/admin` and `/api/admin/*` | Administrator |
 | `/employer` | Verified active account; lists its memberships only |
-| `/employer/organisations/[id]` and matching API | Active membership in that active organisation |
-| `POST /api/invitations/accept` | Verified invited email and valid unused invitation |
+| `POST /api/admin/memberships` | Administrator: add an existing account to a recruiter, or change its role |
 
 Custom mutation APIs require the configured origin, and JSON bodies are limited to 16 KiB. Sensitive auth endpoints have persistent database-backed rate limits. Permission checks run on the server for pages and every API request; navigation visibility is not an authorisation boundary.
 

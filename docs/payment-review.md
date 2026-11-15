@@ -1,6 +1,6 @@
 # Payment exception handling
 
-MFA administrators open **Payment settings and history → Open payment review queue**, or `/admin/payments/review`. The queue is paginated, oldest first. It includes charges marked NEEDS_REVIEW, pending attempts at least ten minutes old, held orders, and paid applications that remain drafts. Every order also has a review detail link from payment history.
+Administrators open **Payment settings and history → Open payment review queue**, or `/admin/payments/review`. The queue is paginated, oldest first. It includes charges marked NEEDS_REVIEW, pending attempts at least ten minutes old, held orders, and paid applications that remain drafts. Every order also has a review detail link from payment history.
 
 ## Review actions
 
@@ -21,7 +21,7 @@ An older late receipt cannot submit a newer edited snapshot. Resolve any newer u
 
 ## Concurrency, privacy, and audit
 
-All actions require current administrator access and session MFA through the existing same-origin API wrapper. JSON inputs are strict and bounded. Reviews carry the displayed order version; stale decisions return 409 and require a reload. Provider status/evidence changes increment that version. Review, reconciliation, callback handling and reversal use consistent row-lock order. Active query leases block financial review decisions.
+All actions require current administrator access through the existing same-origin API wrapper. JSON inputs are strict and bounded. Reviews carry the displayed order version; stale decisions return 409 and require a reload. Provider status/evidence changes increment that version. Review, reconciliation, callback handling and reversal use consistent row-lock order. Active query leases block financial review decisions.
 
 Each decision records the actor, action, private note, evidence reference and time, plus an audit entry. Review history has no edit/delete endpoint; the detail page shows the latest 100 entries and older records remain in the database. Details expose original merchant metadata and transaction identifiers, never credential ciphertext, encrypted payer data, callback capabilities or frozen CV/profile snapshots. An applicant can see only their own payment status and receives a generic resolution notification. Private notes/evidence references stay in administration. Notification delivery uses the existing background worker.
 
@@ -29,8 +29,8 @@ Each decision records the actor, action, private note, evidence reference and ti
 
 | Route | Purpose |
 | --- | --- |
-| `/admin/payments/review?page=1` | MFA-only exception queue, 20 orders per page |
-| `/admin/payments/[id]` | MFA-only order, original attempts, review forms and history |
+| `/admin/payments/review?page=1` | Administrator-only exception queue, 20 orders per page |
+| `/admin/payments/[id]` | Administrator-only order, original attempts, review forms and history |
 | `GET /api/admin/payments/[id]/review` | Safe administrator review detail |
 | `POST /api/admin/payments/[id]/review` | Strict versioned NOTE / CONFIRM_RECEIPT / NOT_CHARGED / RETRY_SUBMISSION action |
 

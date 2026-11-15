@@ -5,16 +5,14 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { AdminConfirm } from "../src/components/admin-confirm";
 import { AdminQuickLinks } from "../src/components/admin-ui";
-import { AdminPanel } from "../src/components/admin-panel";
 import { AdminDelivery } from "../src/components/admin-delivery";
 import { MpesaSettingsForm } from "../src/components/mpesa-settings";
 import { ManualReversal } from "../src/components/manual-reversal";
 import { PaymentReviewForm } from "../src/components/payment-review-form";
 function render(component: ReactNode) { return renderToStaticMarkup(createElement(AppRouterContext.Provider, { value: { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} } as never }, component)); }
-test("administration navigation retains all operations and initial loading does not invent records", () => {
- const links = render(createElement(AdminQuickLinks)); for (const route of ["/admin", "/admin/jobs", "/admin/payments", "/admin/notifications"]) assert.ok(links.includes('href="'+route+'"'));
- const html = render(createElement(AdminPanel)); for (const tab of ["Organisations", "Invitations", "Employer access", "Accounts", "Activity"]) assert.ok(html.includes(tab));
- assert.ok(html.includes('Loading administration...')); assert.ok(!html.includes('No accounts match'));
+test("administration navigation links every operation, including Recruiters and Accounts", () => {
+ const links = render(createElement(AdminQuickLinks)); for (const route of ["/admin", "/admin/accounts", "/admin/jobs", "/admin/payments", "/admin/notifications"]) assert.ok(links.includes('href="'+route+'"'));
+ assert.ok(links.includes('Recruiters')); assert.ok(links.includes('Accounts'));
 });
 test("access changes use a closed disclosure with distinct confirmation and cancellation controls", () => {
  const html = render(createElement(AdminConfirm, { label: "Suspend account", explanation: "Sessions will be revoked.", busy: false, onConfirm() {} }));

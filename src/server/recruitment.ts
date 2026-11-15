@@ -12,7 +12,7 @@ const reviewStatus = z.enum(["SUBMITTED", "UNDER_REVIEW", "SHORTLISTED", "HIRED"
 const profileSnapshot = z.object({
   fullName: z.string().min(2).max(120), email: z.email(), phone: z.string().max(30), location: z.string().max(120),
   summary: z.string().max(3000), coverLetter: z.string().max(6000), documentId: z.string().min(1).max(100),
-  documentSha256: z.string().regex(/^[a-f0-9]{64}$/), jobTitle: z.string().max(160), organisationName: z.string().max(200),
+  documentSha256: z.string().regex(/^[a-f0-9]{64}$/), jobTitle: z.string().max(160), organisationName: z.string().max(200), // the recruiter's name; key kept for stored submissions
 });
 export function recruitmentScope(actor: Actor): Prisma.ApplicationWhereInput {
   return { ...paidSubmission, job: managedScope(actor) };
@@ -27,7 +27,7 @@ export async function listReviewApplications(db: PrismaClient, actor: Actor, inp
     ...(query.jobId ? { jobId: query.jobId } : {}), ...(query.q ? { OR: [{ job: { title: { contains: query.q, mode: "insensitive" } } }, { user: { email: { contains: query.q, mode: "insensitive" } } }] } : {}) };
   const [rows, total] = await Promise.all([
     db.application.findMany({ where, select: { id: true, status: true, submittedAt: true, version: true, submissionSnapshot: true,
-      job: { select: { id: true, title: true, organisation: { select: { name: true } } } } },
+      job: { select: { id: true, title: true, recruiter: { select: { name: true } } } } },
       orderBy: [{ submittedAt: "desc" }, { id: "asc" }], skip: (query.page - 1) * 20, take: 20 }),
     db.application.count({ where }),
   ]);
@@ -38,12 +38,12 @@ export async function listReviewApplications(db: PrismaClient, actor: Actor, inp
 }
 export async function reviewJobOptions(db: PrismaClient, actor: Actor) {
   return db.job.findMany({ where: { ...managedScope(actor), applications: { some: paidSubmission } },
-    select: { id: true, title: true, organisation: { select: { name: true } } }, orderBy: [{ createdAt: "desc" }, { id: "asc" }], take: 200 });
+    select: { id: true, title: true, recruiter: { select: { name: true } } }, orderBy: [{ createdAt: "desc" }, { id: "asc" }], take: 200 });
 }
 export async function getReviewApplication(db: PrismaClient, actor: Actor, id: string) {
   const application = await db.application.findFirst({ where: { id, ...recruitmentScope(actor) }, select: {
     id: true, userId: true, status: true, version: true, submittedAt: true, submissionSnapshot: true, applicationFeeMinor: true, currency: true,
-    job: { select: { id: true, title: true, status: true, organisation: { select: { name: true, suspendedAt: true } } } },
+    job: { select: { id: true, title: true, status: true, recruiter: { select: { name: true, status: true } } } },
     paymentOrder: { select: { amountMinor: true, currency: true } },
     documents: { select: { document: { select: { id: true, userId: true, filename: true, scanStatus: true, sha256: true } } } },
   } });
@@ -78,16 +78,16 @@ export async function respondToApplication(db: PrismaClient, actor: Actor, id: s
   await getReviewApplication(db, actor, id);
   const scope = recruitmentScope(actor);
   return db.$transaction(async tx => {
-    const app = await tx.application.findFirst({ where: { id, ...scope }, include: { job: { include: { organisation: true } } } });
+    const app = await tx.application.findFirst({ where: { id, ...scope }, include: { job: { include: { recruiter: { select: { name: true, email: true, status: true } } } } } });
     if (!app) throw new AccessError(404, "NOT_FOUND", "Application not found");
     if (app.version !== data.version) throw new AccessError(409, "STALE_APPLICATION", "This application changed. Reload before sending a response");
-    if (app.job.organisation.suspendedAt) throw new AccessError(409, "ORGANISATION_SUSPENDED", "Reactivate the organisation before sending responses");
+    if (app.job.recruiter.status !== "ACTIVE") throw new AccessError(409, "RECRUITER_SUSPENDED", "Reactivate the recruiter's account before sending responses");
     if (app.status === "WITHDRAWN") throw new AccessError(409, "APPLICATION_WITHDRAWN", "This application was withdrawn");
     if (data.status && !reviewTransitions[app.status]?.includes(data.status)) throw new AccessError(409, "INVALID_TRANSITION", "That status change is not available");
     const changed = await tx.application.updateMany({ where: { id, version: data.version, ...scope }, data: { ...(data.status ? { status: data.status } : {}), version: { increment: 1 } } });
     if (!changed.count) throw new AccessError(409, "STALE_APPLICATION", "This application changed. Reload before sending a response");
     const response = await tx.applicationResponse.create({ data: { applicationId: id, authorId: actor.user.id, source: actor.user.role === "ADMIN" ? "ADMIN" : "EMPLOYER",
-      senderLabel: actor.user.role === "ADMIN" ? "KBO recruitment administration" : app.job.organisation.name, body: data.message, status: data.status || app.status }, select: responseSelect });
+      senderLabel: actor.user.role === "ADMIN" ? "KBO recruitment administration" : app.job.recruiter.name || app.job.recruiter.email, body: data.message, status: data.status || app.status }, select: responseSelect });
     if (data.status) await tx.applicationStatusHistory.create({ data: { applicationId: id, fromStatus: app.status, toStatus: data.status, message: data.message } });
     await tx.auditLog.create({ data: { actorId: actor.user.id, action: data.status ? "application.status_changed" : "application.response_sent", entityType: "Application", entityId: id } });
     await tx.outboxEvent.create({ data: { deduplicationKey: `response:${response.id}`, kind: "application.response", aggregateId: response.id } });

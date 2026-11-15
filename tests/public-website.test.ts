@@ -9,17 +9,18 @@ import { SiteHeader } from "../src/components/site-header";
 import { SiteFooter } from "../src/components/site-footer";
 import { CoffeeHome } from "../src/components/coffee-home";
 import { LegacyShell } from "../src/components/legacy-shell";
-import { contactInfo, coffeeGuides } from "../src/content/site-brand";
+import { contactInfo, coffeeGuides, educationLinks } from "../src/content/site-brand";
 function render(component: ReactNode, pathname = "/") { return renderToStaticMarkup(createElement(PathnameContext.Provider, { value: pathname }, component)); }
 function activeLinks(html: string) { return [...new Set([...html.matchAll(/<a\b([^>]+)>/g)].filter(match=>match[1].includes('aria-current="page"')).map(match=>/href="([^"]+)"/.exec(match[1])?.[1]))]; }
 test("shared navigation preserves public, guide, sign-in and account journeys", () => {
  const html=render(createElement(SiteHeader));
- for (const href of ["/", "/registration", "/philosophy", "/team", "/gallery", "/jobs", "/contact", "/dashboard", "/sign-in", ...coffeeGuides.map(([,href])=>href)]) assert.ok(html.includes('href="'+href+'"'),href);
+ for (const href of ["/", "/registration", "/philosophy", "/team", "/gallery", "/jobs", "/contact", "/dashboard", "/sign-in", ...coffeeGuides.map(([,href])=>href), ...educationLinks.map(([,href])=>href)]) assert.ok(html.includes('href="'+href+'"'),href);
  assert.ok(html.includes('src="/brand-logo.png"')); assert.deepEqual(activeLinks(html), ["/"]);
 });
 test("nested job and guide routes identify the correct navigation destination", () => {
  assert.deepEqual(activeLinks(render(createElement(SiteHeader),"/jobs/example")),["/jobs"]);
- assert.deepEqual(activeLinks(render(createElement(SiteHeader),"/comparison")),["/comparison"]);
+ assert.deepEqual(activeLinks(render(createElement(SiteHeader),"/origin-and-processes")),["/origin-and-processes"]);
+ assert.deepEqual(activeLinks(render(createElement(SiteHeader),"/education/coaching")),["/education/coaching"]);
  assert.deepEqual(activeLinks(render(createElement(SiteHeader),"/registration")),["/registration"]);
 });
 test("mobile navigation exposes a closed labeled modal and named open/close controls", () => {

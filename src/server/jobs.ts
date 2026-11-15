@@ -15,13 +15,14 @@ const fields = {
 };
 const employerInput = z.object(fields).strict();
 const adminInput = employerInput.extend({ applicationFeeKes: feeKes.optional() }).strict();
+const suspendedRecruiter = () => new AccessError(409, "RECRUITER_SUSPENDED", "Reactivate the recruiter's account before editing, submitting or publishing this job");
 const actions = z.enum(["submit", "withdraw", "publish", "request_changes", "close", "archive", "reopen"]);
 type Action = z.infer<typeof actions>;
 type Transaction = Prisma.TransactionClient;
 
 export function managedScope(actor: Actor): Prisma.JobWhereInput {
   if (actor.user.role === "ADMIN") { assertAdmin(actor); return {}; }
-  return { organisation: { suspendedAt: null, members: { some: { userId: actor.user.id } } } };
+  return { recruiterId: actor.user.id, recruiter: { role: "RECRUITER" } };
 }
 function futureDeadline(deadline: Date) {
   if (deadline <= new Date()) throw new AccessError(400, "DEADLINE_PASSED", "Choose a future application deadline");
@@ -31,7 +32,7 @@ async function history(tx: Transaction, jobId: string, actorId: string | null, f
   await tx.auditLog.create({ data: { actorId, action: `job.${action}`, entityType: "Job", entityId: jobId } });
 }
 async function scopedJob(tx: Transaction, actor: Actor, id: string) {
-  const job = await tx.job.findFirst({ where: { id, ...managedScope(actor) }, include: { organisation: { select: { id: true, name: true, suspendedAt: true } } } });
+  const job = await tx.job.findFirst({ where: { id, ...managedScope(actor) }, include: { recruiter: { select: { id: true, name: true, email: true, status: true } } } });
   if (!job) throw new AccessError(404, "NOT_FOUND", "Job not found");
   return job;
 }
@@ -47,20 +48,23 @@ export async function setDefaultFee(db: PrismaClient, actor: Actor, input: unkno
   });
 }
 
-export async function createJob(db: PrismaClient, actor: Actor, organisationId: string, input: unknown) {
+// Recruiters post as themselves; administrators post on behalf of a recruiter (recruiterId).
+export async function createJob(db: PrismaClient, actor: Actor, recruiterId: string | undefined, input: unknown) {
   const isAdmin = actor.user.role === "ADMIN";
   if (isAdmin) assertAdmin(actor);
   const data = (isAdmin ? adminInput : employerInput).parse(input);
   futureDeadline(data.deadline);
   return db.$transaction(async tx => {
-    const organisation = await tx.organisation.findFirst({ where: { id: organisationId, suspendedAt: null, ...(!isAdmin ? { members: { some: { userId: actor.user.id } } } : {}) } });
-    if (!organisation) throw new AccessError(404, "NOT_FOUND", "Active organisation not found");
+    const ownerId = isAdmin ? recruiterId : actor.user.id;
+    if (!isAdmin && actor.user.role !== "RECRUITER") throw new AccessError(403, "FORBIDDEN", "Recruiter access required");
+    const owner = ownerId ? await tx.user.findFirst({ where: { id: ownerId, role: "RECRUITER", status: "ACTIVE" }, select: { id: true } }) : null;
+    if (!owner) throw new AccessError(404, "NOT_FOUND", "Active recruiter not found");
     const suppliedFee = "applicationFeeKes" in data && typeof data.applicationFeeKes === "number" ? data.applicationFeeKes * 100 : null;
     const amount = suppliedFee ?? (await tx.platformSettings.findUnique({ where: { id: "platform" } }))?.defaultApplicationFeeMinor;
     if (amount == null) throw new AccessError(409, "FEE_NOT_CONFIGURED", "An administrator must configure the application fee first");
     const { title, description, location, category, employmentType, deadline } = data;
     const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70) || "coffee-career"}-${randomUUID().slice(0, 8)}`;
-    const job = await tx.job.create({ data: { organisationId, createdById: actor.user.id, title, description, location, category, employmentType, deadline, slug, applicationFeeMinor: amount } });
+    const job = await tx.job.create({ data: { recruiterId: owner.id, createdById: actor.user.id, title, description, location, category, employmentType, deadline, slug, applicationFeeMinor: amount } });
     await history(tx, job.id, actor.user.id, null, "DRAFT", "created");
     return job;
   });
@@ -73,7 +77,7 @@ export async function updateJob(db: PrismaClient, actor: Actor, id: string, inpu
   futureDeadline(data.deadline);
   return db.$transaction(async tx => {
     const job = await scopedJob(tx, actor, id);
-    if (job.organisation.suspendedAt) throw new AccessError(409, "ORGANISATION_SUSPENDED", "Reactivate the organisation before editing jobs");
+    if (job.recruiter.status !== "ACTIVE") throw suspendedRecruiter();
     if (!["DRAFT", "CHANGES_REQUESTED", "PUBLISHED"].includes(job.status)) throw new AccessError(409, "INVALID_JOB_STATE", "Withdraw or reopen this posting before editing it");
     if (job.version !== data.version) throw new AccessError(409, "STALE_JOB", "This job changed. Reload the latest version before saving.");
     const amount = "applicationFeeKes" in data && typeof data.applicationFeeKes === "number" ? data.applicationFeeKes * 100 : job.applicationFeeMinor;
@@ -98,7 +102,7 @@ export async function transitionJob(db: PrismaClient, actor: Actor, id: string, 
     };
     if (["publish", "request_changes"].includes(data.action)) assertAdmin(actor);
     if (!allowed[data.action].includes(job.status)) throw new AccessError(409, "INVALID_JOB_STATE", "That action is not available for this job");
-    if (job.organisation.suspendedAt && !["close", "archive"].includes(data.action)) throw new AccessError(409, "ORGANISATION_SUSPENDED", "Reactivate the organisation before submitting or publishing jobs");
+    if (job.recruiter.status !== "ACTIVE" && !["close", "archive"].includes(data.action)) throw suspendedRecruiter();
     if (["submit", "publish"].includes(data.action)) futureDeadline(job.deadline);
     if (data.action === "request_changes" && !data.note) throw new AccessError(400, "REVIEW_NOTE_REQUIRED", "Explain the changes the employer should make");
     const next = { submit: "PENDING_REVIEW", withdraw: "DRAFT", publish: "PUBLISHED", request_changes: "CHANGES_REQUESTED", close: "CLOSED", archive: "ARCHIVED", reopen: "DRAFT" } as const;
@@ -116,16 +120,17 @@ export async function transitionJob(db: PrismaClient, actor: Actor, id: string, 
 }
 
 export async function getManagedJob(db: PrismaClient, actor: Actor, id: string) {
-  const job = await db.job.findFirst({ where: { id, ...managedScope(actor) }, include: { organisation: { select: { id: true, name: true, suspendedAt: true } }, history: { orderBy: { createdAt: "desc" }, take: 30, select: { id: true, fromStatus: true, toStatus: true, note: true, createdAt: true } } } });
+  const job = await db.job.findFirst({ where: { id, ...managedScope(actor) }, include: { recruiter: { select: { id: true, name: true, email: true, status: true } }, history: { orderBy: { createdAt: "desc" }, take: 30, select: { id: true, fromStatus: true, toStatus: true, note: true, createdAt: true } } } });
   if (!job) throw new AccessError(404, "NOT_FOUND", "Job not found");
   return job;
 }
 
 export async function listManagedJobs(db: PrismaClient, actor: Actor, input: unknown) {
-  const query = z.object({ page: z.coerce.number().int().min(1).max(100000).default(1), status: z.enum(["DRAFT", "PENDING_REVIEW", "CHANGES_REQUESTED", "PUBLISHED", "CLOSED", "ARCHIVED"]).optional(), organisationId: z.string().max(100).optional() }).strict().parse(input);
-  const where: Prisma.JobWhereInput = { ...managedScope(actor), ...(query.status ? { status: query.status } : {}), ...(query.organisationId ? { organisationId: query.organisationId } : {}) };
+  const query = z.object({ page: z.coerce.number().int().min(1).max(100000).default(1), status: z.enum(["DRAFT", "PENDING_REVIEW", "CHANGES_REQUESTED", "PUBLISHED", "CLOSED", "ARCHIVED"]).optional(), recruiterId: z.string().max(100).optional() }).strict().parse(input);
+  // Filters are ANDed with the ownership scope so a recruiter can never widen it (e.g. by passing another recruiterId).
+  const where: Prisma.JobWhereInput = { AND: [managedScope(actor), query.status ? { status: query.status } : {}, query.recruiterId ? { recruiterId: query.recruiterId } : {}] };
   const [total, jobs] = await db.$transaction([
-    db.job.count({ where }), db.job.findMany({ where, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], skip: (query.page - 1) * 20, take: 20, select: { id: true, title: true, slug: true, status: true, version: true, deadline: true, applicationFeeMinor: true, organisation: { select: { id: true, name: true } }, _count: { select: { applications: { where: paidSubmission } } } } }),
+    db.job.count({ where }), db.job.findMany({ where, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], skip: (query.page - 1) * 20, take: 20, select: { id: true, title: true, slug: true, status: true, version: true, deadline: true, applicationFeeMinor: true, recruiter: { select: { id: true, name: true } }, _count: { select: { applications: { where: paidSubmission } } } } }),
   ]);
   return { jobs, pagination: { page: query.page, total, pageCount: Math.ceil(total / 20) } };
 }

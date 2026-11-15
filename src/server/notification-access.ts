@@ -8,14 +8,14 @@ import { paidSubmission } from "./submitted-application";
 export function notificationScope(userId: string, admin: boolean): Prisma.NotificationWhereInput {
   return { userId, OR: [
     { audience: "APPLICANT", application: { is: { userId } } },
-    { audience: "EMPLOYER", job: { is: { organisation: { suspendedAt: null, members: { some: { userId } } } } },
+    { audience: "EMPLOYER", job: { is: { recruiterId: userId, recruiter: { role: "RECRUITER", status: "ACTIVE" } } },
       OR: [{ applicationId: null }, { application: { is: paidSubmission } }] },
     ...(admin ? [{ audience: "ADMIN" }] : []),
   ] };
 }
 export async function listNotifications(db: PrismaClient, actor: Actor, input: unknown) {
   const query = z.object({ page: z.coerce.number().int().min(1).max(100000).default(1), unread: z.enum(["true", "false"]).default("false") }).strict().parse(input);
-  const admin = actor.user.role === "ADMIN" && actor.user.twoFactorEnabled && !!actor.session.mfaVerifiedAt;
+  const admin = actor.user.role === "ADMIN";
   const scope = notificationScope(actor.user.id, admin), where = { ...scope, ...(query.unread === "true" ? { readAt: null } : {}) };
   const [items, total, unread] = await Promise.all([
     db.notification.findMany({ where, select: { id: true, title: true, body: true, href: true, readAt: true, createdAt: true }, orderBy: [{ createdAt: "desc" }, { id: "asc" }], skip: (query.page - 1) * 20, take: 20 }),
@@ -24,7 +24,7 @@ export async function listNotifications(db: PrismaClient, actor: Actor, input: u
   return { notifications: items, unread, pagination: { page: query.page, total, pageCount: Math.ceil(total / 20) } };
 }
 export async function markNotificationRead(db: PrismaClient, actor: Actor, id: string) {
-  const admin = actor.user.role === "ADMIN" && actor.user.twoFactorEnabled && !!actor.session.mfaVerifiedAt;
+  const admin = actor.user.role === "ADMIN";
   const where = { id, ...notificationScope(actor.user.id, admin) };
   if (!await db.notification.findFirst({ where, select: { id: true } })) throw new AccessError(404, "NOT_FOUND", "Notification not found");
   await db.notification.updateMany({ where: { ...where, readAt: null }, data: { readAt: new Date() } });

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
+import { PasswordInput } from "./password-input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -59,7 +60,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   return <form onSubmit={submit} className="form-stack account-form" aria-busy={busy}>
     {mode === "register" && <label>Full name<input name="name" autoComplete="name" required minLength={2} maxLength={100} /></label>}
     {emailNeeded && <label>Email address<input name="email" type="email" autoComplete="email" required maxLength={254} /></label>}
-    {passwordNeeded && <label>{mode === "reset-password" ? "New password" : "Password"}<input name="password" type="password" autoComplete={mode === "sign-in" ? "current-password" : "new-password"} required minLength={mode === "sign-in" ? 1 : 12} maxLength={128} />{mode !== "sign-in" && <span className="hint">Use 12–128 characters. A long, unique passphrase works well.</span>}</label>}
+    {passwordNeeded && <label>{mode === "reset-password" ? "New password" : "Password"}<PasswordInput name="password" autoComplete={mode === "sign-in" ? "current-password" : "new-password"} required minLength={mode === "sign-in" ? 1 : 12} maxLength={128} />{mode !== "sign-in" && <span className="hint">Use 12–128 characters. A long, unique passphrase works well.</span>}</label>}
     {mode === "two-factor" && <><label>{backup ? "Recovery code" : "Authenticator code"}<input name="code" autoComplete="one-time-code" inputMode={backup ? "text" : "numeric"} required pattern={backup ? undefined : "[0-9]{6}"} /></label><label className="check-label"><input type="checkbox" checked={backup} onChange={event => setBackup(event.target.checked)} />Use a recovery code instead</label></>}
     {error && <p role="alert" className="notice error">{error}</p>}
     {message && <p role="status" className="notice success">{message}</p>}

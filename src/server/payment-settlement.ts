@@ -3,7 +3,7 @@ import type { Prisma } from "../generated/prisma/client";
 import { profileInput } from "./applications";
 
 const snapshotInput = profileInput.extend({ email: z.email(), coverLetter: z.string().max(6000), documentId: z.string().min(1),
-  documentSha256: z.string().regex(/^[a-f0-9]{64}$/), jobTitle: z.string().min(1), organisationName: z.string().min(1),
+  documentSha256: z.string().regex(/^[a-f0-9]{64}$/), jobTitle: z.string().min(1), organisationName: z.string().min(1), // the recruiter's name; key kept for stored snapshots
   jobVersion: z.number().int().positive(), applicationVersion: z.number().int().positive() });
 
 export async function lockPaymentOrder(tx: Prisma.TransactionClient, orderId: string) {
@@ -13,23 +13,23 @@ export async function lockPaymentOrder(tx: Prisma.TransactionClient, orderId: st
   await tx.$queryRaw`SELECT "id" FROM "Application" WHERE "id" = ${scope.applicationId} FOR UPDATE`;
   await tx.$queryRaw`SELECT "id" FROM "PaymentOrder" WHERE "id" = ${orderId} FOR UPDATE`;
   await tx.$queryRaw`SELECT "id" FROM "Job" WHERE "id" = (SELECT "jobId" FROM "Application" WHERE "id" = ${scope.applicationId}) FOR SHARE`;
-  await tx.$queryRaw`SELECT "id" FROM "Organisation" WHERE "id" = (SELECT "organisationId" FROM "Job" WHERE "id" = (SELECT "jobId" FROM "Application" WHERE "id" = ${scope.applicationId})) FOR SHARE`;
+  await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = (SELECT "recruiterId" FROM "Job" WHERE "id" = (SELECT "jobId" FROM "Application" WHERE "id" = ${scope.applicationId})) FOR SHARE`;
   return true;
 }
 
-// Caller holds User -> Application -> PaymentOrder -> Job/Organisation locks and
+// Caller holds User -> Application -> PaymentOrder -> Job/recruiter User locks and
 // has independently verified the receipt. Manual and provider settlement use the same rules.
 export async function settlePayment(tx: Prisma.TransactionClient, attemptId: string, receipt: string, source: "PROVIDER" | "STATEMENT", actorId: string) {
   const attempt = await tx.paymentAttempt.findUniqueOrThrow({ where: { id: attemptId }, include: { configuration: { select: { environment: true } }, paymentOrder: { include: {
     attempts: { select: { id: true }, orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 1 },
-    application: { include: { job: { include: { organisation: true } }, user: true, documents: { include: { document: true } } } },
+    application: { include: { job: { include: { recruiter: true } }, user: true, documents: { include: { document: true } } } },
   } } } });
   const order = attempt.paymentOrder, app = order.application;
   const parsed = snapshotInput.safeParse(order.frozenSnapshot), snapshot = parsed.success ? parsed.data : null;
   const document = app.documents.length === 1 ? app.documents[0].document : null;
   const latest = order.attempts[0]?.id === attemptId;
   const eligible = latest && !order.reviewHold && (process.env.NODE_ENV !== "production" || attempt.configuration?.environment === "LIVE") && app.status === "DRAFT" && app.user.status === "ACTIVE" && app.user.emailVerified
-    && app.job.status === "PUBLISHED" && !!app.job.publishedAt && app.job.deadline > new Date() && !app.job.organisation.suspendedAt
+    && app.job.status === "PUBLISHED" && !!app.job.publishedAt && app.job.deadline > new Date() && app.job.recruiter.status === "ACTIVE"
     && app.applicationFeeMinor === order.amountMinor && app.currency === order.currency && order.currency === "KES"
     && !!snapshot && snapshot.jobVersion === app.job.version && snapshot.applicationVersion === app.version
     && document?.id === snapshot.documentId && document.userId === app.userId && document.scanStatus === "CLEAN" && document.sha256 === snapshot.documentSha256;

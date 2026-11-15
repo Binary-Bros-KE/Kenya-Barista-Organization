@@ -10,7 +10,7 @@ export function LegacyArticle({ html }: { html: string }) {
       if (!panels?.hasAttribute("data-legacy-panels")) return;
       const buttons = [...bar.querySelectorAll<HTMLButtonElement>("button")], sections = [...panels.children] as HTMLElement[];
       if (buttons.length !== sections.length) return;
-      bar.setAttribute("role", "tablist"); bar.setAttribute("aria-label", "Coffee guide sections");
+      bar.setAttribute("role", "tablist"); bar.setAttribute("aria-label", "Barista hub sections");
       function select(index: number) { buttons.forEach((button, i) => { button.setAttribute("aria-selected", String(i === index)); button.tabIndex = i === index ? 0 : -1; if (sections[i]) sections[i].hidden = i !== index; }); }
       buttons.forEach((button, i) => {
         button.id = `${prefix}-${group}-tab-${i}`; sections[i].id = `${prefix}-${group}-panel-${i}`;

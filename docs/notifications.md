@@ -5,9 +5,9 @@ The database outbox now feeds dashboard alerts and background email for job and 
 ## User and administrator pages
 
 - `/dashboard/notifications`: paginated inbox, unread filter, mark as read, and job/application email preference.
-- `/admin/notifications`: MFA-protected queue counts, oldest pending event, failed event/email lists, and manual retries.
+- `/admin/notifications`: Administrator-only queue counts, oldest pending event, failed event/email lists, and manual retries.
 
-Dashboard notifications remain enabled when notification emails are disabled. Preferences apply to job/application updates. Account verification/reset messages and employer invitations retain their existing direct delivery paths and are not controlled by this preference or retried by this business-notification worker.
+Dashboard notifications remain enabled when notification emails are disabled. Preferences apply to job/application updates. Account verification/reset messages retain their existing direct delivery paths and are not controlled by this preference or retried by this business-notification worker.
 
 ## Covered events
 
@@ -66,11 +66,11 @@ Event expansion and delivery have independent two-minute leases with random owne
 
 Failures retry with exponential delays starting at one minute. After five failures/attempts, work is retained as failed for administrator review. A worker that crashes on the final delivery attempt is moved to failed after its lease expires rather than remaining pending forever. Failed event retries retain their recipient cursor; failed email retries retain their existing alert and Message-ID. Only failed inactive work can be manually retried, with an audit entry.
 
-Before sending, the worker rechecks current account activity, email verification, preference, organisation membership, and event relevance. Revoked/suspended employer access also hides those employer alerts from the inbox and prevents marking them read. Platform-admin alerts require current role and current-session MFA when viewed in the application. Notification email links still require normal sign-in/MFA to open their destination.
+Before sending, the worker rechecks current account activity, email verification, preference, recruiter account type, and event relevance. Revoked/suspended employer access also hides those employer alerts from the inbox and prevents marking them read. Platform-admin alerts require the current administrator role when viewed in the application. Notification email links still require normal sign-in/MFA to open their destination.
 
 Skipped emails are final: re-enabling email or restoring membership does not resend earlier skipped work. Messages that are no longer relevant, such as pending job-review requests after publication or recruitment responses after withdrawal, are skipped at delivery. Dashboard history may still show older authorised generic alerts.
 
-Failure records contain fixed codes such as EMAIL_DELIVERY_FAILED, ACCESS_REVOKED, EMAIL_DISABLED, ACCOUNT_UNAVAILABLE, and UNSUPPORTED_EVENT. Raw SMTP responses, credentials, message bodies, or recipient addresses are not written to worker logs. The MFA-only administration page shows the failed recipient address so an operator can investigate configuration or address problems. CLI output contains batch counts; skipped deliveries count as processed, not as sent.
+Failure records contain fixed codes such as EMAIL_DELIVERY_FAILED, ACCESS_REVOKED, EMAIL_DISABLED, ACCOUNT_UNAVAILABLE, and UNSUPPORTED_EVENT. Raw SMTP responses, credentials, message bodies, or recipient addresses are not written to worker logs. The Administrator-only administration page shows the failed recipient address so an operator can investigate configuration or address problems. CLI output contains batch counts; skipped deliveries count as processed, not as sent.
 
 ## Deployment
 
@@ -83,8 +83,8 @@ Run one or more worker processes under the VPS process manager with the same rel
 | `GET /api/notifications?page=1&unread=true` | Current user, filtered by current access |
 | `POST /api/notifications/[id]/read` | Current authorised recipient only |
 | `GET/PUT /api/notifications/preferences` | Current user's `{ emailEnabled }` preference |
-| `GET /api/admin/notifications` | MFA administrator: queue metrics and latest 50 failures per type |
-| `POST /api/admin/notifications/retry` | MFA administrator: `{ target: "event" or "delivery", id }` |
+| `GET /api/admin/notifications` | Administrator: queue metrics and latest 50 failures per type |
+| `POST /api/admin/notifications/retry` | Administrator: `{ target: "event" or "delivery", id }` |
 
 Mutations require the configured same origin. No HTTP endpoint accepts arbitrary recipients or email content, sends a batch, or exposes the private preview mailbox.
 

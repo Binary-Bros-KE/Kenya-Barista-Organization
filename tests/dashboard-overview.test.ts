@@ -13,17 +13,14 @@ test("dashboard overview preserves ownership, CV status and administrator MFA bo
   assert.ok(url.pathname.includes("test"), "Use an isolated test database");
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString, max: 3 }) });
   const suffix = randomUUID(), users: string[] = [];
-  let organisationId = "";
-  async function actor(name: string, admin = false): Promise<Actor> {
-    const user = await db.user.create({ data: { name, email: `${name}-${suffix}@example.invalid`, emailVerified: true, role: admin ? "ADMIN" : "APPLICANT" } });
+  async function actor(name: string, role: "ADMIN" | "RECRUITER" | "APPLICANT" = "APPLICANT"): Promise<Actor> {
+    const user = await db.user.create({ data: { name, email: `${name}-${suffix}@example.invalid`, emailVerified: true, role } });
     users.push(user.id); return { user, session: { id: randomUUID(), mfaVerifiedAt: null } };
   }
   try {
-    const owner = await actor("overview-owner"), other = await actor("overview-other"), admin = await actor("overview-admin", true);
-    const organisation = await db.organisation.create({ data: { name: "Overview coffee team", slug: "overview-" + suffix } }); organisationId = organisation.id;
-    await db.organisationMember.create({ data: { userId: owner.user.id, organisationId, role: "RECRUITER" } });
-    const job = await db.job.create({ data: { organisationId, title: "Coffee professional", slug: "overview-job-" + suffix, description: "Fixture", location: "Nairobi", category: "BARISTA", employmentType: "FULL_TIME", applicationFeeMinor: 10000, status: "PUBLISHED", publishedAt: new Date(), deadline: new Date(Date.now() + 86400000) } });
-    await db.job.create({ data: { organisationId, title: "Private pending job", slug: "overview-pending-" + suffix, description: "Fixture", location: "Nairobi", category: "BARISTA", employmentType: "FULL_TIME", applicationFeeMinor: 10000, status: "PENDING_REVIEW", deadline: new Date(Date.now() + 86400000) } });
+    const owner = await actor("overview-owner", "RECRUITER"), other = await actor("overview-other"), admin = await actor("overview-admin", "ADMIN");
+    const job = await db.job.create({ data: { recruiterId: owner.user.id, title: "Coffee professional", slug: "overview-job-" + suffix, description: "Fixture", location: "Nairobi", category: "BARISTA", employmentType: "FULL_TIME", applicationFeeMinor: 10000, status: "PUBLISHED", publishedAt: new Date(), deadline: new Date(Date.now() + 86400000) } });
+    await db.job.create({ data: { recruiterId: owner.user.id, title: "Private pending job", slug: "overview-pending-" + suffix, description: "Fixture", location: "Nairobi", category: "BARISTA", employmentType: "FULL_TIME", applicationFeeMinor: 10000, status: "PENDING_REVIEW", deadline: new Date(Date.now() + 86400000) } });
     const own = await db.application.create({ data: { userId: owner.user.id, jobId: job.id, applicationFeeMinor: 10000 } });
     const submitted = await db.application.create({ data: { userId: other.user.id, jobId: job.id, applicationFeeMinor: 10000, status: "SUBMITTED", submittedAt: new Date() } });
     await db.paymentOrder.create({ data: { applicationId: submitted.id, amountMinor: 10000, status: "SUCCEEDED", paidAt: new Date() } });
@@ -41,7 +38,7 @@ test("dashboard overview preserves ownership, CV status and administrator MFA bo
       assert.deepEqual(data.counts, { applications: 1, drafts: 1, active: 0, unread: 1 });
       assert.equal(data.applications[0].id, own.id); assert.equal(data.applications.length, 1);
       assert.deepEqual(data.notifications.map(item => item.title), ["Your application update"]);
-      assert.equal(data.cleanCvs, 0); assert.equal(data.memberships, 1); assert.equal(data.platform, null);
+      assert.equal(data.cleanCvs, 0); assert.equal(data.recruiting?.liveJobs, 1); assert.equal(data.recruiting?.awaitingApproval, 1); assert.equal(data.platform, null);
     });
     await t.test("profile readiness follows validation and pending CVs do not count as screened", async () => {
       assert.equal((await getDashboardOverview(db, owner)).profileReady, false);
@@ -49,14 +46,11 @@ test("dashboard overview preserves ownership, CV status and administrator MFA bo
       await db.document.create({ data: { userId: owner.user.id, storageKey: "overview-clean-" + suffix, filename: "clean.pdf", mimeType: "application/pdf", sizeBytes: 100, scanStatus: "CLEAN" } });
       const data = await getDashboardOverview(db, owner); assert.equal(data.profileReady, true); assert.equal(data.cleanCvs, 1);
     });
-    await t.test("administrator role alone cannot reveal platform totals or administrator updates", async () => {
+    await t.test("administrator role alone reveals platform totals without two-factor", async () => {
       const data = await getDashboardOverview(db, admin);
-      assert.equal(data.adminVerified, false); assert.equal(data.platform, null); assert.equal(data.counts.unread, 0); assert.deepEqual(data.notifications, []);
-      const enabled = await db.user.update({ where: { id: admin.user.id }, data: { twoFactorEnabled: true } });
-      assert.equal((await getDashboardOverview(db, { ...admin, user: enabled })).platform, null);
-      admin.user = enabled;
+      assert.equal(data.adminVerified, true); assert.equal(data.platform?.pendingJobs, 1);
     });
-    await t.test("only a verified administrator session receives the review queue and confirmed submission total", async () => {
+    await t.test("an administrator session receives the review queue and confirmed submission total", async () => {
       const verified = { ...admin, session: { ...admin.session, mfaVerifiedAt: new Date() } };
       const data = await getDashboardOverview(db, verified);
       assert.equal(data.adminVerified, true); assert.equal(data.platform?.pendingJobs, 1); assert.equal(data.platform?.submissions, 1);
@@ -75,9 +69,8 @@ test("dashboard overview preserves ownership, CV status and administrator MFA bo
       await db.paymentOrder.deleteMany({ where: { application: { userId: { in: users } } } });
       await db.application.deleteMany({ where: { userId: { in: users } } });
       await db.applicantProfile.deleteMany({ where: { userId: { in: users } } });
-      await db.organisationMember.deleteMany({ where: { userId: { in: users } } });
     }
-    if (organisationId) { await db.job.deleteMany({ where: { organisationId } }); await db.organisation.delete({ where: { id: organisationId } }); }
+    if (users.length) await db.job.deleteMany({ where: { recruiterId: { in: users } } });
     if (users.length) await db.user.deleteMany({ where: { id: { in: users } } });
     await db.$disconnect();
   }

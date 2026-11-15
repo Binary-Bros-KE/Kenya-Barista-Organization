@@ -14,7 +14,6 @@ export async function pageActor(admin = false, returnTo?: string) {
     return actor;
   } catch (error) {
     if (error instanceof AccessError) {
-      if (error.code === "MFA_REQUIRED") redirect("/dashboard/security");
       if (error.status === 401) redirect(authDestination("/sign-in",applicationReturnPath(returnTo)));
       redirect("/access-denied");
     }

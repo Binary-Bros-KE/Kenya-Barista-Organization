@@ -6,7 +6,7 @@ import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared
 import { ManagedJobCards, JobList } from "../src/components/job-list";
 import { RecruitmentActions } from "../src/components/recruitment-actions";
 function render(component: ReactNode) { return renderToStaticMarkup(createElement(AppRouterContext.Provider, { value: { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} } as never }, component)); }
-const job = { id: "job", title: "<script>Barista</script>", status: "PUBLISHED" as const, deadline: "2020-01-01T10:00:00Z", applicationFeeMinor: 10000, organisation: { name: "Coffee Co" }, _count: { applications: 3 } };
+const job = { id: "job", title: "<script>Barista</script>", status: "PUBLISHED" as const, deadline: "2020-01-01T10:00:00Z", applicationFeeMinor: 10000, recruiter: { name: "Coffee Co" }, _count: { applications: 3 } };
 test("posting cards retain management and applicant routes, accurate count labels and safe job text", () => {
  const html = render(createElement(ManagedJobCards, { jobs: [job] }));
  assert.ok(html.includes('href="/employer/jobs/job"')); assert.ok(html.includes('href="/employer/applications?jobId=job"'));
@@ -17,9 +17,9 @@ test("admin cards preserve the review route without changing employer applicatio
  const html = render(createElement(ManagedJobCards, { jobs: [job], admin: true }));
  assert.ok(html.includes('href="/admin/jobs/job"')); assert.ok(html.includes('Review / manage')); assert.ok(html.includes('href="/employer/applications?jobId=job"'));
 });
-test("posting list retains scoped create links, labeled filters and a loading state", () => {
- const html = render(createElement(JobList, { organisationId: "org / example" }));
- assert.ok(html.includes('organisationId=org%20%2F%20example')); assert.ok(html.includes('for="employer-job-status"'));
+test("posting list retains the create link, labeled filters and a loading state", () => {
+ const html = render(createElement(JobList, {}));
+ assert.ok(html.includes('href="/employer/jobs/new"')); assert.ok(html.includes('for="employer-job-status"'));
  assert.ok(html.includes('role="status"')); assert.ok(html.includes('Loading job postings...'));
 });
 test("recruiter response choices follow current review transitions and exclude unavailable outcomes", () => {
@@ -33,7 +33,7 @@ test("recruiter response choices follow current review transitions and exclude u
  assert.ok(html.includes('Send response')); assert.ok(!html.includes('value="SHORTLISTED"')); assert.ok(!html.includes('value="HIRED"'));
  }
 });
-test("withdrawn applications and suspended organisations do not expose a response form", () => {
+test("withdrawn applications and suspended recruiters do not expose a response form", () => {
  for (const props of [{ status: "WITHDRAWN", paused: false }, { status: "SUBMITTED", paused: true }]) {
  const html = render(createElement(RecruitmentActions, { id: "app", version: 1, ...props }));
  assert.ok(!html.includes('<form')); assert.ok(!html.includes('Send response'));

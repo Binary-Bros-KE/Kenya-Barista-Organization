@@ -1,6 +1,6 @@
 # Recruitment review and applicant responses
 
-Employers and MFA-verified platform administrators can review applications at `/employer/applications`. The Review applicants navigation link and the applicant count on each managed job lead to this workflow. Administrators see all organisations; employers see only their current active memberships. OWNER and RECRUITER memberships both permit recruitment actions in that organisation.
+Recruiters and platform administrators can review applications at `/employer/applications`. The Review applicants navigation link and the applicant count on each managed job lead to this workflow. Administrators see all applications; recruiters see only applications to their own jobs.
 
 Only applications with a submitted timestamp, a non-draft status, and a confirmed paid payment order appear. An existing confirmed payment later recorded as refunded retains its historical recruitment record. Drafts, unpaid applications, and paid-but-unsubmitted applications are excluded from employer lists, job filters, details, responses, CV endpoints, and managed-job applicant counts.
 
@@ -22,11 +22,11 @@ The submitted CV is available through a separate application-scoped download end
 | Hired / Not selected | No further status changes; follow-up messages remain available |
 | Withdrawn | No further decisions, messages, or CV downloads |
 
-Every response requires an applicant-visible message, maximum 4,000 characters. Reviewers can also send a response without changing status. There are no private/internal notes in this composer. Messages are plain text and rendered escaped; HTML is not executed. Applicants see the organisation or KBO administration label, rather than the reviewer's private email or account ID.
+Every response requires an applicant-visible message, maximum 4,000 characters. Reviewers can also send a response without changing status. There are no private/internal notes in this composer. Messages are plain text and rendered escaped; HTML is not executed. Applicants see the recruiter's name or the KBO administration label, rather than the reviewer's private email or account ID.
 
 Actions require the application version displayed on the page. A stale tab or competing reviewer cannot overwrite a newer decision. Changing status also records application status history. Each response records its author and sender label, writes an audit event, and creates a deduplicated `application.response` outbox event. Responses are immutable through the API. Repeated stale POSTs do not send additional messages.
 
-Employers lose access when their membership is removed or the organisation is suspended. Administrators require current-session MFA and can read historical records for suspended organisations, but cannot send recruitment responses until the organisation is reactivated. Terminal decisions cannot be reversed through the current administrator interface either.
+Recruiters lose access when they are changed back to a job seeker or their account is suspended. Administrators can read historical records for suspended recruiters, but cannot send recruitment responses until the recruiter's account is reactivated. Terminal decisions cannot be reversed through the current administrator interface either.
 
 ## Applicant view and withdrawal
 
@@ -40,7 +40,7 @@ If withdrawal races with a recruiter decision, version checks permit only one ac
 
 | Route | Access |
 | --- | --- |
-| `GET /api/employer/applications` | Organisation reviewer or MFA administrator; scoped filters and pagination |
+| `GET /api/employer/applications` | The job's recruiter or an administrator; scoped filters and pagination |
 | `GET /api/employer/applications/[id]` | Scoped submitted profile and CV availability |
 | `GET /api/employer/applications/[id]/cv` | Scoped, clean, unchanged submitted CV only |
 | `GET /api/employer/applications/[id]/responses?page=1` | Scoped response timeline |

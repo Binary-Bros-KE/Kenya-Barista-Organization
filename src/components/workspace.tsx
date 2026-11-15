@@ -15,16 +15,28 @@ const accountLinks: Item[] = [
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
   { label: "Security", href: "/dashboard/security", icon: "security" },
 ];
-const employerLinks: Item[] = [
-  { label: "Organisations", href: "/employer", icon: "organisations" },
-  { label: "My postings", href: "/employer/jobs", icon: "jobs" },
+const adminOverviewLinks: Item[] = [{ label: "Dashboard", href: "/dashboard", icon: "account" }];
+const recruiterLinks: Item[] = [
   { label: "Review applicants", href: "/employer/applications", icon: "review" },
+  { label: "Job postings", href: "/employer/jobs", icon: "jobs" },
+];
+const jobSeekerLinks: Item[] = [
+  { label: "Profile and CVs", href: "/dashboard/profile", icon: "profile" },
+  { label: "Applications", href: "/dashboard/applications", icon: "applications" },
+  { label: "Payments", href: "/dashboard/payments", icon: "payments" },
 ];
 const adminLinks: Item[] = [
-  { label: "Administration", href: "/admin", icon: "admin" },
-  { label: "Job review", href: "/admin/jobs", icon: "review" },
-  { label: "M-Pesa settings", href: "/admin/payments", icon: "settings" },
+  { label: "Accounts", href: "/admin/accounts", icon: "profile" },
+  { label: "Recruiters", href: "/admin", icon: "organisations" },
+  { label: "Job review", href: "/admin/jobs", icon: "jobs" },
+  { label: "Applicants", href: "/employer/applications", icon: "review" },
+  { label: "Payments and M-Pesa", href: "/admin/payments", icon: "payments" },
+  { label: "Payment review", href: "/admin/payments/review", icon: "settings" },
   { label: "Delivery queue", href: "/admin/notifications", icon: "queue" },
+];
+const adminAccountLinks: Item[] = [
+  { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
+  { label: "Security", href: "/dashboard/security", icon: "security" },
 ];
 const exploreLinks: Item[] = [{ label: "Find jobs", href: "/jobs", icon: "jobs" }];
 
@@ -51,21 +63,30 @@ function Icon({ name }: { name: IconName }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{shapes[name]}</svg>;
 }
 
-function isActive(pathname: string, href: string) {
+function matches(pathname: string, href: string) {
   if (href === "/dashboard" || href === "/admin") return pathname === href;
-  if (href === "/employer") return pathname === href || pathname.startsWith("/employer/organisations/");
   return pathname === href || pathname.startsWith(href + "/");
 }
+// The most specific matching link wins, so /admin/payments/review highlights only "Payment review".
+function activeItem(pathname: string, items: Item[]) {
+  return items.filter(item => matches(pathname, item.href)).sort((a, b) => b.href.length - a.href.length)[0];
+}
 
-export function Workspace({ name, admin, children }: { name: string; admin: boolean; children: ReactNode }) {
+export function Workspace({ name, admin, recruiter = false, children }: { name: string; admin: boolean; recruiter?: boolean; children: ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const mobileTrigger = useRef<HTMLButtonElement>(null);
   const mobileClose = useRef<HTMLButtonElement>(null);
-  const items = [...accountLinks, ...employerLinks, ...(admin ? adminLinks : []), ...exploreLinks];
-  const current = items.find(item => isActive(pathname, item.href));
+  const groups: [string, Item[]][] = admin
+    ? [["Overview", adminOverviewLinks], ["Administration", adminLinks], ["Your account", adminAccountLinks], ["Explore", exploreLinks]]
+    : recruiter
+      ? [["Overview", adminOverviewLinks], ["Recruiting", recruiterLinks], ["Job seeking", jobSeekerLinks], ["Your account", adminAccountLinks], ["Explore", exploreLinks]]
+      : [["Your workspace", accountLinks], ["Explore", exploreLinks]];
+  const current = activeItem(pathname, groups.flatMap(([, links]) => links));
+  const currentGroup = groups.find(([, links]) => current && links.includes(current))?.[0];
+  const section = !currentGroup || currentGroup === "Overview" ? (admin ? "Administration" : recruiter ? "Recruiter workspace" : "Your workspace") : currentGroup;
   const initials = name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase() || "KB";
 
   useEffect(() => {
@@ -99,8 +120,8 @@ export function Workspace({ name, admin, children }: { name: string; admin: bool
   function group(label: string, links: Item[], mobile: boolean) {
     return <div className="workspace-nav-group" key={label}>
       <p className="workspace-nav-heading">{label}</p>
-      {links.map(item => <Link key={item.href} href={item.href} className={`workspace-nav-link${isActive(pathname, item.href) ? " is-active" : ""}`}
-        aria-current={isActive(pathname, item.href) ? "page" : undefined} aria-label={item.label}
+      {links.map(item => <Link key={item.href} href={item.href} className={`workspace-nav-link${item === current ? " is-active" : ""}`}
+        aria-current={item === current ? "page" : undefined} aria-label={item.label}
         title={!mobile && collapsed ? item.label : undefined} onClick={mobile ? closeMobile : undefined}>
         <Icon name={item.icon} /><span className="workspace-link-label">{item.label}</span>
       </Link>)}
@@ -110,15 +131,12 @@ export function Workspace({ name, admin, children }: { name: string; admin: bool
     return <>
       <div className="workspace-brand-row"><Link href="/" className="workspace-brand" aria-label="Kenya Barista Organization home" onClick={mobile ? closeMobile : undefined}>
         <img src="/brand-logo.png" width={46} height={45} alt="Kenya Barista Organization" />
-        <span className="workspace-brand-copy"><strong>Kenya Barista</strong><span>Career workspace</span></span>
+        <span className="workspace-brand-copy"><strong>Kenya Barista</strong><span>{admin ? "Administration" : recruiter ? "Recruiter workspace" : "Career workspace"}</span></span>
       </Link>{mobile && <button ref={mobileClose} type="button" className="workspace-icon-button workspace-drawer-close" aria-label="Close navigation" onClick={closeMobile}><Icon name="close" /></button>}</div>
       <nav className="workspace-navigation" aria-label="Account navigation">
-        {group("Your workspace", accountLinks, mobile)}
-        {group("For employers", employerLinks, mobile)}
-        {admin && group("Administration", adminLinks, mobile)}
-        {group("Explore", exploreLinks, mobile)}
+        {groups.map(([label, links]) => group(label, links, mobile))}
       </nav>
-      <div className="workspace-sidebar-footer"><SignOut /><p className="workspace-footer-note">Let’s talk coffee.</p></div>
+      <div className="workspace-sidebar-footer"><SignOut /><p className="workspace-footer-note">KBO Platform <span>v{process.env.NEXT_PUBLIC_APP_VERSION}</span></p></div>
     </>;
   }
   return <div className={`workspace-shell${collapsed ? " workspace-shell-collapsed" : ""}`}>
@@ -129,11 +147,11 @@ export function Workspace({ name, admin, children }: { name: string; admin: bool
         <div className="workspace-topbar-leading">
           <button type="button" className="workspace-icon-button workspace-desktop-toggle" onClick={toggleCollapsed} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} aria-controls="workspace-sidebar" title={collapsed ? "Expand sidebar" : "Collapse sidebar"}><Icon name={collapsed ? "expand" : "collapse"} /></button>
           <button ref={mobileTrigger} type="button" className="workspace-icon-button workspace-mobile-toggle" onClick={openMobile} aria-label="Open navigation" aria-haspopup="dialog" aria-expanded={mobileOpen} aria-controls="workspace-mobile-navigation"><Icon name="menu" /></button>
-          <div className="workspace-page-context"><span>{admin ? "Administrator workspace" : "Your workspace"}</span><strong>{current?.label || "My account"}</strong></div>
+          <div className="workspace-page-context"><span>{section}</span><strong>{current?.label || (admin ? "Dashboard" : "My account")}</strong></div>
         </div>
         <div className="workspace-topbar-trailing">
           <Link href="/" className="workspace-website-link"><Icon name="external" /><span>Website</span></Link>
-          <div className="workspace-user" aria-label={`Signed in as ${name}`}><span className="workspace-avatar" aria-hidden="true">{initials}</span><span className="workspace-user-copy"><strong title={name}>{name}</strong><span>{admin ? "Administrator" : "Member"}</span></span></div>
+          <div className="workspace-user" aria-label={`Signed in as ${name}`}><span className="workspace-avatar" aria-hidden="true">{initials}</span><span className="workspace-user-copy"><strong title={name}>{name}</strong><span>{admin ? "Administrator" : recruiter ? "Recruiter" : "Member"}</span></span></div>
         </div>
       </header>
       <main className="workspace-content" id="workspace-content" tabIndex={-1}>{children}</main>

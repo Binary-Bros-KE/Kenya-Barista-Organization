@@ -13,6 +13,8 @@ import Gallery from "../src/app/gallery/page";
 import Contact from "../src/app/contact/page";
 import { LegacyGallery } from "../src/components/legacy-gallery";
 import { LegacyGuidePage } from "../src/components/legacy-guide-page";
+import { EducationPage } from "../src/components/education-page";
+import { education, type EducationSlug } from "../src/content/education";
 import { LegacyEnquiry } from "../src/components/legacy-enquiry";
 import { enquiryDraft } from "../src/lib/enquiry-draft";
 import { contactInfo } from "../src/content/site-brand";
@@ -59,6 +61,11 @@ test("gallery viewer starts closed, labels controls and handles unavailable/sing
  assert.ok(html.includes('aria-describedby=')); assert.ok(!/<dialog[^>]*open/.test(html)); assert.equal((html.match(/disabled=""/g)||[]).length,2);
 });
 test("all coffee guides retain complete original articles and interactive tab/accordion markup", () => {
- for(const slug of Object.keys(guides) as (keyof typeof guides)[]){const html=render(createElement(LegacyGuidePage,{slug}),"/"+slug);assert.ok(html.includes(publicArticleHtml(guides[slug].html)),slug+" article preserved");assert.ok(html.includes('aria-label="Coffee guide articles"'));assert.ok([...html.matchAll(/<a[^>]*>/g)].some(([tag])=>tag.includes('href="/'+slug+'"')&&tag.includes('aria-current="page"')));assert.ok(html.includes('id="main-content"'));}
+ const routes={farming:"/farming",comparison:"/origin-and-processes",bean:"/bean",drinks:"/barista-tools"};
+ for(const slug of Object.keys(guides) as (keyof typeof guides)[]){const html=render(createElement(LegacyGuidePage,{slug}),routes[slug]);assert.ok(html.includes(publicArticleHtml(guides[slug].html)),slug+" article preserved");assert.ok(html.includes('aria-label="Barista hub articles"'));assert.ok([...html.matchAll(/<a[^>]*>/g)].some(([tag])=>tag.includes('href="'+routes[slug]+'"')&&tag.includes('aria-current="page"')));assert.ok(html.includes('id="main-content"'));}
  const bean=render(createElement(LegacyGuidePage,{slug:"bean"}),"/bean");assert.ok(bean.includes('data-legacy-tabs'));assert.ok(bean.includes('<details'));
+});
+test("education pages have one heading, local photography and a course enquiry route", () => {
+ for(const slug of Object.keys(education) as EducationSlug[]){const html=render(createElement(EducationPage,{slug}),"/education/"+slug);assert.equal((html.match(/<h1\b/g)||[]).length,1,slug);assert.ok(html.includes('href="/registration#course-enquiry"'),slug);
+ for(const [tag] of html.matchAll(/<img\b[^>]*>/g)){const src=/src="([^"]+)"/.exec(tag)?.[1];assert.ok(src&&existsSync(resolve(process.cwd(),"public"+src)),src);if(!tag.includes('aria-hidden="true"'))assert.match(tag,/alt="[^"]+"/);}}
 });

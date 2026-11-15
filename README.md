@@ -1,6 +1,6 @@
 # Kenya Barista recruitment platform
 
-Recruitment application with verified accounts, two-factor administrator access, employer invitations, job posting/review, public job discovery, private CVs, paid application submission, recruitment responses, notifications and payment administration. This repository contains only the barista-platform application, with app files at the repository root. Real merchant acceptance and production deployment remain before launch.
+Recruitment application with verified accounts, password-protected administrator access with optional two-factor authentication, three account types (job seeker, recruiter, super admin), job posting/review, public job discovery, private CVs, paid application submission, recruitment responses, notifications and payment administration. This repository contains only the barista-platform application, with app files at the repository root. Real merchant acceptance and production deployment remain before launch.
 
 **Accounts setup and administrator instructions:** [docs/accounts.md](docs/accounts.md).
 
@@ -88,7 +88,7 @@ npm.cmd run db:studio
 
 `db:deploy` applies checked-in migrations and is appropriate for initial setup. `db:migrate` creates new migrations in development and can require a shadow database; grant only the local development role the necessary privileges or configure a separate shadow database. Never reset production data.
 
-The guarded seed creates a demo organisation only. It requires a local host, `NODE_ENV=development`, and `ALLOW_DEV_SEED=true`. It does not create accounts, default passwords, fake applications, or payments.
+The guarded seed creates nothing: accounts are registered through the app and recruiters are set by an administrator. It requires a local host, `NODE_ENV=development`, and `ALLOW_DEV_SEED=true`.
 
 ## Verify
 

@@ -29,7 +29,7 @@ Set `PAYMENT_CALLBACK_BASE_URL` to a public HTTPS **origin**, with no path, quer
 
 The app defaults to one database connection in development to accommodate the embedded Prisma dev protocol bridge. Use `DATABASE_POOL_MAX=1` with Prisma dev, including when testing a production build locally. Native PostgreSQL deployments default to five connections; set `DATABASE_POOL_MAX=5` explicitly on the VPS. Database integration CI retains multiple connections on PostgreSQL 17.
 
-Sign in as an administrator with a verified MFA session and open `/admin/payments`:
+Sign in as an administrator and open `/admin/payments`:
 
 1. Select Paybill or Till and Sandbox or Live.
 2. Enter a checkout label, the business shortcode, and the separate Till number when applicable.
@@ -83,9 +83,9 @@ Manual reversal recording is implemented as described below. Statement-backed ad
 
 | Route | Access and action |
 | --- | --- |
-| `GET/POST /api/admin/payments/settings` | MFA administrator: read safe configuration metadata / create a credential revision |
-| `GET /api/admin/payments` | MFA administrator: latest 100 payment orders, safe fields only |
-| `POST /api/admin/payments/[id]/refresh` | MFA administrator: requery latest attempt, subject to the query lease |
+| `GET/POST /api/admin/payments/settings` | Administrator: read safe configuration metadata / create a credential revision |
+| `GET /api/admin/payments` | Administrator: latest 100 payment orders, safe fields only |
+| `POST /api/admin/payments/[id]/refresh` | Administrator: requery latest attempt, subject to the query lease |
 | `GET /api/applications/[id]/payments` | Owner: payment summary |
 | `POST /api/applications/[id]/payments` | Owner: initiate `{ configurationId, phone, idempotencyKey, version }` |
 | `POST /api/applications/[id]/payments/refresh` | Owner: requery latest attempt |
@@ -106,7 +106,7 @@ Before live launch, test both merchant configurations with actual Daraja sandbox
 
 ## Manual reversals (16 October 2026)
 
-Money is returned manually outside this application. There are no Daraja reversal requests or reversal credentials. An MFA administrator uses **Mark payment reversed** on the payment administration screen after returning the full original payment to the original payer, supplying a unique reversal reference, a private note, and explicit confirmation of completion.
+Money is returned manually outside this application. There are no Daraja reversal requests or reversal credentials. An administrator uses **Mark payment reversed** on the payment administration screen after returning the full original payment to the original payer, supplying a unique reversal reference, a private note, and explicit confirmation of completion.
 
 POST /api/admin/payments/[id]/reverse accepts only attemptId, reference, note, and confirmedReturnedToPayer: true. The server derives the full amount and currency from the original order. It accepts only confirmed, receipted successful attempts on paid orders without unresolved attempts or an existing refund workflow. Partial refunds are not supported. A reversal is final in the application; there is no edit/delete endpoint.
 

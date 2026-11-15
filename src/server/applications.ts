@@ -14,7 +14,7 @@ export async function saveProfile(db: PrismaClient, actor: Actor, input: unknown
 }
 export async function ownApplication(db: PrismaClient, actor: Actor, id: string) {
   const application = await db.application.findFirst({ where: { id, userId: actor.user.id }, include: {
-    job: { select: { title: true, slug: true, status: true, deadline: true, organisation: { select: { name: true, suspendedAt: true } } } },
+    job: { select: { title: true, slug: true, status: true, deadline: true, recruiter: { select: { name: true, status: true } } } },
     documents: { select: { document: { select: { id: true, filename: true, scanStatus: true } } } },
   } });
   if (!application) throw new AccessError(404, "NOT_FOUND", "Application not found");
@@ -22,7 +22,7 @@ export async function ownApplication(db: PrismaClient, actor: Actor, id: string)
 }
 export async function startApplication(db: PrismaClient, actor: Actor, slug: string) {
   return db.$transaction(async tx => {
-    const job = await tx.job.findFirst({ where: { slug, status: "PUBLISHED", publishedAt: { not: null }, deadline: { gt: new Date() }, organisation: { suspendedAt: null } } });
+    const job = await tx.job.findFirst({ where: { slug, status: "PUBLISHED", publishedAt: { not: null }, deadline: { gt: new Date() }, recruiter: { status: "ACTIVE" } } });
     if (!job) throw new AccessError(409, "JOB_UNAVAILABLE", "This job is no longer accepting applications");
     // A no-op upsert makes retries and simultaneous clicks return the same draft.
     return tx.application.upsert({ where: { userId_jobId: { userId: actor.user.id, jobId: job.id } }, update: {},

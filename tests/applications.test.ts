@@ -16,13 +16,13 @@ test("private applicant drafts and CV lifecycle", { skip: process.env.RUN_DB_TES
  assert.ok(["localhost","127.0.0.1","[::1]"].includes(url.hostname)); assert.notEqual(url.port,"51214");
  const db=new PrismaClient({ adapter:new PrismaPg({connectionString,max:3}) }); const suffix=randomUUID(); const ids:string[]=[];
  const previous=process.env.PRIVATE_UPLOAD_DIR; const directory=await mkdtemp(path.join(os.tmpdir(),"barista-cvs-")); process.env.PRIVATE_UPLOAD_DIR=directory;
- let organisationId=""; let jobId="";
+ let recruiterId=""; let jobId="";
  try {
   assert.equal(await db.application.count(),0,"Use an isolated empty application test database");
   async function actor(name:string):Promise<Actor> { const user=await db.user.create({data:{name,email:`${name}-${suffix}@example.invalid`,emailVerified:true}});ids.push(user.id);return {user,session:{id:randomUUID(),mfaVerifiedAt:null}}; }
   const owner=await actor("applicant"); const other=await actor("other");
-  const organisation=await db.organisation.create({data:{name:"Test employer",slug:`applications-${suffix}`}});organisationId=organisation.id;
-  const job=await db.job.create({data:{organisationId,slug:`apply-${suffix}`,title:"Barista",description:"Coffee role",location:"Nairobi",category:"BARISTA",employmentType:"FULL_TIME",status:"PUBLISHED",publishedAt:new Date(),deadline:new Date(Date.now()+86400000),applicationFeeMinor:10000}});jobId=job.id;
+  const recruiter=await db.user.create({data:{name:"Test employer",email:`recruiter-${suffix}@example.invalid`,emailVerified:true,role:"RECRUITER"}});recruiterId=recruiter.id;
+  const job=await db.job.create({data:{recruiterId,slug:`apply-${suffix}`,title:"Barista",description:"Coffee role",location:"Nairobi",category:"BARISTA",employmentType:"FULL_TIME",status:"PUBLISHED",publishedAt:new Date(),deadline:new Date(Date.now()+86400000),applicationFeeMinor:10000}});jobId=job.id;
   await t.test("profiles validate contact details and reject privilege fields",async()=>{
    await assert.rejects(saveProfile(db,owner,{fullName:"Name",phone:"invalid",location:"Nairobi",summary:""}));
    await assert.rejects(saveProfile(db,owner,{fullName:"Name",phone:"+254712345678",location:"Nairobi",summary:"",role:"ADMIN"}));
@@ -64,7 +64,7 @@ test("private applicant drafts and CV lifecycle", { skip: process.env.RUN_DB_TES
   await t.test("closed, expired, suspended and unpublished jobs reject new drafts",async()=>{
    await db.job.update({where:{id:jobId},data:{status:"CLOSED"}});await assert.rejects(startApplication(db,other,job.slug),{code:"JOB_UNAVAILABLE"});
    await db.job.update({where:{id:jobId},data:{status:"PUBLISHED",deadline:new Date(Date.now()-1000)}});await assert.rejects(startApplication(db,other,job.slug),{code:"JOB_UNAVAILABLE"});
-   await db.job.update({where:{id:jobId},data:{deadline:new Date(Date.now()+86400000)}});await db.organisation.update({where:{id:organisationId},data:{suspendedAt:new Date()}});await assert.rejects(startApplication(db,other,job.slug),{code:"JOB_UNAVAILABLE"});
+   await db.job.update({where:{id:jobId},data:{deadline:new Date(Date.now()+86400000)}});await db.user.update({where:{id:recruiterId},data:{status:"SUSPENDED"}});await assert.rejects(startApplication(db,other,job.slug),{code:"JOB_UNAVAILABLE"});
   });
   await t.test("storage quota is enforced during parallel uploads",async()=>{
    const outcomes=await Promise.allSettled(Array.from({length:7},()=>uploadCv(db,owner,pdf,"cv.pdf")));assert.equal(outcomes.filter(r=>r.status==="fulfilled").length,5);
@@ -73,7 +73,7 @@ test("private applicant drafts and CV lifecycle", { skip: process.env.RUN_DB_TES
  } finally {
   await db.applicationDocument.deleteMany({where:{application:{userId:{in:ids}}}});await db.application.deleteMany({where:{userId:{in:ids}}});
   await db.document.deleteMany({where:{userId:{in:ids}}});await db.applicantProfile.deleteMany({where:{userId:{in:ids}}});
-  if(jobId)await db.job.delete({where:{id:jobId}});if(organisationId)await db.organisation.delete({where:{id:organisationId}});await db.user.deleteMany({where:{id:{in:ids}}});await db.$disconnect();
+  if(jobId)await db.job.delete({where:{id:jobId}});if(recruiterId)await db.user.delete({where:{id:recruiterId}});await db.user.deleteMany({where:{id:{in:ids}}});await db.$disconnect();
   if(previous===undefined)delete process.env.PRIVATE_UPLOAD_DIR;else process.env.PRIVATE_UPLOAD_DIR=previous;
   await rm(directory,{recursive:true,force:true});
  }

@@ -23,9 +23,10 @@ The original downloaded archive remains unchanged. The restored content is track
 | `/registration` | Original course posters/location, course enquiry form and link to separate job registration |
 | `/contact` | Contact details, social links, original contact illustration and email enquiry form |
 | `/farming` | Original farming content, varieties and coffee-grade table |
-| `/comparison` | Original Arabica/Robusta tabs, article and comparison table |
+| `/origin-and-processes` | New Kenyan origin, processing and grading introduction, then the original Arabica/Robusta tabs, article and comparison table (`/comparison` redirects here) |
 | `/bean` | Original bean-to-cup process, brewing tabs and expandable steps |
-| `/drinks` | Original coffee drink guide, illustrations and descriptions |
+| `/barista-tools` | New barista tools introduction using the product photos, then the original coffee drink guide, illustrations and descriptions (`/drinks` redirects here) |
+| `/education/online-courses`, `/education/academies`, `/education/coaching` | New Education pages (copy in `src/content/education.ts`). They state no dates, venues or fees and send visitors to the `/registration` course enquiry |
 
 The brown navigation, original wordmark, green accents, white flat public sections, hero sizing, handwritten taglines, footer texture and responsive menu have been retained. Jobs and My account are added to navigation/footer. Existing job pages use this public shell. The new account/admin/recruitment workflows remain operational and are outside the legacy public-content layout.
 

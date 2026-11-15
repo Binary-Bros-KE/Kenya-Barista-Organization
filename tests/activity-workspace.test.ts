@@ -28,7 +28,7 @@ test("payment rows, filtered total and summary counts preserve ownership and exc
  assert.deepEqual(result.counts, { PENDING: 2 });
 });
 test("payment history shows recorded manual reversals, honest missing receipts and retained pagination", () => {
- const html = render(createElement(PaymentHistory, { result: { orders: [{ id: "pay", status: "REFUNDED", reviewHold: false, amountMinor: 10000, createdAt: new Date("2026-10-29T10:00:00Z"), paidAt: null, attempts: [], refunds: [{ id: "refund", providerReference: "manual-ref", completedAt: new Date("2026-10-29T11:00:00Z") }], application: { id: "app", job: { title: "Barista", organisation: { name: "Coffee Co" } } } }], total: 42, counts: { REFUNDED: 42 }, page: 2, status: "REFUNDED" } }));
+ const html = render(createElement(PaymentHistory, { result: { orders: [{ id: "pay", status: "REFUNDED", reviewHold: false, amountMinor: 10000, createdAt: new Date("2026-10-29T10:00:00Z"), paidAt: null, attempts: [], refunds: [{ id: "refund", providerReference: "manual-ref", completedAt: new Date("2026-10-29T11:00:00Z") }], application: { id: "app", job: { title: "Barista", recruiter: { name: "Coffee Co" } } } }], total: 42, counts: { REFUNDED: 42 }, page: 2, status: "REFUNDED" } }));
  for (const value of ["Manual reversal recorded", "manual-ref", "Not available yet", "Reversed", "status=REFUNDED&amp;page=3"]) assert.ok(html.includes(value), value);
  assert.ok(html.includes('href="/dashboard/applications/app"'));
 });

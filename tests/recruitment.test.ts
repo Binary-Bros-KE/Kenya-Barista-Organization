@@ -16,35 +16,32 @@ test("recruitment isolation, immutable submissions, responses and withdrawal", {
   const connectionString = process.env.RECRUITMENT_TEST_DATABASE_URL!, url = new URL(connectionString);
   assert.ok(["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)); assert.notEqual(url.port, "51214");
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString, max: Number(process.env.TEST_DATABASE_POOL_MAX || 1) }) });
-  const userIds: string[] = [], organisationIds: string[] = [], jobIds: string[] = [], applicationIds: string[] = [];
+  const userIds: string[] = [], jobIds: string[] = [], applicationIds: string[] = [];
   const suffix = randomUUID(), previousStorage = process.env.PRIVATE_UPLOAD_DIR;
   const storage = await mkdtemp(path.join(os.tmpdir(), "barista-recruitment-")); process.env.PRIVATE_UPLOAD_DIR = storage;
-  async function actor(name: string, admin = false): Promise<Actor> {
-    const user = await db.user.create({ data: { name, email: `${name}-${suffix}@example.invalid`, emailVerified: true, role: admin ? "ADMIN" : "APPLICANT", twoFactorEnabled: admin } }); userIds.push(user.id);
-    return { user, session: { id: randomUUID(), mfaVerifiedAt: admin ? new Date() : null } };
+  async function actor(name: string, role: "ADMIN" | "RECRUITER" | "APPLICANT" = "APPLICANT"): Promise<Actor> {
+    const user = await db.user.create({ data: { name, email: `${name}-${suffix}@example.invalid`, emailVerified: true, role } }); userIds.push(user.id);
+    return { user, session: { id: randomUUID(), mfaVerifiedAt: null } };
   }
   try {
     assert.equal(await db.application.count(), 0, "Use an isolated empty recruitment database");
     assert.equal(await db.user.count({ where: { role: "ADMIN" } }), 0, "Use an isolated database");
-    const applicant = await actor("candidate"), employer = await actor("employer"), other = await actor("other-employer"), admin = await actor("review-admin", true);
-    for (const name of ["first", "second"]) { const org = await db.organisation.create({ data: { name: `${name} coffee team`, slug: `${name}-${suffix}` } }); organisationIds.push(org.id); }
-    await db.organisationMember.create({ data: { userId: employer.user.id, organisationId: organisationIds[0] } });
-    await db.organisationMember.create({ data: { userId: other.user.id, organisationId: organisationIds[1] } });
+    const applicant = await actor("candidate"), employer = await actor("employer", "RECRUITER"), other = await actor("other-employer", "RECRUITER"), admin = await actor("review-admin", "ADMIN");
     const pdf = Buffer.from("%PDF-1.7\n1 0 obj\n<<>>\nendobj\n%%EOF\n");
     const cv = await uploadCv(db, applicant, pdf, "submitted-cv.pdf");
     const document = await db.document.update({ where: { id: cv.id }, data: { scanStatus: "CLEAN" } });
     await db.applicantProfile.create({ data: { userId: applicant.user.id, fullName: "Changed current name", phone: "+254799999999", location: "Mombasa", summary: "New summary" } });
-    async function application(options: { organisationId?: string; status?: ApplicationStatus; paid?: boolean; submitted?: boolean } = {}) {
-      const organisationId = options.organisationId || organisationIds[0];
-      const job = await db.job.create({ data: { organisationId, slug: randomUUID(), title: "Recruitment Barista", description: "Coffee team role", location: "Nairobi", category: "BARISTA", employmentType: "FULL_TIME", status: "CLOSED", applicationFeeMinor: 10000, deadline: new Date(Date.now() - 10000), publishedAt: new Date(Date.now() - 86400000) } }); jobIds.push(job.id);
+    async function application(options: { recruiterId?: string; status?: ApplicationStatus; paid?: boolean; submitted?: boolean } = {}) {
+      const recruiterId = options.recruiterId || employer.user.id;
+      const job = await db.job.create({ data: { recruiterId, slug: randomUUID(), title: "Recruitment Barista", description: "Coffee team role", location: "Nairobi", category: "BARISTA", employmentType: "FULL_TIME", status: "CLOSED", applicationFeeMinor: 10000, deadline: new Date(Date.now() - 10000), publishedAt: new Date(Date.now() - 86400000) } }); jobIds.push(job.id);
       const app = await db.application.create({ data: { userId: applicant.user.id, jobId: job.id, status: options.status || "SUBMITTED", submittedAt: options.submitted === false ? null : new Date(), applicationFeeMinor: 10000,
         submissionSnapshot: { fullName: "Frozen Applicant", email: applicant.user.email, phone: "+254712345678", location: "Nairobi", summary: "Submitted summary", coverLetter: "Original application", documentId: cv.id, documentSha256: document.sha256!, jobTitle: "Original job title", organisationName: "Original coffee team", jobVersion: 1, applicationVersion: 1 },
         documents: { create: { documentId: cv.id } }, paymentOrder: { create: { amountMinor: 10000, status: options.paid === false ? "PENDING" : "SUCCEEDED", paidAt: options.paid === false ? null : new Date() } },
       } }); applicationIds.push(app.id); return app;
     }
-    const primary = await application(), second = await application({ organisationId: organisationIds[1] });
+    const primary = await application(), second = await application({ recruiterId: other.user.id });
     const draft = await application({ status: "DRAFT", submitted: false }), unpaid = await application({ paid: false }), unsubmitted = await application({ submitted: false });
-    await t.test("employers see only confirmed submissions in their own organisation", async () => {
+    await t.test("recruiters see only confirmed submissions to their own jobs", async () => {
       const result = await listReviewApplications(db, employer, {}); assert.equal(result.pagination.total, 1); assert.equal(result.applications[0].id, primary.id); assert.equal(result.applications[0].applicantName, "Frozen Applicant");
       assert.ok(!JSON.stringify(result).includes("documentSha256")); assert.ok(!JSON.stringify(result).includes("payerCipher"));
       for (const id of [second.id, draft.id, unpaid.id, unsubmitted.id]) await assert.rejects(getReviewApplication(db, employer, id), { status: 404 });
@@ -67,15 +64,13 @@ test("recruitment isolation, immutable submissions, responses and withdrawal", {
       await unlink(path.join(storage, document.storageKey)); await assert.rejects(downloadReviewCv(db, employer, primary.id), { status: 404 });
       await writeFile(path.join(storage, document.storageKey), pdf);
     });
-    await t.test("admin access requires MFA; revoked membership and suspension take effect", async () => {
-      await assert.rejects(getReviewApplication(db, { ...admin, session: { ...admin.session, mfaVerifiedAt: null } }, primary.id), { code: "MFA_REQUIRED" });
+    await t.test("changing a recruiter to a job seeker and suspending them take effect", async () => {
       assert.equal((await listReviewApplications(db, admin, {})).pagination.total, 2);
-      await db.organisationMember.deleteMany({ where: { userId: employer.user.id } }); await assert.rejects(getReviewApplication(db, employer, primary.id), { status: 404 });
-      await db.organisationMember.create({ data: { userId: employer.user.id, organisationId: organisationIds[0] } });
-      await db.organisation.update({ where: { id: organisationIds[0] }, data: { suspendedAt: new Date() } });
-      await assert.rejects(getReviewApplication(db, employer, primary.id), { status: 404 }); assert.equal((await getReviewApplication(db, admin, primary.id)).id, primary.id);
-      await assert.rejects(respondToApplication(db, admin, primary.id, { version: 1, status: "UNDER_REVIEW", message: "Reviewing" }), { code: "ORGANISATION_SUSPENDED" });
-      await db.organisation.update({ where: { id: organisationIds[0] }, data: { suspendedAt: null } });
+      await db.user.update({ where: { id: employer.user.id }, data: { role: "APPLICANT" } }); await assert.rejects(getReviewApplication(db, employer, primary.id), { status: 404 });
+      await db.user.update({ where: { id: employer.user.id }, data: { role: "RECRUITER", status: "SUSPENDED" } });
+      assert.equal((await getReviewApplication(db, admin, primary.id)).id, primary.id);
+      await assert.rejects(respondToApplication(db, admin, primary.id, { version: 1, status: "UNDER_REVIEW", message: "Reviewing" }), { code: "RECRUITER_SUSPENDED" });
+      await db.user.update({ where: { id: employer.user.id }, data: { status: "ACTIVE" } });
     });
     await t.test("status changes require feedback and reject skipped or privileged fields", async () => {
       await assert.rejects(respondToApplication(db, employer, primary.id, { version: 1, status: "HIRED", message: "Offer" }), { code: "INVALID_TRANSITION" });
@@ -123,7 +118,7 @@ test("recruitment isolation, immutable submissions, responses and withdrawal", {
       assert.equal(results.filter(r => r.status === "fulfilled").length, 1); assert.equal(await db.applicationResponse.count({ where: { applicationId: app.id } }), 1);
       const current = await db.application.findUniqueOrThrow({ where: { id: app.id } }); assert.ok(["WITHDRAWN", "SHORTLISTED"].includes(current.status)); assert.equal(current.version, 2);
     });
-    await t.test("lists and responses paginate without leaking other organisations", async () => {
+    await t.test("lists and responses paginate without leaking other recruiters' applicants", async () => {
       const app = await application(); let version = 1;
       for (let i = 0; i < 21; i++) { const result = await respondToApplication(db, employer, app.id, { version, message: `Response ${i}` }); version = result.version; }
       assert.equal((await applicantResponses(db, applicant, app.id, 1)).responses.length, 20); assert.equal((await applicantResponses(db, applicant, app.id, 2)).responses.length, 1);
@@ -150,7 +145,6 @@ test("recruitment isolation, immutable submissions, responses and withdrawal", {
     await db.applicationStatusHistory.deleteMany({ where: { applicationId: { in: applicationIds } } }); await db.paymentOrder.deleteMany({ where: { applicationId: { in: applicationIds } } });
     await db.applicationDocument.deleteMany({ where: { applicationId: { in: applicationIds } } }); await db.application.deleteMany({ where: { id: { in: applicationIds } } });
     await db.document.deleteMany({ where: { userId: { in: userIds } } }); await db.applicantProfile.deleteMany({ where: { userId: { in: userIds } } }); await db.job.deleteMany({ where: { id: { in: jobIds } } });
-    await db.organisationMember.deleteMany({ where: { userId: { in: userIds } } }); await db.organisation.deleteMany({ where: { id: { in: organisationIds } } });
     await db.auditLog.deleteMany({ where: { actorId: { in: userIds } } }); await db.user.deleteMany({ where: { id: { in: userIds } } }); await db.$disconnect();
     if (previousStorage === undefined) delete process.env.PRIVATE_UPLOAD_DIR; else process.env.PRIVATE_UPLOAD_DIR = previousStorage;
     assert.ok(path.resolve(storage).startsWith(path.resolve(os.tmpdir()) + path.sep) && path.basename(storage).startsWith("barista-recruitment-")); await rm(storage, { recursive: true, force: true });

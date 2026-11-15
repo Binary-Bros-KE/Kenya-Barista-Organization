@@ -56,6 +56,8 @@ export function createAuth(db: PrismaClient, settings: { secret: string; baseURL
         const user = await db.user.findUnique({ where: { id: session.userId }, select: { status: true, emailVerified: true } });
         if (!user || user.status !== "ACTIVE" || !user.emailVerified) throw new APIError("FORBIDDEN", { message: "Account access unavailable" });
         return { data: { ...session, mfaVerifiedAt: null } };
+      }, after: async session => {
+        await db.user.update({ where: { id: session.userId }, data: { lastSignInAt: session.createdAt } });
       } } },
     },
     plugins: [twoFactor({ issuer: "Kenya Barista Organization", accountLockout: { enabled: true, maxFailedAttempts: 5, durationSeconds: 900 } })],

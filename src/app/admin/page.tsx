@@ -1,9 +1,11 @@
-import { AdminHeading, AdminQuickLinks } from "@/components/admin-ui";
 import { pageActor } from "@/lib/access";
-import { Workspace } from "@/components/workspace";
-import { AdminPanel } from "@/components/admin-panel";
+import { getDb } from "@/lib/db";
+import { WorkspaceFrame } from "@/components/workspace-frame";
+import { AdminRecruiters } from "@/components/admin-recruiters";
+import { listRecruiters } from "@/server/admin-recruiters";
 export const dynamic = "force-dynamic";
-export default async function Page() {
+export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const actor = await pageActor(true);
-  return <Workspace name={actor.user.name || actor.user.email} admin><div className="admin-workspace"><AdminHeading title="Keep the platform moving." description="Manage organisations, employer access and account activity from one place."/><AdminQuickLinks/><AdminPanel /></div></Workspace>;
+  const data = await listRecruiters(getDb(), actor, await searchParams);
+  return <WorkspaceFrame actor={actor}><AdminRecruiters data={data} /></WorkspaceFrame>;
 }

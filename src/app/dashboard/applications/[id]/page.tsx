@@ -24,9 +24,9 @@ export default async function Page({ params,searchParams }: { params: Promise<{ 
  const editable=application.status==="DRAFT" && (!payment || (!payment.reviewHold && ["FAILED","CANCELLED"].includes(payment.status)));
  const rawPage=Number((await searchParams).responsePage||1),responsePage=Number.isInteger(rawPage)?Math.min(Math.max(rawPage,1),100000):1;
  const responses=await applicantResponses(db,actor,application.id,responsePage);
- const open = application.job.status==="PUBLISHED" && application.job.deadline>new Date() && !application.job.organisation.suspendedAt;
+ const open = application.job.status==="PUBLISHED" && application.job.deadline>new Date() && application.job.recruiter.status === "ACTIVE";
  return <div className="application-workspace"><Link className="application-back" href="/dashboard/applications">&larr; All applications</Link>
-  <header className="application-detail-heading"><div><span className="application-eyebrow">{application.job.organisation.name}</span><h1>{application.job.title}</h1></div><span className={"application-status status-"+application.status.toLowerCase()}>{applicationStatusLabels[application.status]}</span></header>
+  <header className="application-detail-heading"><div><span className="application-eyebrow">{application.job.recruiter.name || "KBO recruiter"}</span><h1>{application.job.title}</h1></div><span className={"application-status status-"+application.status.toLowerCase()}>{applicationStatusLabels[application.status]}</span></header>
   <div className="application-guidance"><span aria-hidden="true"><SecurityMark/></span><div><h2>{application.status === "DRAFT" ? editable ? "Make this application yours" : "Your saved details are protected" : applicationStatusLabels[application.status]}</h2><p>{applicationGuidance(application.status, editable)}</p></div></div>
   {!open && <p className="application-warning" role="status">This job is currently unavailable. New payments and submissions are paused. Your application history is still available below.</p>}
   <dl className="application-facts"><div><dt>Application fee</dt><dd>{formatFee(application.applicationFeeMinor)}</dd></div><div><dt>Job deadline &middot; Nairobi time</dt><dd>{formatDeadline(application.job.deadline)}</dd></div><div><dt>Application reference</dt><dd className="application-reference">{application.id}</dd></div></dl>

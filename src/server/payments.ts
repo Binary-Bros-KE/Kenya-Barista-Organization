@@ -32,13 +32,13 @@ export async function initiatePayment(db:PrismaClient,actor:Actor,applicationId:
    return {attempt:previous,send:false,config:null};
   }
   await tx.$queryRaw`SELECT "id" FROM "Application" WHERE "id" = ${applicationId} FOR UPDATE`;
-  const application=await tx.application.findFirst({where:{id:applicationId,userId:actor.user.id},include:{user:{include:{profile:true}},job:{include:{organisation:true}},documents:{include:{document:true}},paymentOrder:true}});
+  const application=await tx.application.findFirst({where:{id:applicationId,userId:actor.user.id},include:{user:{include:{profile:true}},job:{include:{recruiter:true}},documents:{include:{document:true}},paymentOrder:true}});
   if(!application)throw new AccessError(404,"NOT_FOUND","Application not found");
   if(application.status!=="DRAFT")throw new AccessError(409,"ALREADY_SUBMITTED","This application is already submitted");
   if(application.version!==data.version)throw new AccessError(409,"STALE_APPLICATION","Reload your application before paying");
   if(application.paymentOrder&&(application.paymentOrder.reviewHold||busyStatuses.includes(application.paymentOrder.status as typeof busyStatuses[number])))throw new AccessError(409,"PAYMENT_IN_PROGRESS","A payment is already pending, paid, or awaiting review. Check its status before retrying");
   const job=application.job;
-  if(job.status!=="PUBLISHED"||!job.publishedAt||job.deadline<=new Date()||job.organisation.suspendedAt)throw new AccessError(409,"JOB_UNAVAILABLE","This job is no longer accepting applications");
+  if(job.status!=="PUBLISHED"||!job.publishedAt||job.deadline<=new Date()||job.recruiter.status!=="ACTIVE")throw new AccessError(409,"JOB_UNAVAILABLE","This job is no longer accepting applications");
   if(application.user.status!=="ACTIVE"||!application.user.emailVerified)throw new AccessError(403,"ACCOUNT_UNAVAILABLE","Account access unavailable");
   const profile=profileInput.safeParse(application.user.profile ? {fullName:application.user.profile.fullName,phone:application.user.profile.phone,location:application.user.profile.location,summary:application.user.profile.summary||""}:{});
   if(!profile.success)throw new AccessError(409,"PROFILE_INCOMPLETE","Complete your profile before paying");
@@ -50,7 +50,7 @@ export async function initiatePayment(db:PrismaClient,actor:Actor,applicationId:
   const recent=await tx.paymentAttempt.findFirst({where:{paymentOrder:{application:{userId:actor.user.id}}},orderBy:{createdAt:"desc"}});
   if(recent&&recent.createdAt.getTime()>Date.now()-60000)throw new AccessError(429,"WAIT_BEFORE_RETRY","Wait at least one minute before requesting another prompt");
   if(await tx.paymentAttempt.count({where:{paymentOrder:{application:{userId:actor.user.id}},createdAt:{gt:new Date(Date.now()-3600000)}}})>=5)throw new AccessError(429,"PAYMENT_RATE_LIMIT","Too many payment requests. Try again later");
-  const snapshot:Snapshot={...profile.data,email:application.user.email,coverLetter:application.coverLetter,documentId:document.id,documentSha256:document.sha256,jobTitle:job.title,organisationName:job.organisation.name,jobVersion:job.version,applicationVersion:application.version+1};
+  const snapshot:Snapshot={...profile.data,email:application.user.email,coverLetter:application.coverLetter,documentId:document.id,documentSha256:document.sha256,jobTitle:job.title,organisationName:job.recruiter.name||job.recruiter.email,jobVersion:job.version,applicationVersion:application.version+1};
   await tx.application.update({where:{id:applicationId},data:{version:{increment:1}}});
   const order=await tx.paymentOrder.upsert({where:{applicationId},create:{applicationId,amountMinor:application.applicationFeeMinor,currency:application.currency,frozenSnapshot:snapshot},update:{status:"PENDING",frozenSnapshot:snapshot,version:{increment:1}}});
   const id=randomUUID();
@@ -140,8 +140,8 @@ export async function reconcileAttempt(db:PrismaClient,id:string,provider:Paymen
    await tx.$queryRaw`SELECT "id" FROM "Application" WHERE "id" = ${attempt.paymentOrder.applicationId} FOR UPDATE`;
    await tx.$queryRaw`SELECT "id" FROM "PaymentOrder" WHERE "id" = ${attempt.paymentOrderId} FOR UPDATE`;
    await tx.$queryRaw`SELECT "id" FROM "Job" WHERE "id" = (SELECT "jobId" FROM "Application" WHERE "id" = ${attempt.paymentOrder.applicationId}) FOR SHARE`;
-   await tx.$queryRaw`SELECT "id" FROM "Organisation" WHERE "id" = (SELECT "organisationId" FROM "Job" WHERE "id" = (SELECT "jobId" FROM "Application" WHERE "id" = ${attempt.paymentOrder.applicationId})) FOR SHARE`;
-   const current=await tx.paymentAttempt.findUniqueOrThrow({where:{id},include:{paymentOrder:{include:{application:{include:{job:{include:{organisation:true}},user:true,documents:{include:{document:true}}}}}}}});
+   await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = (SELECT "recruiterId" FROM "Job" WHERE "id" = (SELECT "jobId" FROM "Application" WHERE "id" = ${attempt.paymentOrder.applicationId})) FOR SHARE`;
+   const current=await tx.paymentAttempt.findUniqueOrThrow({where:{id},include:{paymentOrder:{include:{application:{include:{job:{include:{recruiter:true}},user:true,documents:{include:{document:true}}}}}}}});
    if(!["PENDING","NEEDS_REVIEW"].includes(current.status)||current.paymentOrder.status==="SUCCEEDED"||current.paymentOrder.status==="REFUNDED")return;
    const app=current.paymentOrder.application, order=current.paymentOrder;
    const deduplicationKey=`query:${id}:${result.resultCode}`;

@@ -15,9 +15,9 @@ test("database prevents duplicate applications and negative fees", { skip: proce
   try {
     await assert.rejects(db.$transaction(async tx => {
       const user = await tx.user.create({ data: { email: `test-${suffix}@example.invalid` } });
-      const organisation = await tx.organisation.create({ data: { name: "Constraint test", slug: suffix } });
+      const recruiter = await tx.user.create({ data: { email: `recruiter-${suffix}@example.invalid`, role: "RECRUITER" } });
       const job = await tx.job.create({ data: {
-        organisationId: organisation.id, slug: suffix, title: "Constraint test", description: "Test only",
+        recruiterId: recruiter.id, slug: suffix, title: "Constraint test", description: "Test only",
         location: "Nairobi", category: "Coffee", employmentType: "FULL_TIME",
         applicationFeeMinor: 10000, deadline: new Date(Date.now() + 86400000),
       } });

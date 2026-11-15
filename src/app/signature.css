@@ -1,0 +1,16 @@
+/* Signature button: same family as the dashboard stat cards (see overview.css). */
+.signature-button { --sig-bg: #3b7d55; --sig-to: #24573a; --sig-ink: #fff; position: relative; overflow: hidden; isolation: isolate; display: inline-flex; align-items: center; gap: 11px; min-height: 44px; padding: 9px 16px 9px 9px; border: 0; border-radius: 12px; color: var(--sig-ink); font-size: 13px; font-weight: 600; text-decoration: none; cursor: pointer; background: linear-gradient(140deg, var(--sig-bg), var(--sig-to)); box-shadow: 0 1px 0 #ffffff40 inset, 0 10px 20px -14px var(--sig-to); transition: transform .15s, box-shadow .15s, filter .15s; }
+.signature-button::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(color-mix(in srgb, var(--sig-ink) 18%, transparent) 1.1px, transparent 1.3px); background-size: 11px 11px; mask-image: linear-gradient(200deg, #000 0%, transparent 70%); }
+.signature-button:hover { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 1px 0 #ffffff40 inset, 0 14px 22px -14px var(--sig-to); }
+.signature-button:focus-visible { outline: 2px solid var(--sig-bg); outline-offset: 3px; }
+.signature-button:disabled { cursor: wait; opacity: .7; transform: none; }
+.signature-icon { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: color-mix(in srgb, var(--sig-ink) 18%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--sig-ink) 25%, transparent) inset; }
+.signature-icon svg { width: 15px; height: 15px; }
+.signature-label { position: relative; white-space: nowrap; }
+.signature-mark { position: absolute; right: -8px; top: 50%; z-index: -1; transform: translateY(-50%) rotate(-12deg); opacity: .16; pointer-events: none; }
+.signature-mark svg { width: 48px; height: 48px; stroke-width: 1.4; }
+.signature-teal { --sig-bg: #14a397; --sig-to: #0b766d; }
+.signature-rose { --sig-bg: #ef3d62; --sig-to: #be1a41; }
+.signature-gold { --sig-bg: #ecc576; --sig-to: #d7a446; --sig-ink: #3a2a10; }
+.signature-green { --sig-bg: #3b7d55; --sig-to: #24573a; }
+@media (prefers-reduced-motion: reduce) { .signature-button { transition: none; } .signature-button:hover { transform: none; } }

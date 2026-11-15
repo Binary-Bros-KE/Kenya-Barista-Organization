@@ -1,3 +1,4 @@
 export const contactInfo = { email: "info@kenyabaristaorg.co.ke", phone: "+254724637787", address: "P.O. BOX 4062-00100", city: "Nairobi, Kenya" };
 export const socialLinks = [["Facebook", "https://web.facebook.com/groups/kenyabaristaorganization/"], ["Twitter", "https://twitter.com/KenyaBarista"], ["Instagram", "https://www.instagram.com/kenya_barista_organization/"], ["LinkedIn", "https://www.linkedin.com/groups/13906640/"], ["YouTube", "https://www.youtube.com/channel/UC71iJr1KmsaJbEry4jXCO6g"]];
-export const coffeeGuides = [["Coffee farming", "/farming"], ["Arabica vs Robusta", "/comparison"], ["From bean to cup", "/bean"], ["Coffee drinks", "/drinks"]];
+export const coffeeGuides = [["Coffee farming", "/farming"], ["Origin and processes", "/origin-and-processes"], ["From bean to cup", "/bean"], ["Barista tools", "/barista-tools"]];
+export const educationLinks = [["Online courses", "/education/online-courses"], ["Barista academies", "/education/academies"], ["Coaching", "/education/coaching"]];

@@ -6,22 +6,22 @@
 - Use a single deployable web app, then a separate background worker using the same database.
 - Deploy to the owner's VPS later. No DNS changes or production deployment in this phase.
 - Visitors browse without signing in. Verified applicants apply once per job.
-- Admins invite employer members; employers access their organisation only. Initial jobs require admin review.
+- Three account types: job seeker, recruiter and administrator. Administrators switch accounts between job seeker and recruiter; recruiters manage only their own jobs. Initial jobs require admin review.
 - Application draft and recruitment state are independent of payment state. Server-confirmed payments submit applications atomically.
 - Monetary amounts use integer minor units and a currency; payment orders snapshot fees. Daraja conversion rules are implemented during integration.
 - Store all dates as timestamptz; display job deadlines in Africa/Nairobi.
 - Never overwrite an attached CV: a changed document creates a new storage object and record.
 - Better Auth manages email/password accounts, verification, reset tokens, database sessions, and authenticator/recovery-code flows. SMTP delivery uses Nodemailer; local mail is written to an ignored CLI-only mailbox.
-- Administrator access requires current database role, active verified account, and MFA proof recorded on the current session after successful challenge verification.
-- Employer invitations are email-bound, expiring, hashed, and single-use. Membership and organisation suspension checks run on the server on each protected request.
+- Administrator access requires current database role and an active verified account. Two-factor authentication is optional for all accounts, administrators included.
+- The recruiter type is granted and removed only by administrators. Account type and suspension checks run on the server on each protected request.
 - Custom job questions remain an optional later module. Manual reversal records and payment exception reviews are implemented. Notification worker leases, retries, preferences, and delivery tracking are implemented.
 - M-Pesa Express supports Paybill and Till configurations, encrypted immutable credential revisions, owner-scoped checkout, callback evidence, independent server-side queries, and transactional submission. Real merchant sandbox/live acceptance remains required before launch.
-- Do not expose admin or employer CRUD endpoints until server-side authentication and organisation scoping are in place.
+- Do not expose admin or employer CRUD endpoints until server-side authentication and recruiter ownership scoping are in place.
 - Initial admin bootstrap is a one-time local command promoting an existing verified account and revoking its sessions. It is never exposed as an HTTP endpoint.
-- Employer job management is scoped to active organisation membership; administrators must have a verified MFA session. Publication requires explicit review of a submitted posting.
+- Job management is scoped to the recruiter who owns the job; administrators need the administrator role. Publication requires explicit review of a submitted posting.
 - Published edits return to draft; version checks prevent stale edits/reviews. Job history, audit records, and outbox events record the transitions.
 - Administrator-selected default fees are inherited by new jobs. Employers cannot set fees, and existing applications lock a job's fee.
-- Available public jobs must be published, unexpired, and in an active organisation. Closed published details remain visible; drafts, archived jobs, and suspended organisations are hidden.
+- Available public jobs must be published, unexpired, and owned by an active recruiter. Closed published details remain visible; drafts, archived jobs, and jobs of suspended recruiters are hidden.
 
 ## Health endpoints
 

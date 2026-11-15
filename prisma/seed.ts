@@ -14,12 +14,8 @@ async function main() {
   }
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
   try {
-    await db.organisation.upsert({
-      where: { slug: "demo-coffee-house" },
-      update: {},
-      create: { name: "Demo Coffee House (development only)", slug: "demo-coffee-house" },
-    });
-    console.log("Seed complete: development organisation created. No accounts or payments created.");
+    // Nothing to create: accounts are registered through the app, and recruiters are set by an administrator.
+    console.log("Seed complete: nothing to create. No accounts or payments created.");
   } finally {
     await db.$disconnect();
   }

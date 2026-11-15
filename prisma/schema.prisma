@@ -9,6 +9,7 @@ datasource db {
 
 enum PlatformRole {
   APPLICANT
+  RECRUITER
   ADMIN
 }
 
@@ -17,10 +18,6 @@ enum AccountStatus {
   SUSPENDED
 }
 
-enum MembershipRole {
-  OWNER
-  RECRUITER
-}
 
 enum JobStatus {
   DRAFT
@@ -96,10 +93,10 @@ model User {
   notificationEmails Boolean    @default(true)
   role            PlatformRole  @default(APPLICANT)
   status          AccountStatus @default(ACTIVE)
+  lastSignInAt    DateTime?     @db.Timestamptz(3)
   createdAt       DateTime      @default(now()) @db.Timestamptz(3)
   updatedAt       DateTime      @updatedAt @db.Timestamptz(3)
   profile         ApplicantProfile?
-  memberships     OrganisationMember[]
   applications    Application[]
   documents       Document[]
   notifications   Notification[]
@@ -107,7 +104,7 @@ model User {
   sessions        Session[]
   accounts        Account[]
   twoFactors      TwoFactor[]
-  sentInvitations EmployerInvitation[]
+  recruiterJobs   Job[] @relation("RecruiterJobs")
   createdJobs     Job[] @relation("JobCreator")
   reviewedJobs    Job[] @relation("JobReviewer")
   jobHistory      JobStatusHistory[]
@@ -116,6 +113,8 @@ model User {
   requestedRefunds RefundRecord[] @relation("RefundRequester")
   reviewedRefunds RefundRecord[] @relation("RefundReviewer")
   completedRefunds RefundRecord[] @relation("RefundCompleter")
+
+  @@index([lastSignInAt])
 }
 
 model ApplicantProfile {
@@ -129,17 +128,6 @@ model ApplicantProfile {
   updatedAt  DateTime @updatedAt @db.Timestamptz(3)
 }
 
-model Organisation {
-  id           String   @id @default(cuid())
-  name         String
-  slug         String   @unique
-  suspendedAt  DateTime? @db.Timestamptz(3)
-  createdAt    DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
-  members      OrganisationMember[]
-  jobs         Job[]
-  invitations  EmployerInvitation[]
-}
 
 model Session {
   id            String   @id @default(cuid())
@@ -207,45 +195,16 @@ model RateLimit {
   lastRequest BigInt
 }
 
-model EmployerInvitation {
-  id             String         @id @default(cuid())
-  organisationId String
-  email          String
-  role           MembershipRole @default(RECRUITER)
-  tokenHash      String         @unique
-  createdById    String
-  expiresAt      DateTime       @db.Timestamptz(3)
-  acceptedAt     DateTime?      @db.Timestamptz(3)
-  revokedAt      DateTime?      @db.Timestamptz(3)
-  createdAt      DateTime       @default(now()) @db.Timestamptz(3)
-  organisation   Organisation   @relation(fields: [organisationId], references: [id], onDelete: Restrict)
-  createdBy      User           @relation(fields: [createdById], references: [id], onDelete: Restrict)
-
-  @@index([organisationId, email])
-  @@index([email, expiresAt])
-}
 
 model PlatformBootstrap {
   id          String   @id
   completedAt DateTime @default(now()) @db.Timestamptz(3)
 }
 
-model OrganisationMember {
-  id             String         @id @default(cuid())
-  userId         String
-  organisationId String
-  role           MembershipRole @default(RECRUITER)
-  user           User           @relation(fields: [userId], references: [id], onDelete: Restrict)
-  organisation   Organisation   @relation(fields: [organisationId], references: [id], onDelete: Restrict)
-  createdAt      DateTime       @default(now()) @db.Timestamptz(3)
-
-  @@unique([userId, organisationId])
-  @@index([organisationId])
-}
 
 model Job {
   id                  String    @id @default(cuid())
-  organisationId      String
+  recruiterId         String
   slug                String    @unique
   title               String
   description         String
@@ -265,7 +224,7 @@ model Job {
   reviewNote          String?
   createdAt           DateTime  @default(now()) @db.Timestamptz(3)
   updatedAt           DateTime  @updatedAt @db.Timestamptz(3)
-  organisation        Organisation @relation(fields: [organisationId], references: [id], onDelete: Restrict)
+  recruiter           User      @relation("RecruiterJobs", fields: [recruiterId], references: [id], onDelete: Restrict)
   applications        Application[]
   createdBy           User? @relation("JobCreator", fields: [createdById], references: [id], onDelete: Restrict)
   reviewedBy          User? @relation("JobReviewer", fields: [reviewedById], references: [id], onDelete: Restrict)
@@ -273,7 +232,7 @@ model Job {
   notifications       Notification[]
 
   @@index([status, deadline])
-  @@index([organisationId, status])
+  @@index([recruiterId, status])
 }
 
 model JobStatusHistory {

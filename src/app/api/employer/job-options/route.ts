@@ -1,12 +1,12 @@
 import { api } from "@/lib/api";
 import { getDb } from "@/lib/db";
-import { assertAdmin } from "@/server/access";
 import { defaultFee } from "@/server/jobs";
 export const dynamic = "force-dynamic";
+// Administrators pick which recruiter a new job belongs to; recruiters always post as themselves.
 export function GET(request: Request) {
   return api(request, async actor => {
-    if (actor.user.role === "ADMIN") assertAdmin(actor);
-    const organisations = await getDb().organisation.findMany({ where: { suspendedAt: null, ...(actor.user.role !== "ADMIN" ? { members: { some: { userId: actor.user.id } } } : {}) }, select: { id: true, name: true }, take: 200, orderBy: { name: "asc" } });
-    return { organisations, defaultApplicationFeeMinor: await defaultFee(getDb()), canSetFee: actor.user.role === "ADMIN" };
+    const admin = actor.user.role === "ADMIN";
+    const recruiters = admin ? await getDb().user.findMany({ where: { role: "RECRUITER", status: "ACTIVE" }, select: { id: true, name: true, email: true }, take: 500, orderBy: { name: "asc" } }) : [];
+    return { recruiters, defaultApplicationFeeMinor: await defaultFee(getDb()), canSetFee: admin };
   });
 }

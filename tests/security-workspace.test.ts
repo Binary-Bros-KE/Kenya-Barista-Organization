@@ -7,9 +7,9 @@ import { SecurityOverview } from "../src/components/security-overview";
 import { parseAuthenticatorEnrolment } from "../src/lib/security-view";
 function render(component: ReactNode) { return renderToStaticMarkup(createElement(AppRouterContext.Provider, { value: { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} } as never }, component)); }
 function overview(admin: boolean, enabled: boolean, verified: boolean) { return render(createElement(SecurityOverview, { admin, enabled, verified, email: "person@example.com" })); }
-test("administrators without verified MFA see the requirement and cannot open administration", () => {
+test("administrators see two-factor as optional protection", () => {
  for (const [enabled, verified] of [[false, false], [true, false], [false, true]]) {
- const html = overview(true, enabled, verified); assert.ok(html.includes('Required for admins')); assert.ok(!html.includes('href="/admin"')); assert.ok(!html.includes('This session is verified'));
+ const html = overview(true, enabled, verified); assert.ok(html.includes('Optional protection')); assert.ok(!html.includes('Required for admins')); assert.ok(!html.includes('This session is verified'));
  }
 });
 test("verified administrators receive the administration link and no setup or code form", () => {

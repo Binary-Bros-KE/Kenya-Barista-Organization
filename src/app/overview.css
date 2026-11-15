@@ -123,3 +123,54 @@
   .overview-company-mark { width: 34px; height: 34px; }
   .overview-record .overview-status { grid-column: 2; justify-self: start; }
 }
+
+/* Dashboard opening: one greeting line, then bright stat cards. */
+.overview-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.overview-greeting { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: -6px 0 18px; }
+.overview-greeting p { margin: 0; font-size: 17px; font-weight: 600; color: #382a1f; }
+.overview-greeting time { display: inline-flex; align-items: center; gap: 7px; color: #75695f; font-size: 13px; }
+.overview .overview-greeting svg { width: 15px; height: 15px; }
+.overview-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-bottom: 26px; }
+.overview-stat { --stat-bg: #0d9488; --stat-to: #0b7a70; --stat-ink: #fff; position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; min-width: 0; padding: 18px 20px 16px; border-radius: 16px; color: var(--stat-ink); text-decoration: none; background: linear-gradient(140deg, var(--stat-bg), var(--stat-to)); box-shadow: 0 1px 0 #ffffff40 inset, 0 12px 24px -16px var(--stat-to); transition: transform .15s, box-shadow .15s; }
+.overview-stat::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(color-mix(in srgb, var(--stat-ink) 16%, transparent) 1.2px, transparent 1.4px); background-size: 14px 14px; mask-image: linear-gradient(200deg, #000 0%, transparent 55%); }
+.overview-stat:hover { transform: translateY(-2px); box-shadow: 0 1px 0 #ffffff40 inset, 0 18px 28px -16px var(--stat-to); }
+.overview-stat:focus-visible { outline: 3px solid #382a1f; outline-offset: 3px; }
+.overview-stat-icon { display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 14px; border-radius: 50%; background: color-mix(in srgb, var(--stat-ink) 18%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--stat-ink) 25%, transparent) inset; }
+.overview .overview-stat-icon svg { width: 18px; height: 18px; }
+.overview-stat-label { font-size: 14px; font-weight: 600; line-height: 1.35; }
+.overview-stat > strong { margin: 6px 0 12px; font-size: 34px; line-height: 1; font-weight: 700; letter-spacing: -.8px; }
+.overview-stat-hint { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 11px; border-top: 1px solid color-mix(in srgb, var(--stat-ink) 22%, transparent); font-size: 12px; line-height: 1.45; opacity: .92; }
+.overview .overview-stat-hint svg { width: 14px; height: 14px; margin-left: auto; transition: transform .15s; }
+.overview-stat:hover .overview-stat-hint svg { transform: translateX(3px); }
+.overview-stat-mark { position: absolute; right: -14px; top: 26px; z-index: -1; opacity: .13; }
+.overview .overview-stat-mark svg { width: 96px; height: 96px; stroke-width: 1.3; }
+.overview-stat-teal { --stat-bg: #14a397; --stat-to: #0b766d; }
+.overview-stat-rose { --stat-bg: #ef3d62; --stat-to: #be1a41; }
+.overview-stat-gold { --stat-bg: #ecc576; --stat-to: #d7a446; --stat-ink: #3a2a10; }
+.overview-stat-green { --stat-bg: #3b7d55; --stat-to: #24573a; }
+.overview-stats + .overview-welcome { margin-bottom: 24px; }
+/* Compact cards (about half height) for list pages such as Accounts and Recruiters. The dashboard keeps the full size. */
+.overview-stats.is-compact { gap: 14px; }
+.overview-stats.is-compact .overview-stat { display: grid; grid-template-columns: 38px auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 12px; row-gap: 1px; align-items: center; padding: 14px 16px; border-radius: 14px; }
+.overview-stats.is-compact .overview-stat-icon { grid-row: 1 / 3; margin: 0; }
+.overview-stats.is-compact .overview-stat-label { grid-column: 2 / 4; font-size: 13px; }
+.overview-stats.is-compact .overview-stat > strong { grid-column: 2; margin: 0; font-size: 26px; }
+.overview-stats.is-compact .overview-stat-hint { grid-column: 3; align-self: end; margin: 0 0 3px; padding: 0; border: 0; font-size: 11.5px; line-height: 1.35; }
+.overview-stats.is-compact .overview-stat-mark { top: 50%; right: -10px; transform: translateY(-50%); }
+.overview .overview-stats.is-compact .overview-stat-mark svg { width: 64px; height: 64px; }
+.overview .overview-stats.is-compact .overview-stat-hint svg { display: none; }
+@media (max-width: 1199px) { .overview-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 479px) {
+  .overview-greeting { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .overview-stats { gap: 12px; }
+  .overview-stat { padding: 15px 14px 13px; border-radius: 14px; }
+  .overview-stat > strong { font-size: 27px; }
+  .overview-stat-label { font-size: 13px; }
+  .overview-stat-hint { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) { .overview-stat, .overview-stat-hint svg { transition: none; } .overview-stat:hover { transform: none; } }
+
+/* Job status dots on the recruiter dashboard. */
+.overview-job-dot { width: 10px; height: 10px; flex-shrink: 0; border-radius: 50%; background: #cfc5b8; }
+.overview-job-dot.is-pending_review { background: #e0b766; box-shadow: 0 0 0 3px #e0b76633; }
+.overview-job-dot.is-changes_requested { background: #e11d48; box-shadow: 0 0 0 3px #e11d4826; }
