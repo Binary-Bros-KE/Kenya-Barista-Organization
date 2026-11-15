@@ -10,6 +10,13 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.1.0 - 2026-11-15
+
+- Job seekers request to become recruiters from their dashboard (Become a recruiter). Administrators review requests under Recruiters → Requests, with a count in the sidebar, and approve (the account becomes a recruiter) or reject with a reason. Both sides are notified.
+- Recruiter verification: administrators confirm phone and identity or business (email is checked automatically) and mark recruiters verified. Verified recruiters show a Verified badge on job listings, job pages, their dashboard and admin lists; unverified recruiters see "Verification pending".
+- Recruiters page: Verified/Unverified filters and a Pending requests card. The "add recruiter by email" box is removed.
+- Migrations `20261115120000_recruiter_requests` (request table, one pending request per person, verification fields) and `20261115120100_account_notifications` (personal account notices).
+
 ## 2.0.0 - 2026-11-15
 
 Companies are removed. There are three account types: **Job seeker**, **Recruiter** and **Super admin**.

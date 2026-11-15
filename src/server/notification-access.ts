@@ -8,6 +8,7 @@ import { paidSubmission } from "./submitted-application";
 export function notificationScope(userId: string, admin: boolean): Prisma.NotificationWhereInput {
   return { userId, OR: [
     { audience: "APPLICANT", application: { is: { userId } } },
+    { audience: "ACCOUNT" }, // personal account notices, e.g. recruiter request decisions
     { audience: "EMPLOYER", job: { is: { recruiterId: userId, recruiter: { role: "RECRUITER", status: "ACTIVE" } } },
       OR: [{ applicationId: null }, { application: { is: paidSubmission } }] },
     ...(admin ? [{ audience: "ADMIN" }] : []),

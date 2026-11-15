@@ -27,3 +27,8 @@ input:focus, select:focus, textarea:focus { outline: 2px solid #166534; outline-
 table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
 td, th { text-align: left; padding: 0.85rem 0.65rem; border-bottom: 1px solid #e7e5e4; vertical-align: top; }
 th { color: #57534e; font-weight: 600; }
+
+/* Verified recruiter badge (job listings, job pages, dashboards, admin lists). */
+.verified-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 5px; border-radius: 999px; background: #e3f4f1; color: #0b766d; font-size: 11.5px; font-weight: 700; line-height: 1.5; letter-spacing: .2px; vertical-align: middle; white-space: nowrap; }
+.verified-badge.is-compact { padding: 0; background: none; }
+.verified-badge-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

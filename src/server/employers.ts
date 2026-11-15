@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { PrismaClient } from "../generated/prisma/client";
+import { Prisma, type PrismaClient } from "../generated/prisma/client";
 import { assertAdmin, type Actor } from "./access";
 import { AccessError } from "./errors";
 
@@ -18,7 +18,8 @@ export async function setAccountType(db: PrismaClient, actor: Actor, input: unkn
     if (!user) throw new AccessError(404, "ACCOUNT_NOT_FOUND", "No account uses that email yet. Ask them to register on KBO first.");
     if (user.role === "ADMIN") throw new AccessError(409, "ADMIN_ACCOUNT", "Administrator accounts can't be changed here");
     if (user.role !== data.role) {
-      await tx.user.update({ where: { id: user.id }, data: { role: data.role } });
+      // Leaving the recruiter type also removes verification; it must be earned again.
+      await tx.user.update({ where: { id: user.id }, data: { role: data.role, ...(data.role === "APPLICANT" ? { recruiterVerifiedAt: null, recruiterVerifiedById: null, recruiterVerification: Prisma.DbNull } : {}) } });
       await tx.auditLog.create({ data: { actorId: actor.user.id, action: data.role === "RECRUITER" ? "account.made_recruiter" : "account.made_job_seeker", entityType: "User", entityId: user.id } });
     }
     return { id: user.id, email: user.email, name: user.name, role: data.role };

@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { DashboardOverview } from "../src/components/dashboard-overview";
 import type { DashboardOverviewData } from "../src/server/dashboard-overview";
 
-const empty: DashboardOverviewData = { counts: { applications: 0, drafts: 0, active: 0, unread: 0 }, profileReady: false, cleanCvs: 0, adminVerified: false, applications: [], notifications: [], recruiting: null, platform: null };
+const empty: DashboardOverviewData = { counts: { applications: 0, drafts: 0, active: 0, unread: 0 }, profileReady: false, cleanCvs: 0, adminVerified: false, recruiterRequest: null, recruiterVerified: false, applications: [], notifications: [], recruiting: null, platform: null };
 const user = { name: "Coffee Professional", email: "coffee@example.invalid", role: "APPLICANT" as const, emailVerified: true, twoFactorEnabled: false };
 test("new applicants see honest empty states, profile actions and optional security", () => {
   const html = renderToStaticMarkup(createElement(DashboardOverview, { data: empty, user, now: new Date("2026-10-29T22:00:00Z") }));

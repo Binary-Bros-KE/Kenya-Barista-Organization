@@ -15,6 +15,8 @@ export type DashboardOverviewData = {
   adminVerified: boolean;
   applications: { id: string; status: ApplicationStatus; title: string; employer: string; updatedAt: Date; responses: number }[];
   notifications: { id: string; title: string; href: string; readAt: Date | null; createdAt: Date }[];
+  recruiterRequest: null | { status: "PENDING" | "APPROVED" | "REJECTED" | "WITHDRAWN"; reviewNote: string | null };
+  recruiterVerified: boolean;
   recruiting: null | {
     liveJobs: number; newApplicants: number; awaitingApproval: number; changesRequested: number;
     applicants: { id: string; name: string; status: ApplicationStatus; title: string; submittedAt: Date | null }[];
@@ -76,7 +78,9 @@ export async function getDashboardOverview(db: PrismaClient, actor: Actor): Prom
       jobs: jobs.map(job => ({ id: job.id, title: job.title, status: job.status as "DRAFT" | "PENDING_REVIEW" | "CHANGES_REQUESTED", updatedAt: job.updatedAt })),
     };
   }
+  const recruiterRequest = actor.user.role === "APPLICANT" ? await db.recruiterRequest.findFirst({ where: { userId, status: { not: "WITHDRAWN" } }, select: { status: true, reviewNote: true }, orderBy: { createdAt: "desc" } }) : null;
   return {
+    recruiterRequest, recruiterVerified: !!actor.user.recruiterVerifiedAt,
     counts: {
       applications: groups.reduce((total, group) => total + group._count._all, 0), drafts: counts.get("DRAFT") || 0,
       active: (counts.get("SUBMITTED") || 0) + (counts.get("UNDER_REVIEW") || 0) + (counts.get("SHORTLISTED") || 0), unread: notifications.unread,

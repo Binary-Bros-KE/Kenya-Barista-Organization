@@ -96,3 +96,6 @@
 @media (prefers-reduced-motion: reduce) {
   .workspace-sidebar, .workspace-frame, .workspace-nav-link { transition: none; }
 }
+
+.workspace-nav-badge { margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #e0b766; color: #2f2219; font-size: 11px; font-weight: 700; line-height: 20px; text-align: center; }
+.workspace-shell-collapsed .workspace-sidebar .workspace-nav-badge { position: absolute; top: 4px; right: 6px; min-width: 16px; height: 16px; line-height: 16px; font-size: 10px; padding: 0 4px; }

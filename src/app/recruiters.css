@@ -52,3 +52,87 @@
   .recruiters-invite { flex-wrap: wrap; }
   .recruiters-invite input { flex-basis: 100%; }
 }
+
+/* Recruiters / Requests tabs */
+.recruiter-tabs { display: inline-flex; gap: 4px; margin: 0 0 16px; padding: 4px; border-radius: 12px; background: #f3eee6; }
+.recruiter-tabs a { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 9px; color: #6f6052; font-size: 13.5px; font-weight: 600; text-decoration: none; }
+.recruiter-tabs a:hover { color: #33271e; }
+.recruiter-tabs a.is-on { background: #fff; color: #2f2219; box-shadow: 0 2px 6px #49342114; }
+.recruiter-tabs-count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #e0b766; color: #2f2219; font-size: 11px; font-weight: 700; line-height: 20px; text-align: center; }
+
+/* Requests queue */
+.requests-intro { display: flex; align-items: flex-start; gap: 14px; margin: 0 0 16px; padding: 16px 18px; border-radius: 14px; background: linear-gradient(140deg, #fbf3df, #f6e7c4); color: #4a3a2c; }
+.requests-intro-icon { display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: #e0b766; color: #2f2219; }
+.requests-intro h2 { margin: 2px 0 4px; font-size: 16px; color: #2f2219; }
+.requests-intro p { margin: 0; font-size: 13px; line-height: 1.6; }
+.requests-row { grid-template-columns: minmax(220px, 1.6fr) minmax(200px, 1.6fr) minmax(140px, 1fr) 110px 110px 24px; }
+.requests-hiring { display: flex; flex-direction: column; min-width: 0; }
+.requests-hiring strong { color: #2f2219; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.requests-hiring span { color: #8a7867; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.requests-modal-head { background: linear-gradient(140deg, #d7a446, #9a6b1e); }
+.requests-big { margin: 0; color: #2f2219; font-size: 17px; font-weight: 600; }
+.requests-text { margin: 0; color: #4b3c30; font-size: 13.5px; line-height: 1.7; overflow-wrap: anywhere; }
+.requests-reject { margin: 4px 0 16px; padding: 14px; border: 1px solid #f3c2cd; border-radius: 13px; background: #fff6f8; }
+.requests-reject label { display: grid; gap: 6px; color: #2f2219; font-size: 13.5px; font-weight: 600; }
+.requests-reject label span { color: #8a7867; font-size: 12px; font-weight: 500; }
+.requests-reject textarea, .verify-box textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd3c6; border-radius: 11px; background: #fff; color: #33271e; font: inherit; font-size: 13.5px; resize: vertical; }
+@media (max-width: 1199px) { .requests-row { grid-template-columns: minmax(200px, 1.5fr) minmax(180px, 1.5fr) 110px 24px; } .requests-row > :nth-child(3), .requests-row > :nth-child(5) { display: none; } }
+@media (max-width: 699px) { .requests-row { grid-template-columns: minmax(0, 1fr) 20px; } .requests-row > :nth-child(2), .requests-row > :nth-child(4) { grid-column: 1 / -1; padding-left: 50px; } }
+
+/* Verification panel (recruiter detail) */
+.verify-box, .verify-done { display: grid; gap: 12px; padding: 14px; border: 1px solid #ebe3d7; border-radius: 13px; background: #fff; }
+.verify-box .recruiters-help { margin: 0; }
+.verify-checks { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.verify-checks li, .verify-checks label { display: flex; align-items: flex-start; gap: 10px; color: #2f2219; font-size: 13.5px; }
+.verify-checks label { cursor: pointer; }
+.verify-checks input { width: 17px; height: 17px; margin-top: 2px; accent-color: #0d9488; flex-shrink: 0; }
+.verify-checks li > svg { margin-top: 3px; flex-shrink: 0; }
+.verify-checks li.is-auto > svg { color: #0d9488; }
+.verify-checks li.is-missing > svg { color: #b0183e; }
+.verify-checks span { display: flex; flex-direction: column; gap: 1px; }
+.verify-checks small { color: #8a7867; font-size: 12px; overflow-wrap: anywhere; }
+.verify-checks em { color: #9a8877; font-style: normal; font-weight: 500; }
+.verify-checks a { color: #0b766d; }
+.verify-done p { margin: 0; color: #4b3c30; font-size: 13px; }
+.verify-done ul { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.verify-done li { display: flex; align-items: center; gap: 7px; color: #1f6b41; font-size: 13px; }
+.verify-note { font-style: italic; }
+.verify-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* Job seeker: Become a recruiter */
+.recruit-request { display: grid; gap: 18px; max-width: 980px; }
+.recruit-hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; padding: 26px 28px; border-radius: 18px; color: #fff; background: radial-gradient(#ffffff26 1.2px, transparent 1.4px) 0 0 / 14px 14px, linear-gradient(140deg, #14a397, #0b5f58); }
+.recruit-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.4px; color: #c9f0ea; }
+.recruit-hero h2 { margin: 8px 0 8px; font-size: clamp(22px, 2.6vw, 30px); line-height: 1.2; }
+.recruit-hero p { margin: 0; color: #e0f5f2; font-size: 14px; line-height: 1.7; }
+.recruit-hero ol { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; align-content: center; }
+.recruit-hero li { display: grid; grid-template-columns: 30px 1fr; column-gap: 12px; padding: 10px 12px; border-radius: 12px; background: #ffffff1c; }
+.recruit-hero li > span { grid-row: 1 / 3; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fff; color: #0b766d; font-weight: 700; }
+.recruit-hero li strong { font-size: 13.5px; }
+.recruit-hero li small { color: #c9f0ea; font-size: 12px; }
+.recruit-status { display: flex; gap: 14px; padding: 18px 20px; border-radius: 16px; border: 1px solid #ebe3d7; background: #fffefa; }
+.recruit-status-icon { display: grid; place-items: center; flex-shrink: 0; width: 42px; height: 42px; border-radius: 50%; font-weight: 800; }
+.recruit-status.is-pending .recruit-status-icon { background: #fbf0d6; color: #8a5a07; }
+.recruit-status.is-approved .recruit-status-icon { background: #e3f4ea; color: #1f6b41; }
+.recruit-status.is-rejected .recruit-status-icon { background: #fde4e9; color: #b0183e; }
+.recruit-status h3 { margin: 2px 0 6px; font-size: 17px; color: #2f2219; }
+.recruit-status p { margin: 0 0 12px; color: #5d4d3f; font-size: 13.5px; line-height: 1.7; }
+.recruit-status dl { display: grid; gap: 6px; margin: 0 0 12px; }
+.recruit-status dt { color: #8a7867; font-size: 12px; }
+.recruit-status dd { margin: 0; color: #2f2219; font-size: 13.5px; }
+.recruit-link { padding: 0; border: 0; background: none; color: #8a7867; font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.recruit-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; padding: 22px; border: 1px solid #ebe3d7; border-radius: 16px; background: #fffefa; }
+.recruit-form h3 { grid-column: 1 / -1; margin: 0; font-size: 18px; color: #2f2219; }
+.recruit-form-intro { grid-column: 1 / -1; margin: -8px 0 4px; color: #8a7867; font-size: 13px; }
+.recruit-form { align-items: start; }
+.recruit-form label { display: grid; align-content: start; gap: 6px; color: #2f2219; font-size: 13.5px; font-weight: 600; }
+.recruit-form label > span.recruit-label { color: #2f2219; font-size: 13.5px; font-weight: 600; }
+.recruit-form label.is-wide, .recruit-form .notice, .recruit-actions { grid-column: 1 / -1; }
+.recruit-form label > span { color: #8a7867; font-size: 12px; font-weight: 500; }
+.recruit-form label em { color: #9a8877; font-style: normal; font-weight: 500; }
+.recruit-form input, .recruit-form textarea { width: 100%; padding: 11px 12px; border: 1px solid #ddd3c6; border-radius: 11px; background: #fff; color: #33271e; font: inherit; font-size: 14px; }
+.recruit-form input:focus-visible, .recruit-form textarea:focus-visible { outline: 2px solid #14a397; outline-offset: 1px; border-color: transparent; }
+.recruit-actions { display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
+.recruit-foot { margin: 0; color: #8a7867; font-size: 13px; }
+.recruit-foot a { color: #0b766d; }
+@media (max-width: 799px) { .recruit-hero, .recruit-form { grid-template-columns: 1fr; } .recruit-hero { padding: 22px 18px; } }

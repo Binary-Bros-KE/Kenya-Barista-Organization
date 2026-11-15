@@ -25,17 +25,17 @@ test("recruiter filters fall back to safe defaults", () => {
 
 test("recruiters page opens with stat cards, an add button and one row per recruiter account", () => {
   const data: RecruiterList = {
-    query: recruiterQuery.parse({}), stats: { total: 14, active: 13, suspended: 1, liveJobs: 9, pendingJobs: 3, applications: 61, noJobs: 2 },
+    query: recruiterQuery.parse({}), stats: { total: 14, active: 13, suspended: 1, liveJobs: 9, pendingJobs: 3, applications: 61, noJobs: 2, verified: 10, pendingRequests: 3 },
     pagination: { page: 1, matching: 2, pageCount: 1 }, activity: [],
     recruiters: [
-      { id: "a", name: "Java House HR", email: "hr@java.co.ke", suspended: false, createdAt: new Date("2026-09-01"), lastSignInAt: new Date(), liveJobs: 3, totalJobs: 4, applications: 12 },
-      { id: "b", name: "Bean Lab", email: "jobs@beanlab.co.ke", suspended: true, createdAt: new Date("2026-10-01"), lastSignInAt: null, liveJobs: 0, totalJobs: 0, applications: 0 },
+      { id: "a", name: "Java House HR", email: "hr@java.co.ke", suspended: false, verified: true, createdAt: new Date("2026-09-01"), lastSignInAt: new Date(), liveJobs: 3, totalJobs: 4, applications: 12 },
+      { id: "b", name: "Bean Lab", email: "jobs@beanlab.co.ke", suspended: true, verified: false, createdAt: new Date("2026-10-01"), lastSignInAt: null, liveJobs: 0, totalJobs: 0, applications: 0 },
     ],
   };
   const html = render(data);
   assert.ok(html.indexOf("overview-stat") < html.indexOf("accounts-toolbar"), "Stat cards come first");
   assert.ok(html.includes("Recruiters: 14")); assert.ok(html.includes("13 active · 1 suspended"));
-  assert.ok(html.includes("Add recruiter")); assert.ok(html.includes("Java House HR")); assert.ok(html.includes("hr@java.co.ke"));
+  assert.ok(html.includes("Requests (3)")); assert.ok(html.includes("4 still to verify")); assert.ok(html.includes("Verified recruiter")); assert.ok(html.includes("Java House HR")); assert.ok(html.includes("hr@java.co.ke"));
   assert.ok(html.includes("No jobs yet")); assert.ok(html.includes("Suspended")); assert.ok(!/organisation|company/i.test(html), "No company concepts remain");
   assert.ok(html.includes('href="/employer/applications"'));
 });
@@ -65,6 +65,7 @@ test("recruiter listing filters, counts and details real records", { skip: proce
     const row = all.recruiters.find(r => r.id === busy.id)!;
     assert.equal(row.liveJobs, 1); assert.equal(row.totalJobs, 1); assert.equal(row.applications, 1); assert.ok(row.lastSignInAt);
     assert.deepEqual(mine(await listRecruiters(db, admin, { q: suffix, status: "suspended" })), ["rec-idle"]);
+    assert.deepEqual(mine(await listRecruiters(db, admin, { q: suffix, status: "unverified" })).sort(), ["rec-busy", "rec-idle"]);
     assert.deepEqual(mine(await listRecruiters(db, admin, { q: suffix, status: "no-jobs" })), ["rec-idle"]);
     assert.deepEqual(mine(await listRecruiters(db, admin, { q: suffix, sort: "jobs" }))[0], "rec-busy");
 

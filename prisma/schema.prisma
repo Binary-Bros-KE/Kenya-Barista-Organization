@@ -94,6 +94,9 @@ model User {
   role            PlatformRole  @default(APPLICANT)
   status          AccountStatus @default(ACTIVE)
   lastSignInAt    DateTime?     @db.Timestamptz(3)
+  recruiterVerifiedAt   DateTime? @db.Timestamptz(3)
+  recruiterVerifiedById String?
+  recruiterVerification Json?
   createdAt       DateTime      @default(now()) @db.Timestamptz(3)
   updatedAt       DateTime      @updatedAt @db.Timestamptz(3)
   profile         ApplicantProfile?
@@ -105,6 +108,10 @@ model User {
   accounts        Account[]
   twoFactors      TwoFactor[]
   recruiterJobs   Job[] @relation("RecruiterJobs")
+  recruiterRequests RecruiterRequest[] @relation("RecruiterRequests")
+  reviewedRecruiterRequests RecruiterRequest[] @relation("RecruiterRequestReviewer")
+  recruiterVerifiedBy User? @relation("RecruiterVerifier", fields: [recruiterVerifiedById], references: [id], onDelete: Restrict)
+  verifiedRecruiters User[] @relation("RecruiterVerifier")
   createdJobs     Job[] @relation("JobCreator")
   reviewedJobs    Job[] @relation("JobReviewer")
   jobHistory      JobStatusHistory[]
@@ -492,4 +499,34 @@ model AuditLog {
   actor       User?    @relation(fields: [actorId], references: [id], onDelete: Restrict)
 
   @@index([entityType, entityId, createdAt])
+}
+
+enum RecruiterRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+// A job seeker asking to become a recruiter. Administrators approve (account becomes RECRUITER) or reject it.
+model RecruiterRequest {
+  id           String                 @id @default(cuid())
+  userId       String
+  status       RecruiterRequestStatus @default(PENDING)
+  hiringFor    String
+  roles        String
+  phone        String
+  location     String
+  website      String?
+  message      String                 @default("")
+  reviewNote   String?
+  reviewedById String?
+  reviewedAt   DateTime?              @db.Timestamptz(3)
+  createdAt    DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime               @updatedAt @db.Timestamptz(3)
+  user         User                   @relation("RecruiterRequests", fields: [userId], references: [id], onDelete: Restrict)
+  reviewedBy   User?                  @relation("RecruiterRequestReviewer", fields: [reviewedById], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
 }

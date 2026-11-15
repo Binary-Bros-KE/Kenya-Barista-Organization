@@ -1,8 +1,12 @@
 import type { ReactNode } from "react";
+import { getDb } from "@/lib/db";
 import type { Actor } from "@/server/access";
 import { Workspace } from "./workspace";
 
 // Server wrapper for the workspace shell: the account type (job seeker, recruiter, admin) decides the sidebar on every page.
-export function WorkspaceFrame({ actor, children }: { actor: Actor; children: ReactNode }) {
-  return <Workspace name={actor.user.name || actor.user.email} admin={actor.user.role === "ADMIN"} recruiter={actor.user.role === "RECRUITER"}>{children}</Workspace>;
+// Administrators also see how many recruiter requests are waiting.
+export async function WorkspaceFrame({ actor, children }: { actor: Actor; children: ReactNode }) {
+  const admin = actor.user.role === "ADMIN";
+  const pending = admin ? await getDb().recruiterRequest.count({ where: { status: "PENDING" } }) : 0;
+  return <Workspace name={actor.user.name || actor.user.email} admin={admin} recruiter={actor.user.role === "RECRUITER"} badges={pending ? { "/admin": pending } : {}}>{children}</Workspace>;
 }

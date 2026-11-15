@@ -63,10 +63,17 @@ Every account has one type:
 
 There are no companies or teams. A recruiter is an independent account, and each job belongs to the recruiter who posted it. Job listings show the recruiter's account name as the employer, so a business can name its recruiter account after itself.
 
-Administrators switch accounts between job seeker and recruiter:
+### Becoming a recruiter
 
-- In `/admin/accounts`, open the person and choose **Account type → Recruiter** (or **Job seeker**).
-- In `/admin` (Recruiters), use **Add recruiter** with the person's account email, or open a recruiter and choose **Change to job seeker**.
+1. A job seeker opens **Become a recruiter** (`/dashboard/recruiter-request`) and says who they hire for, which roles, their phone, location and optionally a website or social page. One pending request is allowed at a time; they can withdraw it.
+2. Administrators are notified, and the request appears under **Recruiters → Requests** (the sidebar shows how many are waiting).
+3. The administrator approves it (the account becomes a recruiter straight away) or rejects it with a reason the person can read. Rejected people stay job seekers and can apply again.
+
+### Verifying a recruiter
+
+Open the recruiter on the Recruiters page and use **Verify this recruiter**. Email confirmation is checked automatically; the administrator confirms the phone number (by call or message) and the person's identity or business, optionally their online presence, adds a note, and marks them verified. Verified recruiters show a **Verified** badge on their job listings, job pages, dashboard and in admin lists. Verification can be removed, and it is cleared if the account is changed back to a job seeker.
+
+Administrators can still switch an account's type directly from **Accounts → Account type**.
 
 Changes apply immediately, including to someone who is signed in. A recruiter changed back to a job seeker keeps their jobs on record but can no longer manage them or see their applicants. Administrator accounts cannot be changed here, and only the bootstrap command creates the initial administrator.
 

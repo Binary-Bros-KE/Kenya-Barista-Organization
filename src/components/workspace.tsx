@@ -14,6 +14,7 @@ const accountLinks: Item[] = [
   { label: "Payments", href: "/dashboard/payments", icon: "payments" },
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
   { label: "Security", href: "/dashboard/security", icon: "security" },
+  { label: "Become a recruiter", href: "/dashboard/recruiter-request", icon: "jobs" },
 ];
 const adminOverviewLinks: Item[] = [{ label: "Dashboard", href: "/dashboard", icon: "account" }];
 const recruiterLinks: Item[] = [
@@ -72,7 +73,7 @@ function activeItem(pathname: string, items: Item[]) {
   return items.filter(item => matches(pathname, item.href)).sort((a, b) => b.href.length - a.href.length)[0];
 }
 
-export function Workspace({ name, admin, recruiter = false, children }: { name: string; admin: boolean; recruiter?: boolean; children: ReactNode }) {
+export function Workspace({ name, admin, recruiter = false, badges = {}, children }: { name: string; admin: boolean; recruiter?: boolean; badges?: Record<string, number>; children: ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -123,7 +124,7 @@ export function Workspace({ name, admin, recruiter = false, children }: { name: 
       {links.map(item => <Link key={item.href} href={item.href} className={`workspace-nav-link${item === current ? " is-active" : ""}`}
         aria-current={item === current ? "page" : undefined} aria-label={item.label}
         title={!mobile && collapsed ? item.label : undefined} onClick={mobile ? closeMobile : undefined}>
-        <Icon name={item.icon} /><span className="workspace-link-label">{item.label}</span>
+        <Icon name={item.icon} /><span className="workspace-link-label">{item.label}</span>{badges[item.href] ? <span className="workspace-nav-badge" aria-label={`${badges[item.href]} waiting`}>{badges[item.href]}</span> : null}
       </Link>)}
     </div>;
   }

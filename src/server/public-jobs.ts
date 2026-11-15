@@ -11,8 +11,8 @@ export const publicJobQuery = z.object({
 }).strict();
 export function availableJobs(now = new Date()): Prisma.JobWhereInput { return { status: "PUBLISHED", deadline: { gt: now }, recruiter: { status: "ACTIVE" } }; }
 // Jobs show the recruiter's account name as the employer.
-const employerSelect = { recruiter: { select: { id: true, name: true } } } as const;
-const withEmployer = <T extends { recruiter: { id: string; name: string | null } }>({ recruiter, ...job }: T) => ({ ...job, employer: { id: recruiter.id, name: recruiter.name || "KBO recruiter" } });
+const employerSelect = { recruiter: { select: { id: true, name: true, recruiterVerifiedAt: true } } } as const;
+const withEmployer = <T extends { recruiter: { id: string; name: string | null; recruiterVerifiedAt: Date | null } }>({ recruiter, ...job }: T) => ({ ...job, employer: { id: recruiter.id, name: recruiter.name || "KBO recruiter", verified: !!recruiter.recruiterVerifiedAt } });
 
 export async function listPublicJobs(db: PrismaClient, input: unknown) {
   const query = publicJobQuery.parse(input);
