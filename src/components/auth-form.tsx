@@ -12,7 +12,7 @@ const labels: Record<Mode, string> = { "sign-in": "Sign in", register: "Create a
 export async function postJson(url: string, body: unknown) {
   const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), credentials: "same-origin" });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(response.status === 429 ? "Too many attempts. Please wait a minute and try again." : data.message || "Unable to complete this request. Please try again.");
+  if (!response.ok) throw new Error(response.status === 429 ? "Too many attempts. Please wait a minute and try again." : data.code === "EMAIL_NOT_VERIFIED" ? "Email not verified, please check your email and verify to proceed." : data.message || "Unable to complete this request. Please try again.");
   return data;
 }
 

@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.2.1 - 2026-11-15
+
+- Signing in to an account whose email isn't verified now says "Email not verified, please check your email and verify to proceed."
+
 ## 2.2.0 - 2026-11-15
 
 - Branded emails (HTML with a plain-text version) for recruiters: request received and awaiting approval, request approved, and verification complete. Each is sent straight away and marked as sent on its dashboard notification; if sending fails, the notification worker retries it.
