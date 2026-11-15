@@ -4,7 +4,8 @@ import path from "node:path";
 import nodemailer from "nodemailer";
 import { getEnv } from "../lib/env";
 
-export type MailMessage = { to: string; subject: string; text: string; messageId?: string };
+// html is optional; text is always sent too, for mail apps that show plain text.
+export type MailMessage = { to: string; subject: string; text: string; html?: string; messageId?: string };
 export type MailSender = (message: MailMessage) => Promise<void>;
 
 export function validateMailConfiguration() {

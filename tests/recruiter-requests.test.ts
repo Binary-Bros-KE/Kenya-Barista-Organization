@@ -13,6 +13,8 @@ import { setAccountType } from "../src/server/employers";
 import { listNotifications } from "../src/server/notification-access";
 import { getPublicJob } from "../src/server/public-jobs";
 import { RecruiterRequest } from "../src/components/recruiter-request";
+import { recruiterApprovedEmail, recruiterRequestReceivedEmail, recruiterVerifiedEmail } from "../src/server/email-templates";
+import type { MailMessage } from "../src/server/mail";
 
 const router = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} } as never;
 const render = (props: Parameters<typeof RecruiterRequest>[0]) => renderToStaticMarkup(createElement(AppRouterContext.Provider, { value: router }, createElement(RecruiterRequest, props)));
@@ -39,6 +41,19 @@ test("the request page shows the form, then the status, then the reason after a 
   assert.ok(rejected.includes("Phone number unreachable")); assert.ok(rejected.includes("Apply again"));
 });
 
+test("recruiter emails are branded, link back to KBO and escape what people typed", () => {
+  const base = "https://kbo.example";
+  const received = recruiterRequestReceivedEmail({ baseUrl: base, name: "Achieng <b>Odhiambo</b>", hiringFor: "Java House & Co <script>", roles: "Baristas", phone: "+254712345678", location: "Nairobi" });
+  assert.equal(received.subject, "We've received your recruiter request");
+  assert.ok(received.html.includes("Hi Achieng,")); assert.ok(received.html.includes("Java House &amp; Co &lt;script&gt;")); assert.ok(!received.html.includes("<script>"));
+  assert.ok(received.html.includes('href="https://kbo.example/dashboard/recruiter-request"')); assert.ok(received.html.includes("What happens next"));
+  assert.ok(received.text.includes("Hiring for: Java House & Co <script>")); assert.ok(received.text.includes("https://kbo.example/dashboard/recruiter-request"));
+  const approved = recruiterApprovedEmail({ baseUrl: base, name: "Brian", note: "Welcome <aboard>" });
+  assert.ok(approved.html.includes('href="https://kbo.example/employer/jobs/new"')); assert.ok(approved.html.includes("Welcome &lt;aboard&gt;")); assert.ok(approved.text.includes("Post your first job"));
+  const verified = recruiterVerifiedEmail({ baseUrl: base, name: null });
+  assert.ok(verified.html.includes("Verified recruiter")); assert.ok(verified.html.includes("Hi there,")); assert.ok(verified.html.includes("https://kbo.example/brand-logo.png"));
+});
+
 test("request, approval, verification and badge work end to end", { skip: process.env.RUN_DB_TESTS !== "true" || !process.env.APPLICATION_TEST_DATABASE_URL, timeout: 120000 }, async () => {
   const connectionString = process.env.APPLICATION_TEST_DATABASE_URL!, url = new URL(connectionString);
   assert.ok(["localhost", "127.0.0.1", "[::1]"].includes(url.hostname));
@@ -49,34 +64,42 @@ test("request, approval, verification and badge work end to end", { skip: proces
     const user = await db.user.create({ data: { name, email: `${name}-${suffix}@example.invalid`, emailVerified: true, role } }); users.push(user.id);
     return { user, session: { id: randomUUID(), mfaVerifiedAt: null } };
   };
+  const sent: MailMessage[] = [];
+  const mail = { baseURL: "https://kbo.example", deliver: async (message: MailMessage) => { sent.push(message); } };
   const reload = async (a: Actor): Promise<Actor> => ({ ...a, user: await db.user.findUniqueOrThrow({ where: { id: a.user.id } }) });
   try {
     const admin = await actor("req-admin", "ADMIN"), seeker = await actor("req-seeker"), other = await actor("req-other"), recruiter = await actor("req-recruiter", "RECRUITER");
 
-    await assert.rejects(submitRecruiterRequest(db, recruiter, valid), { code: "ALREADY_RECRUITER" });
-    const request = await submitRecruiterRequest(db, seeker, valid);
+    await assert.rejects(submitRecruiterRequest(db, recruiter, valid, mail), { code: "ALREADY_RECRUITER" });
+    const request = await submitRecruiterRequest(db, seeker, valid, mail);
+    assert.equal(sent.length, 1); assert.equal(sent[0].to, seeker.user.email); assert.equal(sent[0].subject, "We've received your recruiter request"); assert.ok(sent[0].html?.includes("Java House, Westlands"));
+    const receipt = await db.notification.findFirstOrThrow({ where: { userId: seeker.user.id, kind: "recruiter_request.received" } });
+    assert.equal(receipt.deliveryStatus, "SENT", "Emailed straight away, so the worker won't send it again");
     assert.equal(request.status, "PENDING");
-    await assert.rejects(submitRecruiterRequest(db, seeker, valid), { code: "REQUEST_PENDING" });
+    await assert.rejects(submitRecruiterRequest(db, seeker, valid, mail), { code: "REQUEST_PENDING" });
     assert.equal((await db.notification.findMany({ where: { userId: admin.user.id, kind: "recruiter_request.submitted" } })).length, 1, "Admins are told about new requests");
 
     // Withdraw and reapply; then reject with a reason.
     await withdrawRecruiterRequest(db, seeker);
     await assert.rejects(withdrawRecruiterRequest(db, seeker), { status: 404 });
-    const second = await submitRecruiterRequest(db, seeker, { ...valid, website: "instagram.com/javahouse" });
+    const second = await submitRecruiterRequest(db, seeker, { ...valid, website: "instagram.com/javahouse" }, mail);
     await assert.rejects(listRecruiterRequests(db, seeker, {}), { status: 403 });
     const queue = await listRecruiterRequests(db, admin, { q: suffix });
     assert.equal(queue.requests.length, 1); assert.equal(queue.requests[0].id, second.id);
-    await assert.rejects(reviewRecruiterRequest(db, admin, second.id, { decision: "reject" }));
-    await reviewRecruiterRequest(db, admin, second.id, { decision: "reject", note: "We couldn't reach you on that phone number." });
+    await assert.rejects(reviewRecruiterRequest(db, admin, second.id, { decision: "reject" }, mail));
+    const beforeReject = sent.length;
+    await reviewRecruiterRequest(db, admin, second.id, { decision: "reject", note: "We couldn't reach you on that phone number." }, mail);
+    assert.equal(sent.length, beforeReject, "Rejections are not part of the branded emails");
     assert.equal((await myRecruiterRequest(db, seeker))?.status, "REJECTED");
     assert.equal((await reload(seeker)).user.role, "APPLICANT", "A rejected person stays a job seeker");
     const notices = await listNotifications(db, seeker, {});
     assert.ok(notices.notifications.some(n => n.title === "Your recruiter request wasn't approved"), "The decision reaches the job seeker's inbox");
 
     // Apply again and get approved: the account becomes a recruiter.
-    const third = await submitRecruiterRequest(db, seeker, valid);
-    await reviewRecruiterRequest(db, admin, third.id, { decision: "approve" });
-    await assert.rejects(reviewRecruiterRequest(db, admin, third.id, { decision: "approve" }), { code: "ALREADY_REVIEWED" });
+    const third = await submitRecruiterRequest(db, seeker, valid, mail);
+    await reviewRecruiterRequest(db, admin, third.id, { decision: "approve", note: "Welcome!" }, mail);
+    assert.equal(sent.at(-1)?.subject, "You're now a recruiter on KBO"); assert.ok(sent.at(-1)?.html?.includes("Welcome!"));
+    await assert.rejects(reviewRecruiterRequest(db, admin, third.id, { decision: "approve" }, mail), { code: "ALREADY_REVIEWED" });
     const promoted = await reload(seeker);
     assert.equal(promoted.user.role, "RECRUITER");
     assert.equal((await listRecruiterRequests(db, admin, { q: suffix, status: "APPROVED" })).requests.length, 1);
@@ -84,10 +107,11 @@ test("request, approval, verification and badge work end to end", { skip: proces
     // Verification needs the required checks, then shows on the recruiter's public jobs.
     const job = await db.job.create({ data: { recruiterId: seeker.user.id, title: "Head Barista", slug: `req-job-${suffix}`, description: "Fixture", location: "Nairobi", category: "BARISTA", employmentType: "FULL_TIME", applicationFeeMinor: 10000, status: "PUBLISHED", publishedAt: new Date(), deadline: new Date(Date.now() + 864000000) } });
     assert.equal((await getPublicJob(db, job.slug)).employer.verified, false);
-    await assert.rejects(verifyRecruiter(db, admin, seeker.user.id, { checks: ["phone"] }), { code: "CHECKS_INCOMPLETE" });
-    await assert.rejects(verifyRecruiter(db, admin, other.user.id, { checks: ["phone", "identity"] }), { status: 404 }, "Only recruiters can be verified");
-    await assert.rejects(verifyRecruiter(db, seeker, seeker.user.id, { checks: ["phone", "identity"] }), { status: 403 });
-    await verifyRecruiter(db, admin, seeker.user.id, { checks: ["phone", "identity"], note: "Called on 15 Nov" });
+    await assert.rejects(verifyRecruiter(db, admin, seeker.user.id, { checks: ["phone"] }, mail), { code: "CHECKS_INCOMPLETE" });
+    await assert.rejects(verifyRecruiter(db, admin, other.user.id, { checks: ["phone", "identity"] }, mail), { status: 404 }, "Only recruiters can be verified");
+    await assert.rejects(verifyRecruiter(db, seeker, seeker.user.id, { checks: ["phone", "identity"] }, mail), { status: 403 });
+    await verifyRecruiter(db, admin, seeker.user.id, { checks: ["phone", "identity"], note: "Called on 15 Nov" }, mail);
+    assert.equal(sent.at(-1)?.subject, "You're a verified recruiter on KBO"); assert.equal(sent.at(-1)?.to, seeker.user.email);
     assert.equal((await getPublicJob(db, job.slug)).employer.verified, true, "Verified badge shows on the job");
     const stored = await db.user.findUniqueOrThrow({ where: { id: seeker.user.id } });
     assert.deepEqual((stored.recruiterVerification as { checks: string[] }).checks, ["email", "phone", "identity"]);
@@ -95,7 +119,7 @@ test("request, approval, verification and badge work end to end", { skip: proces
     assert.equal((await getPublicJob(db, job.slug)).employer.verified, false);
 
     // Changing back to a job seeker removes verification too.
-    await verifyRecruiter(db, admin, seeker.user.id, { checks: ["phone", "identity"] });
+    await verifyRecruiter(db, admin, seeker.user.id, { checks: ["phone", "identity"] }, mail);
     await setAccountType(db, admin, { userId: seeker.user.id, role: "APPLICANT" });
     assert.equal((await db.user.findUniqueOrThrow({ where: { id: seeker.user.id } })).recruiterVerifiedAt, null);
   } finally {

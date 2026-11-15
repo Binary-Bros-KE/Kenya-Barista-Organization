@@ -2,6 +2,24 @@ import { z } from "zod";
 import { Prisma, type PrismaClient } from "../generated/prisma/client";
 import { assertAdmin, type Actor } from "./access";
 import { AccessError } from "./errors";
+import { getEnv } from "../lib/env";
+import { logEvent } from "../lib/logger";
+import { sendMail, type MailSender } from "./mail";
+import { recruiterApprovedEmail, recruiterRequestReceivedEmail, recruiterVerifiedEmail } from "./email-templates";
+
+type MailSettings = { baseURL: string; deliver: MailSender };
+const defaultMail = (): MailSettings => ({ baseURL: getEnv().APP_URL, deliver: sendMail });
+
+// Sends a branded email for a notification straight away and marks it sent, so the background
+// worker doesn't email it again. If sending fails, the notification stays pending and the worker retries it.
+async function emailNow(db: PrismaClient, notificationId: string, to: string, email: { subject: string; text: string; html: string }, mail: MailSettings) {
+  try {
+    await mail.deliver({ to, ...email, messageId: `<notification-${notificationId}@${new URL(mail.baseURL).hostname}>` });
+    await db.notification.updateMany({ where: { id: notificationId, deliveryStatus: "PENDING" }, data: { deliveryStatus: "SENT", sentAt: new Date(), lastError: null } });
+  } catch {
+    logEvent("warn", "recruiter_email.deferred_to_worker");
+  }
+}
 
 // Job seekers ask to become recruiters; administrators approve or reject the request,
 // and later verify a recruiter's contact details so their jobs carry a "Verified" badge.
@@ -39,7 +57,7 @@ export async function myRecruiterRequest(db: PrismaClient, actor: Actor) {
   return db.recruiterRequest.findFirst({ where: { userId: actor.user.id }, select: requestSelect, orderBy: { createdAt: "desc" } });
 }
 
-export async function submitRecruiterRequest(db: PrismaClient, actor: Actor, input: unknown) {
+export async function submitRecruiterRequest(db: PrismaClient, actor: Actor, input: unknown, mail: MailSettings = defaultMail()) {
   if (actor.user.role !== "APPLICANT") throw new AccessError(409, "ALREADY_RECRUITER", "Your account already has recruiter or administrator access");
   const data = recruiterRequestInput.parse(input);
   return db.$transaction(async tx => {
@@ -48,6 +66,10 @@ export async function submitRecruiterRequest(db: PrismaClient, actor: Actor, inp
     await tx.auditLog.create({ data: { actorId: actor.user.id, action: "recruiter_request.submitted", entityType: "RecruiterRequest", entityId: request.id } });
     const admins = await tx.user.findMany({ where: { role: "ADMIN", status: "ACTIVE" }, select: { id: true } });
     for (const admin of admins) await notify(tx, { userId: admin.id, kind: "recruiter_request.submitted", audience: "ADMIN", title: "New recruiter request", body: `${actor.user.name || actor.user.email} wants to recruit for ${data.hiringFor}.`, href: "/admin?view=requests" });
+    const receipt = await notify(tx, { userId: actor.user.id, kind: "recruiter_request.received", audience: "ACCOUNT", title: "We've received your recruiter request", body: "KBO will review it, usually within two working days.", href: "/dashboard/recruiter-request" });
+    return { request, receiptId: receipt.id };
+  }).then(async ({ request, receiptId }) => {
+    await emailNow(db, receiptId, actor.user.email, recruiterRequestReceivedEmail({ baseUrl: mail.baseURL, name: actor.user.name, ...data }), mail);
     return request;
   }).catch(error => {
     // The partial unique index also blocks two pending requests submitted at the same moment.
@@ -95,24 +117,28 @@ export const reviewInput = z.discriminatedUnion("decision", [
   z.object({ decision: z.literal("reject"), note: z.string().trim().min(5, "Tell them why, so they can apply again with the right details").max(1000) }).strict(),
 ]);
 
-export async function reviewRecruiterRequest(db: PrismaClient, actor: Actor, id: string, input: unknown) {
+export async function reviewRecruiterRequest(db: PrismaClient, actor: Actor, id: string, input: unknown, mail: MailSettings = defaultMail()) {
   assertAdmin(actor);
   const data = reviewInput.parse(input);
-  return db.$transaction(async tx => {
-    const request = await tx.recruiterRequest.findUnique({ where: { id }, include: { user: { select: { id: true, role: true } } } });
+  const result = await db.$transaction(async tx => {
+    const request = await tx.recruiterRequest.findUnique({ where: { id }, include: { user: { select: { id: true, role: true, name: true, email: true } } } });
     if (!request) throw new AccessError(404, "NOT_FOUND", "Request not found");
     const claimed = await tx.recruiterRequest.updateMany({ where: { id, status: "PENDING" }, data: { status: data.decision === "approve" ? "APPROVED" : "REJECTED", reviewNote: data.note || null, reviewedById: actor.user.id, reviewedAt: new Date() } });
     if (!claimed.count) throw new AccessError(409, "ALREADY_REVIEWED", "This request has already been reviewed or withdrawn");
     if (data.decision === "approve") {
       if (request.user.role === "ADMIN") throw new AccessError(409, "ADMIN_ACCOUNT", "Administrator accounts can't become recruiters");
       if (request.user.role !== "RECRUITER") await tx.user.update({ where: { id: request.userId }, data: { role: "RECRUITER" } });
-      await notify(tx, { userId: request.userId, kind: "recruiter_request.approved", audience: "ACCOUNT", title: "You're now a recruiter on KBO", body: "Your recruiter request was approved. You can post jobs and review applicants from your dashboard.", href: "/employer/jobs/new" });
+      const approved = await notify(tx, { userId: request.userId, kind: "recruiter_request.approved", audience: "ACCOUNT", title: "You're now a recruiter on KBO", body: "Your recruiter request was approved. You can post jobs and review applicants from your dashboard.", href: "/employer/jobs/new" });
+      await tx.auditLog.create({ data: { actorId: actor.user.id, action: "recruiter_request.approved", entityType: "User", entityId: request.userId } });
+      return { id, status: "APPROVED" as const, email: { notificationId: approved.id, to: request.user.email, name: request.user.name } };
     } else {
       await notify(tx, { userId: request.userId, kind: "recruiter_request.rejected", audience: "ACCOUNT", title: "Your recruiter request wasn't approved", body: `Reason: ${data.note}`, href: "/dashboard/recruiter-request" });
     }
-    await tx.auditLog.create({ data: { actorId: actor.user.id, action: data.decision === "approve" ? "recruiter_request.approved" : "recruiter_request.rejected", entityType: "User", entityId: request.userId } });
-    return { id, status: data.decision === "approve" ? "APPROVED" : "REJECTED" };
+    await tx.auditLog.create({ data: { actorId: actor.user.id, action: "recruiter_request.rejected", entityType: "User", entityId: request.userId } });
+    return { id, status: "REJECTED" as const, email: null };
   });
+  if (result.email) await emailNow(db, result.email.notificationId, result.email.to, recruiterApprovedEmail({ baseUrl: mail.baseURL, name: result.email.name, note: data.note }), mail);
+  return { id: result.id, status: result.status };
 }
 
 export const verificationInput = z.object({
@@ -120,21 +146,23 @@ export const verificationInput = z.object({
   note: z.string().trim().max(1000).default(""),
 }).strict();
 
-export async function verifyRecruiter(db: PrismaClient, actor: Actor, id: string, input: unknown) {
+export async function verifyRecruiter(db: PrismaClient, actor: Actor, id: string, input: unknown, mail: MailSettings = defaultMail()) {
   assertAdmin(actor);
   const data = verificationInput.parse(input);
   const missing = requiredChecks.filter(check => !data.checks.includes(check));
   if (missing.length) throw new AccessError(400, "CHECKS_INCOMPLETE", `Confirm these first: ${missing.map(check => verificationChecks[check].toLowerCase()).join("; ")}`);
-  return db.$transaction(async tx => {
-    const user = await tx.user.findFirst({ where: { id, role: "RECRUITER" }, select: { id: true, emailVerified: true } });
+  const result = await db.$transaction(async tx => {
+    const user = await tx.user.findFirst({ where: { id, role: "RECRUITER" }, select: { id: true, emailVerified: true, name: true, email: true } });
     if (!user) throw new AccessError(404, "NOT_FOUND", "Recruiter not found");
     if (!user.emailVerified) throw new AccessError(409, "EMAIL_UNVERIFIED", "The recruiter must confirm their email address first");
     const verifiedAt = new Date();
     await tx.user.update({ where: { id }, data: { recruiterVerifiedAt: verifiedAt, recruiterVerifiedById: actor.user.id, recruiterVerification: { checks: ["email", ...new Set(data.checks)], note: data.note } } });
-    await notify(tx, { userId: id, kind: "recruiter.verified", audience: "ACCOUNT", title: "You're a verified recruiter", body: "KBO has confirmed your details. Your jobs now show a Verified badge.", href: "/dashboard" });
+    const notice = await notify(tx, { userId: id, kind: "recruiter.verified", audience: "ACCOUNT", title: "You're a verified recruiter", body: "KBO has confirmed your details. Your jobs now show a Verified badge.", href: "/dashboard" });
     await tx.auditLog.create({ data: { actorId: actor.user.id, action: "recruiter.verified", entityType: "User", entityId: id } });
-    return { verifiedAt };
+    return { verifiedAt, notificationId: notice.id, to: user.email, name: user.name };
   });
+  await emailNow(db, result.notificationId, result.to, recruiterVerifiedEmail({ baseUrl: mail.baseURL, name: result.name }), mail);
+  return { verifiedAt: result.verifiedAt };
 }
 
 export async function unverifyRecruiter(db: PrismaClient, actor: Actor, id: string) {

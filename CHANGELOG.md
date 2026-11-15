@@ -10,6 +10,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.2.0 - 2026-11-15
+
+- Branded emails (HTML with a plain-text version) for recruiters: request received and awaiting approval, request approved, and verification complete. Each is sent straight away and marked as sent on its dashboard notification; if sending fails, the notification worker retries it.
+- Mail messages can now include HTML (`html` on `MailMessage`). Templates live in `src/server/email-templates.ts`.
+
 ## 2.1.0 - 2026-11-15
 
 - Job seekers request to become recruiters from their dashboard (Become a recruiter). Administrators review requests under Recruiters → Requests, with a count in the sidebar, and approve (the account becomes a recruiter) or reject with a reason. Both sides are notified.
