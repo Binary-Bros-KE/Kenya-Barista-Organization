@@ -105,11 +105,11 @@ export function recruiterApprovedEmail({ baseUrl, name, note }: { baseUrl: strin
 
 export function recruiterRejectedEmail({ baseUrl, name, reason }: { baseUrl: string; name: string | null; reason: string }): Email {
   const hello = escape(firstName(name));
-  const subject = "About your recruiter request";
+  const subject = "Your KBO recruiter request was rejected";
   return {
     subject,
     html: layout({
-      baseUrl, preheader: "We couldn't approve your recruiter request this time. Here's why, and how to apply again.", eyebrow: "Request reviewed", title: "We couldn't approve it this time",
+      baseUrl, preheader: `Reason: ${reason.length > 110 ? `${reason.slice(0, 107)}...` : reason} · You can update your details and apply again.`, eyebrow: "Request rejected", title: "Your recruiter request was rejected",
       intro: [`Hi ${hello},`, "Thank you for asking to recruit through the Kenya Barista Organization. We've reviewed your request and couldn't approve it this time."],
       rows: [["Reason", reason]],
       stepsTitle: "What you can do",

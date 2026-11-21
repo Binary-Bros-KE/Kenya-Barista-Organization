@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.4.2 - 2026-11-21
+
+- The rejection email is clear from the inbox: the subject is "Your KBO recruiter request was rejected", the inbox preview starts with the reason, and the heading reads "Your recruiter request was rejected".
+
 ## 2.4.1 - 2026-11-21
 
 - Become a recruiter: the "used all requests" message is now a red warning. "Your past requests" is now "Your requests" and includes the latest request, tagged Latest. Job seekers with requests left see an "N attempts remaining" badge.

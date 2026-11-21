@@ -95,7 +95,7 @@ test("request, approval, verification and badge work end to end", { skip: proces
     await assert.rejects(reviewRecruiterRequest(db, admin, second.id, { decision: "reject" }, mail));
     const beforeReject = sent.length;
     await reviewRecruiterRequest(db, admin, second.id, { decision: "reject", note: "We couldn't reach you on that phone number." }, mail);
-    assert.equal(sent.length, beforeReject + 1); assert.equal(sent.at(-1)?.subject, "About your recruiter request"); assert.ok(sent.at(-1)?.html?.includes("We couldn&#39;t reach you on that phone number."));
+    assert.equal(sent.length, beforeReject + 1); assert.equal(sent.at(-1)?.subject, "Your KBO recruiter request was rejected"); assert.ok(sent.at(-1)?.html?.includes("We couldn&#39;t reach you on that phone number."));
     assert.equal((await db.notification.findFirstOrThrow({ where: { userId: seeker.user.id, kind: "recruiter_request.rejected" } })).deliveryStatus, "SENT");
     const history = await myRecruiterRequests(db, seeker);
     assert.equal(history.request?.status, "REJECTED"); assert.deepEqual(history.earlier.map(r => r.status), ["WITHDRAWN"], "Earlier requests are kept"); assert.equal(history.remaining, 1);
