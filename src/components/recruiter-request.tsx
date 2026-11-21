@@ -13,15 +13,18 @@ const Briefcase = () => <svg viewBox="0 0 24 24" width="15" height="15" fill="no
 const Trash = () => <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" /></svg>;
 
 // A job seeker's request to become a recruiter: the form, its status, and every earlier request.
-export function RecruiterRequest({ request, earlier = [], used = request ? 1 : 0, limit = 3, remaining = Math.max(0, limit - used), phone, location }: { request: Request | null; earlier?: Request[]; used?: number; limit?: number; remaining?: number; phone: string; location: string }) {
+export function RecruiterRequest({ request, earlier = [], used = request ? 1 : 0, limit = 3, remaining = Math.max(0, limit - used), isRecruiter = false, phone, location }: { request: Request | null; earlier?: Request[]; used?: number; limit?: number; remaining?: number; isRecruiter?: boolean; phone: string; location: string }) {
   const router = useRouter();
   const [editing, setEditing] = useState((!request || request.status === "WITHDRAWN") && remaining > 0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const rejected = request?.status === "REJECTED";
-  const outOfRequests = remaining === 0 && request?.status !== "PENDING" && request?.status !== "APPROVED";
+  // Approved, but an administrator has since changed the account back to a job seeker.
+  const removed = request?.status === "APPROVED" && !isRecruiter;
+  const canReapply = rejected || removed;
+  const outOfRequests = remaining === 0 && request?.status !== "PENDING" && !isRecruiter;
   const all = request ? [request, ...earlier] : [];
-  const attempts = remaining > 0 && request?.status !== "APPROVED" ? <span className="recruit-attempts">{remaining} {remaining === 1 ? "attempt" : "attempts"} remaining</span> : null;
+  const attempts = remaining > 0 && !isRecruiter ? <span className="recruit-attempts">{remaining} {remaining === 1 ? "attempt" : "attempts"} remaining</span> : null;
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,14 +55,16 @@ export function RecruiterRequest({ request, earlier = [], used = request ? 1 : 0
         <dl><div><dt>Hiring for</dt><dd>{request.hiringFor}</dd></div><div><dt>Roles</dt><dd>{request.roles}</dd></div></dl>
         <SignatureButton tone="rose" icon={<Trash />} disabled={busy} onClick={() => void withdraw()}>{busy ? "Withdrawing…" : "Withdraw request"}</SignatureButton></div></section>}
 
-    {request?.status === "APPROVED" && <section className="recruit-status is-approved"><div className="recruit-status-icon"><Check /></div><div><h3>You're a recruiter</h3><p>Your request was approved {request.reviewedAt ? day(request.reviewedAt) : ""}. Post your first job to start receiving applicants.</p><SignatureButton tone="teal" icon={<Briefcase />} href="/employer/jobs/new">Post a job</SignatureButton></div></section>}
+    {request?.status === "APPROVED" && isRecruiter && <section className="recruit-status is-approved"><div className="recruit-status-icon"><Check /></div><div><h3>You're a recruiter</h3><p>Your request was approved {request.reviewedAt ? day(request.reviewedAt) : ""}. Post your first job to start receiving applicants.</p><SignatureButton tone="teal" icon={<Briefcase />} href="/employer/jobs/new">Post a job</SignatureButton></div></section>}
 
     {rejected && !editing && <section className="recruit-status is-rejected"><div className="recruit-status-icon">!</div><div><h3>Your last request wasn't approved</h3><p>{request.reviewNote ? <>KBO said: “{request.reviewNote}”</> : "KBO couldn't approve it this time."}</p>{remaining > 0 ? <><SignatureButton tone="teal" icon={<Briefcase />} onClick={() => setEditing(true)}>Apply again</SignatureButton></> : null}</div></section>}
+
+    {removed && !editing && <section className="recruit-status is-rejected"><div className="recruit-status-icon">!</div><div><h3>Your recruiter access was removed</h3><p>KBO changed your account back to a job seeker. Your profile, CVs and applications are unchanged. If you'd like to recruit again, send a new request.</p>{remaining > 0 ? <SignatureButton tone="teal" icon={<Briefcase />} onClick={() => setEditing(true)}>Apply again</SignatureButton> : null}</div></section>}
 
     {outOfRequests && <section className="recruit-status is-limit" role="alert"><div className="recruit-status-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z" /><path d="M12 10v4M12 17h.01" /></svg></div><div><h3>You've used all {limit} requests</h3><p>Each account can ask to become a recruiter {limit} times. If your situation has changed, <Link href="/contact">contact KBO</Link> and we'll take a look.</p></div></section>}
 
     {editing && <form className="recruit-form" onSubmit={event => void submit(event)}>
-      <div className="recruit-form-head"><h3>{rejected ? "Apply again" : "Ask to become a recruiter"}</h3>{all.length === 0 && attempts}</div>
+      <div className="recruit-form-head"><h3>{canReapply ? "Apply again" : "Ask to become a recruiter"}</h3>{all.length === 0 && attempts}</div>
       <p className="recruit-form-intro">KBO reads every request. Clear details help us approve you faster. This will be your {ordinal(used + 1)} of {limit} requests.</p>
       <label className="is-wide">Who are you hiring for?<input name="hiringFor" required minLength={2} maxLength={160} defaultValue={request?.hiringFor ?? ""} placeholder="e.g. Java House, Westlands branch, or my own café" disabled={busy} /><span>Your jobs show your account name as the employer, so name your account after your business if you like.</span></label>
       <label className="is-wide">Which roles do you plan to fill?<input name="roles" required minLength={2} maxLength={300} defaultValue={request?.roles ?? ""} placeholder="e.g. Baristas, a head barista, café supervisor" disabled={busy} /></label>
@@ -68,13 +73,13 @@ export function RecruiterRequest({ request, earlier = [], used = request ? 1 : 0
       <label className="is-wide"><span className="recruit-label">Website or social page <em>(optional)</em></span><input name="website" maxLength={200} defaultValue={request?.website ?? ""} placeholder="e.g. instagram.com/yourcafe" disabled={busy} /><span>Helps us verify you quickly.</span></label>
       <label className="is-wide"><span className="recruit-label">Anything else? <em>(optional)</em></span><textarea name="message" maxLength={1000} rows={3} defaultValue={request?.message ?? ""} placeholder="e.g. We're opening a second branch in January and need four baristas." disabled={busy} /></label>
       {error && <p className="notice error" role="alert">{error}</p>}
-      <div className="recruit-actions">{rejected && <button type="button" className="recruit-link" onClick={() => setEditing(false)}>Cancel</button>}<SignatureButton tone="teal" type="submit" icon={<Briefcase />} disabled={busy}>{busy ? "Sending…" : "Send request"}</SignatureButton></div>
+      <div className="recruit-actions">{canReapply && <button type="button" className="recruit-link" onClick={() => setEditing(false)}>Cancel</button>}<SignatureButton tone="teal" type="submit" icon={<Briefcase />} disabled={busy}>{busy ? "Sending…" : "Send request"}</SignatureButton></div>
     </form>}
 
     {all.length > 0 && <section className="recruit-history" aria-labelledby="recruit-history-title">
       <div className="recruit-history-title"><h3 id="recruit-history-title">Your requests</h3>{attempts}</div>
       <ol>{all.map((item, index) => <li key={item.id} className={`is-${item.status.toLowerCase()}`}>
-        <div className="recruit-history-head"><strong>{item.hiringFor}{index === 0 && <span className="recruit-latest">Latest</span>}</strong><span className="recruit-pill">{statusLabel[item.status]}</span></div>
+        <div className="recruit-history-head"><strong>{item.hiringFor}{index === 0 && <span className="recruit-latest">Latest</span>}</strong><span className="recruit-pill">{item.status === "APPROVED" && !(isRecruiter && index === 0) ? "Approved, later removed" : statusLabel[item.status]}</span></div>
         <p>Sent {day(item.createdAt)}{item.reviewedAt ? ` · reviewed ${day(item.reviewedAt)}` : ""} · {item.roles}</p>
         {item.status === "REJECTED" && item.reviewNote && <p className="recruit-history-reason">KBO said: “{item.reviewNote}”</p>}
       </li>)}</ol>

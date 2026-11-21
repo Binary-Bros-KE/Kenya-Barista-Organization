@@ -9,5 +9,5 @@ export default async function Page() {
   if (actor.user.role === "ADMIN") redirect("/admin?view=requests");
   const [history, profile] = await Promise.all([myRecruiterRequests(getDb(), actor), getDb().applicantProfile.findUnique({ where: { userId: actor.user.id }, select: { phone: true, location: true } })]);
   if (actor.user.role === "RECRUITER" && history.request?.status !== "APPROVED") redirect("/dashboard");
-  return <RecruiterRequest {...history} phone={profile?.phone ?? ""} location={profile?.location ?? ""} />;
+  return <RecruiterRequest {...history} isRecruiter={actor.user.role === "RECRUITER"} phone={profile?.phone ?? ""} location={profile?.location ?? ""} />;
 }

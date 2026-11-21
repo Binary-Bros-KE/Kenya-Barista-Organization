@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.4.4 - 2026-11-21
+
+- Fixed: after an administrator changed a recruiter back to a job seeker, Become a recruiter still said "You're a recruiter" because it went by the last approved request. It now goes by the account type, says "Your recruiter access was removed", offers Apply again while requests remain, and marks that request "Approved, later removed".
+
 ## 2.4.3 - 2026-11-21
 
 - Admin Recruiters → Requests: removed the intro banner above the list. The Pending count and the empty "All caught up" message already say the same thing.

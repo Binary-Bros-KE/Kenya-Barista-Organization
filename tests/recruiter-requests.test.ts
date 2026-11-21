@@ -41,6 +41,12 @@ test("the request page shows the form, then the status, then the reason after a 
   assert.ok(rejected.includes("Phone number unreachable")); assert.ok(rejected.includes("Apply again")); assert.ok(rejected.includes("1 attempt remaining"));
   assert.ok(rejected.includes("Your requests")); assert.ok(rejected.includes("Latest")); assert.ok(rejected.includes("Old cafe")); assert.ok(rejected.includes("No phone answer"));
   const spent = render({ request: { ...base, status: "REJECTED", reviewNote: "Still unreachable", reviewedAt: new Date() }, earlier: [], used: 3, limit: 3, remaining: 0, phone: "", location: "" });
+  const approved = { ...base, status: "APPROVED" as const, reviewNote: null, reviewedAt: new Date() };
+  const recruiter = render({ request: approved, used: 1, isRecruiter: true, phone: "", location: "" });
+  assert.ok(recruiter.includes("You&#x27;re a recruiter")); assert.ok(!recruiter.includes("remaining"));
+  const demoted = render({ request: approved, used: 1, isRecruiter: false, phone: "", location: "" });
+  assert.ok(!demoted.includes("You&#x27;re a recruiter"), "A demoted account is not told it is a recruiter"); assert.ok(demoted.includes("Your recruiter access was removed"));
+  assert.ok(demoted.includes("Apply again")); assert.ok(demoted.includes("2 attempts remaining")); assert.ok(demoted.includes("Approved, later removed"));
   assert.ok(spent.includes("used all 3 requests")); assert.ok(!spent.includes("Apply again")); assert.ok(!spent.includes("Send request")); assert.ok(!spent.includes("remaining"));
   assert.ok(form.includes("3 attempts remaining"));
 });
