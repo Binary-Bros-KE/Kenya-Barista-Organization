@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.4.3 - 2026-11-21
+
+- Admin Recruiters → Requests: removed the intro banner above the list. The Pending count and the empty "All caught up" message already say the same thing.
+
 ## 2.4.2 - 2026-11-21
 
 - The rejection email is clear from the inbox: the subject is "Your KBO recruiter request was rejected", the inbox preview starts with the reason, and the heading reads "Your recruiter request was rejected".

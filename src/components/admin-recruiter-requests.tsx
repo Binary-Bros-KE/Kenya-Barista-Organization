@@ -51,7 +51,6 @@ export function AdminRecruiterRequests({ data }: { data: RecruiterRequestList })
   const first = pagination.matching ? (pagination.page - 1) * 25 + 1 : 0, last = Math.min(pagination.page * 25, pagination.matching);
   return <div className="accounts recruiters overview">
     <RecruiterTabs current="requests" pending={data.pending} />
-    <div className="requests-intro"><span className="requests-intro-icon"><Icon name="clock" size={20} /></span><div><h2>{data.pending ? `${number(data.pending)} ${data.pending === 1 ? "person is" : "people are"} waiting to become recruiters` : "No one is waiting right now"}</h2><p>Job seekers ask from their dashboard. Approving turns their account into a recruiter straight away; rejecting keeps them a job seeker and tells them why.</p></div></div>
     {notice && <p className="recruiters-notice" role="status">{notice}<button type="button" aria-label="Dismiss" onClick={() => setNotice("")}><Icon name="close" size={14} /></button></p>}
 
     <section className="accounts-panel" aria-label="Recruiter requests">
