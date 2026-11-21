@@ -8,7 +8,7 @@ import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import type { Actor } from "../src/server/access";
-import { listRecruiterRequests, myRecruiterRequest, recruiterRequestInput, reviewInput, reviewRecruiterRequest, submitRecruiterRequest, unverifyRecruiter, verifyRecruiter, withdrawRecruiterRequest } from "../src/server/recruiter-requests";
+import { listRecruiterRequests, MAX_RECRUITER_REQUESTS, myRecruiterRequests, recruiterRequestInput, reviewInput, reviewRecruiterRequest, submitRecruiterRequest, unverifyRecruiter, verifyRecruiter, withdrawRecruiterRequest } from "../src/server/recruiter-requests";
 import { setAccountType } from "../src/server/employers";
 import { listNotifications } from "../src/server/notification-access";
 import { getPublicJob } from "../src/server/public-jobs";
@@ -37,8 +37,11 @@ test("the request page shows the form, then the status, then the reason after a 
   const base = { id: "r", hiringFor: "Java House", roles: "Baristas", phone: "+254712345678", location: "Nairobi", website: null, message: "", reviewedAt: null, createdAt: new Date("2026-11-15T08:00:00Z") };
   const pending = render({ request: { ...base, status: "PENDING", reviewNote: null }, phone: "", location: "" });
   assert.ok(pending.includes("Your request is with KBO")); assert.ok(pending.includes("Withdraw request")); assert.ok(!pending.includes("Send request"));
-  const rejected = render({ request: { ...base, status: "REJECTED", reviewNote: "Phone number unreachable", reviewedAt: new Date() }, phone: "", location: "" });
-  assert.ok(rejected.includes("Phone number unreachable")); assert.ok(rejected.includes("Apply again"));
+  const rejected = render({ request: { ...base, status: "REJECTED", reviewNote: "Phone number unreachable", reviewedAt: new Date() }, earlier: [{ ...base, id: "old", hiringFor: "Old cafe", status: "REJECTED", reviewNote: "No phone answer", reviewedAt: new Date() }], used: 2, limit: 3, remaining: 1, phone: "", location: "" });
+  assert.ok(rejected.includes("Phone number unreachable")); assert.ok(rejected.includes("Apply again")); assert.ok(rejected.includes("1 of 3 requests left"));
+  assert.ok(rejected.includes("Your past requests")); assert.ok(rejected.includes("Old cafe")); assert.ok(rejected.includes("No phone answer"));
+  const spent = render({ request: { ...base, status: "REJECTED", reviewNote: "Still unreachable", reviewedAt: new Date() }, earlier: [], used: 3, limit: 3, remaining: 0, phone: "", location: "" });
+  assert.ok(spent.includes("used all 3 requests")); assert.ok(!spent.includes("Apply again")); assert.ok(!spent.includes("Send request"));
 });
 
 test("recruiter emails are branded, link back to KBO and escape what people typed", () => {
@@ -93,10 +96,16 @@ test("request, approval, verification and badge work end to end", { skip: proces
     await reviewRecruiterRequest(db, admin, second.id, { decision: "reject", note: "We couldn't reach you on that phone number." }, mail);
     assert.equal(sent.length, beforeReject + 1); assert.equal(sent.at(-1)?.subject, "About your recruiter request"); assert.ok(sent.at(-1)?.html?.includes("We couldn&#39;t reach you on that phone number."));
     assert.equal((await db.notification.findFirstOrThrow({ where: { userId: seeker.user.id, kind: "recruiter_request.rejected" } })).deliveryStatus, "SENT");
-    assert.equal((await myRecruiterRequest(db, seeker))?.status, "REJECTED");
+    const history = await myRecruiterRequests(db, seeker);
+    assert.equal(history.request?.status, "REJECTED"); assert.deepEqual(history.earlier.map(r => r.status), ["WITHDRAWN"], "Earlier requests are kept"); assert.equal(history.remaining, 1);
     assert.equal((await reload(seeker)).user.role, "APPLICANT", "A rejected person stays a job seeker");
     const notices = await listNotifications(db, seeker, {});
     assert.ok(notices.notifications.some(n => n.title === "Your recruiter request wasn't approved"), "The decision reaches the job seeker's inbox");
+
+    // Each account gets three requests in total; withdrawn ones count.
+    for (let i = 0; i < MAX_RECRUITER_REQUESTS; i++) { await submitRecruiterRequest(db, other, valid, mail); await withdrawRecruiterRequest(db, other); }
+    await assert.rejects(submitRecruiterRequest(db, other, valid, mail), { code: "REQUEST_LIMIT" });
+    assert.equal((await myRecruiterRequests(db, other)).remaining, 0);
 
     // Apply again and get approved: the account becomes a recruiter.
     const third = await submitRecruiterRequest(db, seeker, valid, mail);

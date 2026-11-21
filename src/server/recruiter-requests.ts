@@ -53,8 +53,14 @@ function notify(tx: Prisma.TransactionClient, data: { userId: string; kind: stri
   return tx.notification.create({ data });
 }
 
-export async function myRecruiterRequest(db: PrismaClient, actor: Actor) {
-  return db.recruiterRequest.findFirst({ where: { userId: actor.user.id }, select: requestSelect, orderBy: { createdAt: "desc" } });
+// Every request is kept. Each account can send this many in total, withdrawn ones included.
+export const MAX_RECRUITER_REQUESTS = 3;
+
+// The latest request, the earlier ones (newest first) and how many of the allowed requests are left.
+export async function myRecruiterRequests(db: PrismaClient, actor: Actor) {
+  const [latest, ...earlier] = await db.recruiterRequest.findMany({ where: { userId: actor.user.id }, select: requestSelect, orderBy: [{ createdAt: "desc" }, { id: "asc" }] });
+  const used = latest ? earlier.length + 1 : 0;
+  return { request: latest ?? null, earlier, used, limit: MAX_RECRUITER_REQUESTS, remaining: Math.max(0, MAX_RECRUITER_REQUESTS - used) };
 }
 
 export async function submitRecruiterRequest(db: PrismaClient, actor: Actor, input: unknown, mail: MailSettings = defaultMail()) {
@@ -62,6 +68,7 @@ export async function submitRecruiterRequest(db: PrismaClient, actor: Actor, inp
   const data = recruiterRequestInput.parse(input);
   return db.$transaction(async tx => {
     if (await tx.recruiterRequest.findFirst({ where: { userId: actor.user.id, status: "PENDING" }, select: { id: true } })) throw new AccessError(409, "REQUEST_PENDING", "You already have a request waiting for review");
+    if (await tx.recruiterRequest.count({ where: { userId: actor.user.id } }) >= MAX_RECRUITER_REQUESTS) throw new AccessError(409, "REQUEST_LIMIT", `You've used all ${MAX_RECRUITER_REQUESTS} recruiter requests. Contact KBO if your situation has changed.`);
     const request = await tx.recruiterRequest.create({ data: { ...data, userId: actor.user.id }, select: requestSelect });
     await tx.auditLog.create({ data: { actorId: actor.user.id, action: "recruiter_request.submitted", entityType: "RecruiterRequest", entityId: request.id } });
     const admins = await tx.user.findMany({ where: { role: "ADMIN", status: "ACTIVE" }, select: { id: true } });

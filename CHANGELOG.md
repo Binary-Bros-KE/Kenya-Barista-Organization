@@ -10,6 +10,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.4.0 - 2026-11-21
+
+- Each account can send at most 3 recruiter requests, withdrawn ones included. After the third, the page explains the limit and points to Contact KBO instead of showing the form; the server enforces it too (`REQUEST_LIMIT`).
+- Become a recruiter now lists the job seeker's past requests with their dates, outcome and KBO's reason, and shows how many requests are left. Nothing was ever deleted: every request was already kept, but only the latest one was shown.
+
 ## 2.3.0 - 2026-11-21
 
 - Rejected recruiter requests now get a branded email straight away, with the reason and an Apply again button. Before, the rejection only reached the inbox through the background notification worker, which isn't running locally.
