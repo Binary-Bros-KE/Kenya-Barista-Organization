@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.4.1 - 2026-11-21
+
+- Become a recruiter: the "used all requests" message is now a red warning. "Your past requests" is now "Your requests" and includes the latest request, tagged Latest. Job seekers with requests left see an "N attempts remaining" badge.
+
 ## 2.4.0 - 2026-11-21
 
 - Each account can send at most 3 recruiter requests, withdrawn ones included. After the third, the page explains the limit and points to Contact KBO instead of showing the form; the server enforces it too (`REQUEST_LIMIT`).

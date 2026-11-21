@@ -38,10 +38,11 @@ test("the request page shows the form, then the status, then the reason after a 
   const pending = render({ request: { ...base, status: "PENDING", reviewNote: null }, phone: "", location: "" });
   assert.ok(pending.includes("Your request is with KBO")); assert.ok(pending.includes("Withdraw request")); assert.ok(!pending.includes("Send request"));
   const rejected = render({ request: { ...base, status: "REJECTED", reviewNote: "Phone number unreachable", reviewedAt: new Date() }, earlier: [{ ...base, id: "old", hiringFor: "Old cafe", status: "REJECTED", reviewNote: "No phone answer", reviewedAt: new Date() }], used: 2, limit: 3, remaining: 1, phone: "", location: "" });
-  assert.ok(rejected.includes("Phone number unreachable")); assert.ok(rejected.includes("Apply again")); assert.ok(rejected.includes("1 of 3 requests left"));
-  assert.ok(rejected.includes("Your past requests")); assert.ok(rejected.includes("Old cafe")); assert.ok(rejected.includes("No phone answer"));
+  assert.ok(rejected.includes("Phone number unreachable")); assert.ok(rejected.includes("Apply again")); assert.ok(rejected.includes("1 attempt remaining"));
+  assert.ok(rejected.includes("Your requests")); assert.ok(rejected.includes("Latest")); assert.ok(rejected.includes("Old cafe")); assert.ok(rejected.includes("No phone answer"));
   const spent = render({ request: { ...base, status: "REJECTED", reviewNote: "Still unreachable", reviewedAt: new Date() }, earlier: [], used: 3, limit: 3, remaining: 0, phone: "", location: "" });
-  assert.ok(spent.includes("used all 3 requests")); assert.ok(!spent.includes("Apply again")); assert.ok(!spent.includes("Send request"));
+  assert.ok(spent.includes("used all 3 requests")); assert.ok(!spent.includes("Apply again")); assert.ok(!spent.includes("Send request")); assert.ok(!spent.includes("remaining"));
+  assert.ok(form.includes("3 attempts remaining"));
 });
 
 test("recruiter emails are branded, link back to KBO and escape what people typed", () => {

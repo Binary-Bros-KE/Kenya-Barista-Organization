@@ -138,9 +138,19 @@
 @media (max-width: 799px) { .recruit-hero, .recruit-form { grid-template-columns: 1fr; } .recruit-hero { padding: 22px 18px; } }
 
 /* Request limit and past requests on the job seeker's Become a recruiter page */
-.recruit-left { display: block; margin-top: 8px; color: #8a7867; font-size: 12px; }
-.recruit-status.is-limit .recruit-status-icon { background: #efe8dd; color: #5d4d3f; }
-.recruit-status.is-limit a { color: #0b766d; }
+.recruit-status.is-limit { border-color: #f4c3cf; border-left: 4px solid #d42a55; background: linear-gradient(135deg, #fff4f6, #fde9ee); }
+.recruit-status.is-limit .recruit-status-icon { background: #d42a55; color: #fff; }
+.recruit-status.is-limit h3 { color: #8f1435; }
+.recruit-status.is-limit p { color: #7d1d36; }
+.recruit-status.is-limit a { color: #b0183e; font-weight: 700; }
+.recruit-attempts { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px; background: #e3f4f1; color: #0b766d; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.recruit-attempts::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.recruit-form-head, .recruit-history-title { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.recruit-form-head { grid-column: 1 / -1; }
+.recruit-form-head h3 { margin: 0; }
+.recruit-history-title { margin-bottom: 12px; }
+.recruit-history-title h3 { margin: 0; }
+.recruit-latest { margin-left: 8px; padding: 2px 7px; border-radius: 6px; background: #2f2219; color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; vertical-align: 2px; }
 .recruit-history { padding: 18px 20px; border-radius: 16px; border: 1px solid #ebe3d7; background: #fffefa; }
 .recruit-history h3 { margin: 0 0 12px; font-size: 15px; color: #2f2219; }
 .recruit-history ol { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
