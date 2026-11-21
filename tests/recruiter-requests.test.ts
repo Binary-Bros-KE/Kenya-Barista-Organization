@@ -13,7 +13,7 @@ import { setAccountType } from "../src/server/employers";
 import { listNotifications } from "../src/server/notification-access";
 import { getPublicJob } from "../src/server/public-jobs";
 import { RecruiterRequest } from "../src/components/recruiter-request";
-import { recruiterApprovedEmail, recruiterRequestReceivedEmail, recruiterVerifiedEmail } from "../src/server/email-templates";
+import { recruiterApprovedEmail, recruiterRejectedEmail, recruiterRequestReceivedEmail, recruiterVerifiedEmail } from "../src/server/email-templates";
 import type { MailMessage } from "../src/server/mail";
 
 const router = { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} } as never;
@@ -50,6 +50,8 @@ test("recruiter emails are branded, link back to KBO and escape what people type
   assert.ok(received.text.includes("Hiring for: Java House & Co <script>")); assert.ok(received.text.includes("https://kbo.example/dashboard/recruiter-request"));
   const approved = recruiterApprovedEmail({ baseUrl: base, name: "Brian", note: "Welcome <aboard>" });
   assert.ok(approved.html.includes('href="https://kbo.example/employer/jobs/new"')); assert.ok(approved.html.includes("Welcome &lt;aboard&gt;")); assert.ok(approved.text.includes("Post your first job"));
+  const rejected = recruiterRejectedEmail({ baseUrl: base, name: "Brian", reason: "Phone <unreachable>" });
+  assert.ok(rejected.html.includes("Phone &lt;unreachable&gt;")); assert.ok(rejected.html.includes('href="https://kbo.example/dashboard/recruiter-request"')); assert.ok(rejected.text.includes("Reason: Phone <unreachable>"));
   const verified = recruiterVerifiedEmail({ baseUrl: base, name: null });
   assert.ok(verified.html.includes("Verified recruiter")); assert.ok(verified.html.includes("Hi there,")); assert.ok(verified.html.includes("https://kbo.example/brand-logo.png"));
 });
@@ -89,7 +91,8 @@ test("request, approval, verification and badge work end to end", { skip: proces
     await assert.rejects(reviewRecruiterRequest(db, admin, second.id, { decision: "reject" }, mail));
     const beforeReject = sent.length;
     await reviewRecruiterRequest(db, admin, second.id, { decision: "reject", note: "We couldn't reach you on that phone number." }, mail);
-    assert.equal(sent.length, beforeReject, "Rejections are not part of the branded emails");
+    assert.equal(sent.length, beforeReject + 1); assert.equal(sent.at(-1)?.subject, "About your recruiter request"); assert.ok(sent.at(-1)?.html?.includes("We couldn&#39;t reach you on that phone number."));
+    assert.equal((await db.notification.findFirstOrThrow({ where: { userId: seeker.user.id, kind: "recruiter_request.rejected" } })).deliveryStatus, "SENT");
     assert.equal((await myRecruiterRequest(db, seeker))?.status, "REJECTED");
     assert.equal((await reload(seeker)).user.role, "APPLICANT", "A rejected person stays a job seeker");
     const notices = await listNotifications(db, seeker, {});

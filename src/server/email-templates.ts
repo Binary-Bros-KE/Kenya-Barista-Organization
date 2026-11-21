@@ -103,6 +103,29 @@ export function recruiterApprovedEmail({ baseUrl, name, note }: { baseUrl: strin
   };
 }
 
+export function recruiterRejectedEmail({ baseUrl, name, reason }: { baseUrl: string; name: string | null; reason: string }): Email {
+  const hello = escape(firstName(name));
+  const subject = "About your recruiter request";
+  return {
+    subject,
+    html: layout({
+      baseUrl, preheader: "We couldn't approve your recruiter request this time. Here's why, and how to apply again.", eyebrow: "Request reviewed", title: "We couldn't approve it this time",
+      intro: [`Hi ${hello},`, "Thank you for asking to recruit through the Kenya Barista Organization. We've reviewed your request and couldn't approve it this time."],
+      rows: [["Reason", reason]],
+      stepsTitle: "What you can do",
+      steps: [
+        ["Check the reason above", "It tells you what we couldn't confirm, such as a phone number we couldn't reach."],
+        ["Apply again", "Update your details from your dashboard and send a new request whenever you're ready."],
+      ],
+      button: { label: "Apply again", href: "/dashboard/recruiter-request" },
+      footnote: "Your job seeker account isn't affected: your profile, CVs and applications stay exactly as they were. Questions? Contact KBO from the website.",
+    }),
+    text: plain([`Hi ${firstName(name)},`, "", "Thank you for asking to recruit through the Kenya Barista Organization. We've reviewed your request and couldn't approve it this time.", "",
+      `Reason: ${reason}`, "", "You can update your details and apply again from your dashboard whenever you're ready. Your job seeker account isn't affected.", "",
+      `Apply again: ${new URL("/dashboard/recruiter-request", baseUrl)}`, "", "Kenya Barista Organization"]),
+  };
+}
+
 export function recruiterVerifiedEmail({ baseUrl, name }: { baseUrl: string; name: string | null }): Email {
   const hello = escape(firstName(name));
   const subject = "You're a verified recruiter on KBO";

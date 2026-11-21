@@ -5,7 +5,7 @@ import { AccessError } from "./errors";
 import { getEnv } from "../lib/env";
 import { logEvent } from "../lib/logger";
 import { sendMail, type MailSender } from "./mail";
-import { recruiterApprovedEmail, recruiterRequestReceivedEmail, recruiterVerifiedEmail } from "./email-templates";
+import { recruiterApprovedEmail, recruiterRejectedEmail, recruiterRequestReceivedEmail, recruiterVerifiedEmail } from "./email-templates";
 
 type MailSettings = { baseURL: string; deliver: MailSender };
 const defaultMail = (): MailSettings => ({ baseURL: getEnv().APP_URL, deliver: sendMail });
@@ -131,13 +131,15 @@ export async function reviewRecruiterRequest(db: PrismaClient, actor: Actor, id:
       const approved = await notify(tx, { userId: request.userId, kind: "recruiter_request.approved", audience: "ACCOUNT", title: "You're now a recruiter on KBO", body: "Your recruiter request was approved. You can post jobs and review applicants from your dashboard.", href: "/employer/jobs/new" });
       await tx.auditLog.create({ data: { actorId: actor.user.id, action: "recruiter_request.approved", entityType: "User", entityId: request.userId } });
       return { id, status: "APPROVED" as const, email: { notificationId: approved.id, to: request.user.email, name: request.user.name } };
-    } else {
-      await notify(tx, { userId: request.userId, kind: "recruiter_request.rejected", audience: "ACCOUNT", title: "Your recruiter request wasn't approved", body: `Reason: ${data.note}`, href: "/dashboard/recruiter-request" });
     }
+    const rejected = await notify(tx, { userId: request.userId, kind: "recruiter_request.rejected", audience: "ACCOUNT", title: "Your recruiter request wasn't approved", body: `Reason: ${data.note}`, href: "/dashboard/recruiter-request" });
     await tx.auditLog.create({ data: { actorId: actor.user.id, action: "recruiter_request.rejected", entityType: "User", entityId: request.userId } });
-    return { id, status: "REJECTED" as const, email: null };
+    return { id, status: "REJECTED" as const, email: { notificationId: rejected.id, to: request.user.email, name: request.user.name } };
   });
-  if (result.email) await emailNow(db, result.email.notificationId, result.email.to, recruiterApprovedEmail({ baseUrl: mail.baseURL, name: result.email.name, note: data.note }), mail);
+  const email = result.status === "APPROVED"
+    ? recruiterApprovedEmail({ baseUrl: mail.baseURL, name: result.email.name, note: data.note })
+    : recruiterRejectedEmail({ baseUrl: mail.baseURL, name: result.email.name, reason: data.note ?? "" });
+  await emailNow(db, result.email.notificationId, result.email.to, email, mail);
   return { id: result.id, status: result.status };
 }
 

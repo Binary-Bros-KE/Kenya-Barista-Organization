@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.3.0 - 2026-11-21
+
+- Rejected recruiter requests now get a branded email straight away, with the reason and an Apply again button. Before, the rejection only reached the inbox through the background notification worker, which isn't running locally.
+
 ## 2.2.2 - 2026-11-21
 
 - The Withdraw request button on Become a recruiter is now a red signature button with a trash icon.
