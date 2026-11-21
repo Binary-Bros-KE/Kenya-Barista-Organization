@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.2.2 - 2026-11-21
+
+- The Withdraw request button on Become a recruiter is now a red signature button with a trash icon.
+
 ## 2.2.1 - 2026-11-15
 
 - Signing in to an account whose email isn't verified now says "Email not verified, please check your email and verify to proceed."

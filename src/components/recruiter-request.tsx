@@ -8,6 +8,7 @@ type Request = { id: string; status: "PENDING" | "APPROVED" | "REJECTED" | "WITH
 const day = (value: Date | string) => new Intl.DateTimeFormat("en-KE", { timeZone: "Africa/Nairobi", dateStyle: "long" }).format(new Date(value));
 const Check = () => <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>;
 const Briefcase = () => <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2" /><path d="M8 7V3h8v4M3 12a20 20 0 0 0 18 0" /></svg>;
+const Trash = () => <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" /></svg>;
 
 // A job seeker's request to become a recruiter: the form, then its status.
 export function RecruiterRequest({ request, phone, location }: { request: Request | null; phone: string; location: string }) {
@@ -44,7 +45,7 @@ export function RecruiterRequest({ request, phone, location }: { request: Reques
     {request?.status === "PENDING" && !editing && <section className="recruit-status is-pending" aria-live="polite"><div className="recruit-status-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg></div>
       <div><h3>Your request is with KBO</h3><p>Sent {day(request.createdAt)}. We may call {request.phone} to confirm your details. You'll get a notification when it's reviewed.</p>
         <dl><div><dt>Hiring for</dt><dd>{request.hiringFor}</dd></div><div><dt>Roles</dt><dd>{request.roles}</dd></div></dl>
-        <button type="button" className="recruit-link" disabled={busy} onClick={() => void withdraw()}>{busy ? "Withdrawing…" : "Withdraw request"}</button></div></section>}
+        <SignatureButton tone="rose" icon={<Trash />} disabled={busy} onClick={() => void withdraw()}>{busy ? "Withdrawing…" : "Withdraw request"}</SignatureButton></div></section>}
 
     {request?.status === "APPROVED" && <section className="recruit-status is-approved"><div className="recruit-status-icon"><Check /></div><div><h3>You're a recruiter</h3><p>Your request was approved {request.reviewedAt ? day(request.reviewedAt) : ""}. Post your first job to start receiving applicants.</p><SignatureButton tone="teal" icon={<Briefcase />} href="/employer/jobs/new">Post a job</SignatureButton></div></section>}
 
