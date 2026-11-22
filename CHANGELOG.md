@@ -10,6 +10,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.11.0 - 2026-11-22
+
+- Job postings: **Manage posting** (and the job title) now opens the job in a popup over the list, with everything the job page had: details, cover photo, fee, submit or withdraw, and for admins approve, request changes and adjust the fee. The list refreshes when the popup closes.
+- **Save draft** in the create popup opens the new draft in the manage popup instead of going to a separate page.
+
 ## 2.10.0 - 2026-11-22
 
 - Clicks never look ignored: a thin progress bar runs across the top of every page as soon as a link to another page is clicked, and the sidebar item being opened shows a small spinner until its page arrives.

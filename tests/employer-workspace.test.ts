@@ -13,6 +13,11 @@ test("posting cards retain management and applicant routes, accurate count label
  assert.ok(html.includes('3 confirmed applications')); assert.ok(html.includes('Deadline passed. New applications are unavailable.'));
  assert.ok(html.includes('&lt;script&gt;Barista&lt;/script&gt;')); assert.ok(!html.includes('<script>Barista'));
 });
+test("on the job list, the title and Manage posting open the popup instead of another page", () => {
+ const html = render(createElement(ManagedJobCards, { jobs: [job], onManage: () => {} }));
+ assert.ok(!html.includes('href="/employer/jobs/job"')); assert.equal((html.match(/<button type="button"/g) || []).length, 2);
+ assert.ok(html.includes("Manage posting")); assert.ok(html.includes('href="/employer/applications?jobId=job"'), "The applications link stays a link");
+});
 test("admin cards preserve the review route without changing employer application review links", () => {
  const html = render(createElement(ManagedJobCards, { jobs: [job], admin: true }));
  assert.ok(html.includes('href="/admin/jobs/job"')); assert.ok(html.includes('Review / manage')); assert.ok(html.includes('href="/employer/applications?jobId=job"'));

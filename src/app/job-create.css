@@ -43,3 +43,12 @@
   .job-create-foot { padding: 10px 14px 14px; }
   .job-create-foot .employer-text-button { margin-right: auto; }
 }
+
+/* "Manage posting" popup: the job editor over the job list */
+.job-manage { width: min(1040px, calc(100vw - 32px)); }
+.job-manage-body { background: #f6f1ea; }
+.job-manage-body .employer-job-editor { margin: 0; }
+/* The card's title and Manage posting are buttons that open the popup; they keep the look of links. */
+.employer-job-title-button { padding: 0; border: 0; background: none; font: inherit; color: inherit; letter-spacing: inherit; text-align: left; cursor: pointer; }
+.employer-card-action.is-button { padding: 0; border: 0; background: none; font-family: inherit; cursor: pointer; }
+.employer-job-title-button:hover { text-decoration: underline; text-underline-offset: 4px; }

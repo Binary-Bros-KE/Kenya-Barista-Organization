@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { categories, employmentTypes, nairobiToIso } from "@/lib/job-format";
 
 // "Create job posting": every job detail plus a cover photo, in one popup. Saves a draft (and optionally submits
@@ -15,7 +14,7 @@ async function send(url: string, init: RequestInit) {
   return data;
 }
 
-export function CreateJobButton({ admin = false, onCreated }: { admin?: boolean; onCreated: (message: string) => void }) {
+export function CreateJobButton({ admin = false, onCreated }: { admin?: boolean; onCreated: (message: string, openId?: string) => void }) {
   const [open, setOpen] = useState(false);
   return <>
     <button type="button" className="employer-primary" onClick={() => setOpen(true)}>Create job posting &#43;</button>
@@ -23,8 +22,7 @@ export function CreateJobButton({ admin = false, onCreated }: { admin?: boolean;
   </>;
 }
 
-function JobCreateModal({ admin, onClose, onCreated }: { admin: boolean; onClose: () => void; onCreated: (message: string) => void }) {
-  const router = useRouter();
+function JobCreateModal({ admin, onClose, onCreated }: { admin: boolean; onClose: () => void; onCreated: (message: string, openId?: string) => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const coverInput = useRef<HTMLInputElement>(null);
   const [options, setOptions] = useState<Options | null>(null);
@@ -73,7 +71,9 @@ function JobCreateModal({ admin, onClose, onCreated }: { admin: boolean; onClose
         dialog.current?.close();
         return;
       }
-      router.push(`/${admin ? "admin" : "employer"}/jobs/${job!.id}`);
+      // The draft opens in the manage popup, ready to review and submit.
+      onCreated("Draft saved.", job!.id);
+      dialog.current?.close();
     } catch (problem) {
       setError(problem instanceof Error ? problem.message : "Your job couldn't be saved.");
       if (job && (problem as { saved?: boolean }).saved) setSaved(job.id);
