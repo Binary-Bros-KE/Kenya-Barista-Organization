@@ -43,7 +43,7 @@ test("reads follow where each CV was saved, whatever new uploads use", () => {
   assert.throws(() => cvStore("ftp"), { code: "CV_STORAGE_UNAVAILABLE" });
 });
 
-test("CV uploads, downloads and deletes use the right store and clean up after failures", { skip: process.env.RUN_DB_TESTS !== "true" || !process.env.APPLICATION_TEST_DATABASE_URL, timeout: 120000 }, async () => {
+test("CV uploads use the right store, replace the previous CV and clean up after failures", { skip: process.env.RUN_DB_TESTS !== "true" || !process.env.APPLICATION_TEST_DATABASE_URL, timeout: 120000 }, async () => {
   const connectionString = process.env.APPLICATION_TEST_DATABASE_URL!, url = new URL(connectionString);
   assert.ok(["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)); assert.ok(url.pathname.includes("test"), "Use an isolated test database");
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString, max: 3 }) });
@@ -59,20 +59,20 @@ test("CV uploads, downloads and deletes use the right store and clean up after f
     assert.ok((await store.get(row.storageKey)).equals(pdf));
     await assert.rejects(readStoredCv({ storageKey: row.storageKey, storage: "disk" }), { code: "CV_UNAVAILABLE" }, "A Cloudinary CV is not looked for on disk");
 
-    // Fill up to the limit; a sixth upload is refused before anything is stored.
-    for (let i = 0; i < 4; i++) await uploadCv(db, actor, pdf, `cv${i}.pdf`, store);
-    const before = stored.size;
-    await assert.rejects(uploadCv(db, actor, pdf, "sixth.pdf", store), { code: "CV_LIMIT" });
-    assert.equal(stored.size, before, "Nothing is left behind in Cloudinary");
+    // A second upload replaces the first: the old file is deleted from Cloudinary because nothing uses it.
+    const second = await uploadCv(db, actor, pdf, "Newer CV.pdf", store);
+    assert.equal(second.replaced, true);
+    assert.ok(!stored.has(`kbo-test/cvs/${row.storageKey}`), "The replaced file is removed");
+    assert.equal(stored.size, 1);
 
-    // If the row can't be written after the file is stored, the file is removed again.
-    const failing: CvStore = { ...store, put: async (k, bytes) => { await store.put(k, bytes); await db.document.create({ data: { userId: user.id, storageKey: randomUUID(), storage: "disk", filename: "race.pdf", mimeType: "application/pdf", sizeBytes: 1 } }); } };
-    await db.document.deleteMany({ where: { userId: user.id, filename: "cv3.pdf" } });
-    const kept = stored.size;
-    await assert.rejects(uploadCv(db, actor, pdf, "late.pdf", failing), { code: "CV_LIMIT" });
-    assert.equal(stored.size, kept, "The uploaded file was cleaned up when the limit was hit at the last moment");
+    // If the database step fails after the file is stored, the new file is removed and the current CV is untouched.
+    const failing: CvStore = { ...store, put: async (k, bytes) => { await store.put(k, bytes); await db.document.create({ data: { userId: user.id, storageKey: k, storage: "cloudinary", filename: "clash.pdf", mimeType: "application/pdf", sizeBytes: 1, retiredAt: new Date() } }); } };
+    await assert.rejects(uploadCv(db, actor, pdf, "late.pdf", failing));
+    assert.equal(stored.size, 1, "The orphaned upload was cleaned up");
+    assert.equal((await db.document.findFirstOrThrow({ where: { userId: user.id, retiredAt: null } })).id, second.id);
   } finally {
     await db.document.deleteMany({ where: { userId: user.id } });
+    await db.auditLog.deleteMany({ where: { actorId: user.id } });
     await db.user.delete({ where: { id: user.id } });
     await db.$disconnect();
   }

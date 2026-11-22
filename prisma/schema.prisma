@@ -312,6 +312,9 @@ model Document {
   sizeBytes   Int
   scanStatus  String   @default("PENDING")
   sha256      String?
+  // Set when a newer CV replaced this one. Retired CVs are hidden from their owner but kept for applications already sent.
+  // Each account has at most one current CV (a partial unique index in the migration).
+  retiredAt   DateTime? @db.Timestamptz(3)
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   user        User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   applications ApplicationDocument[]

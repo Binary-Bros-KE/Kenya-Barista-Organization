@@ -18,7 +18,7 @@ test("private applicant drafts and CV lifecycle", { skip: process.env.RUN_DB_TES
  assert.ok(["localhost","127.0.0.1","[::1]"].includes(url.hostname)); assert.notEqual(url.port,"51214");
  const db=new PrismaClient({ adapter:new PrismaPg({connectionString,max:3}) }); const suffix=randomUUID(); const ids:string[]=[];
  const previous=process.env.PRIVATE_UPLOAD_DIR; const directory=await mkdtemp(path.join(os.tmpdir(),"barista-cvs-")); process.env.PRIVATE_UPLOAD_DIR=directory;
- let recruiterId=""; let jobId="";
+ let recruiterId=""; let jobId=""; let jobId2="";
  try {
   assert.equal(await db.application.count(),0,"Use an isolated empty application test database");
   async function actor(name:string):Promise<Actor> { const user=await db.user.create({data:{name,email:`${name}-${suffix}@example.invalid`,emailVerified:true}});ids.push(user.id);return {user,session:{id:randomUUID(),mfaVerifiedAt:null}}; }
@@ -68,14 +68,33 @@ test("private applicant drafts and CV lifecycle", { skip: process.env.RUN_DB_TES
    await db.job.update({where:{id:jobId},data:{status:"PUBLISHED",deadline:new Date(Date.now()-1000)}});await assert.rejects(startApplication(db,other,job.slug),{code:"JOB_UNAVAILABLE"});
    await db.job.update({where:{id:jobId},data:{deadline:new Date(Date.now()+86400000)}});await db.user.update({where:{id:recruiterId},data:{status:"SUSPENDED"}});await assert.rejects(startApplication(db,other,job.slug),{code:"JOB_UNAVAILABLE"});
   });
-  await t.test("storage quota is enforced during parallel uploads",async()=>{
-   const outcomes=await Promise.allSettled(Array.from({length:7},()=>uploadCv(db,owner,pdf,"cv.pdf")));assert.equal(outcomes.filter(r=>r.status==="fulfilled").length,5);
-   assert.equal(await db.document.count({where:{userId:owner.user.id}}),5);
+  await t.test("one current CV: uploads at the same moment replace each other and unused CVs are deleted",async()=>{
+   const outcomes=await Promise.allSettled(Array.from({length:4},()=>uploadCv(db,owner,pdf,"cv.pdf")));assert.equal(outcomes.filter(r=>r.status==="fulfilled").length,4);
+   assert.equal(await db.document.count({where:{userId:owner.user.id,retiredAt:null}}),1);
+   assert.equal(await db.document.count({where:{userId:owner.user.id}}),1,"Replaced CVs that nothing uses are deleted");
+  });
+  await t.test("replacing a CV moves editable drafts but keeps the CV sent with a submitted application",async()=>{
+   const sent=await db.document.findFirstOrThrow({where:{userId:owner.user.id,retiredAt:null}});
+   await db.document.update({where:{id:sent.id},data:{scanStatus:"CLEAN"}});
+   await db.applicationDocument.create({data:{applicationId:app.id,documentId:sent.id}});
+   await db.user.update({where:{id:recruiterId},data:{status:"ACTIVE"}});
+   const job2=await db.job.create({data:{recruiterId,slug:`apply2-${suffix}`,title:"Head barista",description:"Coffee role",location:"Nairobi",category:"BARISTA",employmentType:"FULL_TIME",status:"PUBLISHED",publishedAt:new Date(),deadline:new Date(Date.now()+86400000),applicationFeeMinor:10000}});jobId2=job2.id;
+   const draft=await startApplication(db,owner,job2.slug);
+   const saved=await saveApplication(db,owner,draft.id,{version:draft.version,coverLetter:"",documentId:sent.id});
+   const fresh=await uploadCv(db,owner,pdf,"new-cv.pdf");
+   assert.equal(fresh.replaced,true);assert.equal(fresh.movedDrafts,1);
+   assert.equal((await ownApplication(db,owner,draft.id)).documents[0].document.id,fresh.id,"The draft now uses the new CV");
+   await assert.rejects(saveApplication(db,owner,draft.id,{version:saved.version,coverLetter:"",documentId:sent.id}),{code:"STALE_APPLICATION"},"An open editor reloads instead of saving the old CV back");
+   assert.equal((await ownApplication(db,owner,app.id)).documents[0].document.id,sent.id,"The submitted application keeps the CV that was sent");
+   const old=await db.document.findUniqueOrThrow({where:{id:sent.id}});assert.ok(old.retiredAt,"Kept but retired");
+   await assert.rejects(deleteCv(db,owner,sent.id),{status:404},"A retired CV is no longer the owner's to delete");
+   await assert.rejects(saveApplication(db,owner,draft.id,{version:saved.version+1,coverLetter:"",documentId:sent.id}),{code:"DOCUMENT_UNAVAILABLE"},"A retired CV can't be attached again");
+   assert.equal(await db.document.count({where:{userId:owner.user.id,retiredAt:null}}),1);
   });
  } finally {
   await db.applicationDocument.deleteMany({where:{application:{userId:{in:ids}}}});await db.application.deleteMany({where:{userId:{in:ids}}});
-  await db.document.deleteMany({where:{userId:{in:ids}}});await db.applicantProfile.deleteMany({where:{userId:{in:ids}}});
-  if(jobId)await db.job.delete({where:{id:jobId}});if(recruiterId)await db.user.delete({where:{id:recruiterId}});await db.user.deleteMany({where:{id:{in:ids}}});await db.$disconnect();
+  await db.document.deleteMany({where:{userId:{in:ids}}});await db.applicantProfile.deleteMany({where:{userId:{in:ids}}});await db.auditLog.deleteMany({where:{actorId:{in:ids}}});
+  if(jobId2)await db.job.delete({where:{id:jobId2}});if(jobId)await db.job.delete({where:{id:jobId}});if(recruiterId)await db.user.delete({where:{id:recruiterId}});await db.user.deleteMany({where:{id:{in:ids}}});await db.$disconnect();
   if(previous===undefined)delete process.env.PRIVATE_UPLOAD_DIR;else process.env.PRIVATE_UPLOAD_DIR=previous;
   await rm(directory,{recursive:true,force:true});
  }

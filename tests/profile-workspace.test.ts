@@ -25,21 +25,22 @@ test("My profile keeps the required contact details, Kenyan phone validation and
  assert.ok(html.includes('autoComplete="tel"'));
  assert.ok(html.includes("Photo uploads are coming soon"), "Explains when uploads are switched off");
 });
-test("CV collection hides blocked downloads, explains retained attachments and asks before deletion", () => {
+test("the CV panel hides blocked downloads, explains attached CVs and asks before deletion", () => {
  const html = render(createElement(CvManager, { documents: [
  { id: "clean", filename: "ready.pdf", scanStatus: "CLEAN", attachmentCount: 1 },
  { id: "pending", filename: "screening.pdf", scanStatus: "PENDING" },
  { id: "rejected", filename: "blocked.pdf", scanStatus: "REJECTED" },
  ] }));
  assert.ok(html.includes('href="/api/documents/clean"')); assert.ok(html.includes('href="/api/documents/pending"')); assert.ok(!html.includes('href="/api/documents/rejected"'));
- assert.ok(html.includes('Submitted attachments are retained.'));
+ assert.ok(html.includes("applications you&#x27;ve sent keep this one"));
  assert.match(html, /class="profile-remove" disabled=""/);
  assert.ok(!html.includes('Yes, remove CV'));
  assert.ok(html.includes('Refresh status'));
 });
-test("empty collection gives an honest first-upload state and a full collection disables uploads", () => {
- assert.ok(render(createElement(CvManager, { documents: [] })).includes('Your next chapter starts here.'));
- const html = render(createElement(CvManager, { documents: Array.from({ length: 5 }, (_, i) => ({ id: String(i), filename: "cv.pdf", scanStatus: "CLEAN" })) }));
- assert.ok(html.includes('Your collection is full.'));
- assert.match(html, /type="file"[^>]*disabled=""/);
+test("one CV: an empty panel invites an upload, and an existing CV offers to replace it", () => {
+ const empty = render(createElement(CvManager, { documents: [] }));
+ assert.ok(empty.includes('Your next chapter starts here.')); assert.ok(empty.includes(">Upload CV<")); assert.ok(!empty.includes("Replace"));
+ const html = render(createElement(CvManager, { documents: [{ id: "1", filename: "cv.pdf", scanStatus: "CLEAN" }] }));
+ assert.ok(html.includes("Replace your CV")); assert.ok(html.includes(">Replace CV<")); assert.ok(html.includes("draft applications switch to the new CV"));
+ assert.doesNotMatch(html, /type="file"[^>]*disabled=""/, "Replacing is always possible");
 });

@@ -34,7 +34,7 @@ export async function getDashboardOverview(db: PrismaClient, actor: Actor): Prom
   const userId = actor.user.id;
   const [profile, cleanCvs, groups, applications, notifications] = await Promise.all([
     db.applicantProfile.findUnique({ where: { userId }, select: { fullName: true, phone: true, location: true, summary: true } }),
-    db.document.count({ where: { userId, scanStatus: "CLEAN" } }),
+    db.document.count({ where: { userId, retiredAt: null, scanStatus: "CLEAN" } }),
     db.application.groupBy({ by: ["status"], where: { userId }, _count: { _all: true } }),
     db.application.findMany({ where: { userId }, select: {
       id: true, status: true, updatedAt: true, _count: { select: { responses: true } },

@@ -18,7 +18,8 @@ import { formatFee, formatDeadline } from "@/lib/job-format";
 export default async function Page({ params,searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{responsePage?:string}> }) {
  const actor = await pageActor(); const db = getDb(); let application;
  try { application = await ownApplication(db,actor,(await params).id); } catch(e) { if(e instanceof AccessError && e.status===404) notFound(); throw e; }
- const documents = await db.document.findMany({ where: { userId: actor.user.id }, select: { id: true, filename: true, scanStatus: true } });
+ // The current CV, plus an older one this application already has (a replaced CV stays with applications already sent).
+ const documents = await db.document.findMany({ where: { userId: actor.user.id, OR: [{ retiredAt: null }, { applications: { some: { applicationId: application.id } } }] }, select: { id: true, filename: true, scanStatus: true } });
  const [options,summary,profile]=await Promise.all([paymentOptions(db),paymentSummary(db,actor,application.id),db.applicantProfile.findUnique({where:{userId:actor.user.id}})]);
  const payment=summary.paymentOrder; const latest=payment?.attempts[0];
  const editable=application.status==="DRAFT" && (!payment || (!payment.reviewHold && ["FAILED","CANCELLED"].includes(payment.status)));

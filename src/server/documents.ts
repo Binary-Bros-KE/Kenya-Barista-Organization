@@ -9,7 +9,6 @@ import { cloudinaryConfig, privateFiles, type CloudinaryConfig, type PrivateFile
 import { AccessError } from "./errors";
 
 export const MAX_CV_BYTES = 5 * 1024 * 1024;
-const MAX_CVS = 5;
 
 // CV files live either on the server's disk or as private Cloudinary files (no public link; only the
 // server can fetch them). Each Document row records where its file is, so reads and deletes always
@@ -62,23 +61,47 @@ export function validatePdf(bytes: Uint8Array) {
   // Format screening is not a malware scan. New files stay quarantined as PENDING.
   if (!data.subarray(0, 8).toString("ascii").match(/^%PDF-\d\.\d/) || !data.subarray(-1024).includes(Buffer.from("%%EOF"))) throw new AccessError(400, "PDF_REQUIRED", "Upload a valid PDF CV");
 }
-const tooMany = () => new AccessError(409, "CV_LIMIT", "You can store up to five CVs. Remove an unused CV first");
+// Drafts whose payment has started are frozen, so they keep the CV they had.
+const lockedPayments = ["PENDING", "NEEDS_REVIEW", "SUCCEEDED", "REFUNDED"];
 
+// Each account has one CV. Uploading a new one replaces it: editable drafts move to the new CV, and the old
+// CV is deleted, unless applications that were already sent (or are waiting on payment) still use it. Then it's
+// retired: hidden from its owner, but kept so recruiters get exactly the CV that was submitted.
 export async function uploadCv(db: PrismaClient, actor: Actor, bytes: Uint8Array, filename: string, store: CvStore = newCvStore()) {
   validatePdf(bytes);
   const safeName = filename.replace(/[^a-zA-Z0-9 ._-]/g, "_").slice(0, 100).replace(/^\.+/, "") || "cv.pdf";
-  if (await db.document.count({ where: { userId: actor.user.id } }) >= MAX_CVS) throw tooMany();
   // The file is stored before the database row, outside the transaction, so a slow upload never holds a
-  // database lock. If the row can't be created (for example the limit was reached meanwhile), the file is removed.
+  // database lock. If the row can't be created, the file is removed again.
   const key = randomUUID();
   await store.put(key, Buffer.from(bytes));
+  const deleted: { storageKey: string; storage: string }[] = [];
   try {
-    return await db.$transaction(async tx => {
-      // Serialize uploads per account, limiting storage even under concurrent requests.
+    const result = await db.$transaction(async tx => {
+      // Serialize uploads per account, so two at once still leave exactly one current CV.
       await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${actor.user.id} FOR UPDATE`;
-      if (await tx.document.count({ where: { userId: actor.user.id } }) >= MAX_CVS) throw tooMany();
-      return tx.document.create({ data: { userId: actor.user.id, storageKey: key, storage: store.kind, filename: safeName.endsWith(".pdf") ? safeName : `${safeName}.pdf`, mimeType: "application/pdf", sizeBytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") }, select: { id: true, filename: true, scanStatus: true } });
+      const current = await tx.document.findMany({ where: { userId: actor.user.id, retiredAt: null }, select: { id: true, storageKey: true, storage: true } });
+      // Retire first: the database allows only one current CV per account.
+      if (current.length) await tx.document.updateMany({ where: { id: { in: current.map(doc => doc.id) } }, data: { retiredAt: new Date() } });
+      const created = await tx.document.create({ data: { userId: actor.user.id, storageKey: key, storage: store.kind, filename: safeName.endsWith(".pdf") ? safeName : `${safeName}.pdf`, mimeType: "application/pdf", sizeBytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") }, select: { id: true, filename: true, scanStatus: true } });
+      let movedDrafts = 0;
+      for (const old of current) {
+        const drafts = await tx.applicationDocument.findMany({ where: { documentId: old.id, application: { status: "DRAFT", OR: [{ paymentOrder: { is: null } }, { paymentOrder: { is: { reviewHold: false, status: { notIn: lockedPayments as never } } } }] } }, select: { applicationId: true } });
+        const ids = drafts.map(draft => draft.applicationId);
+        if (ids.length) {
+          await tx.applicationDocument.deleteMany({ where: { documentId: old.id, applicationId: { in: ids } } });
+          await tx.applicationDocument.createMany({ data: ids.map(applicationId => ({ applicationId, documentId: created.id })) });
+          // A new version makes any open draft editor reload instead of saving the old CV back.
+          await tx.application.updateMany({ where: { id: { in: ids } }, data: { version: { increment: 1 } } });
+          movedDrafts += ids.length;
+        }
+        if (!await tx.applicationDocument.count({ where: { documentId: old.id } })) { await tx.document.delete({ where: { id: old.id } }); deleted.push(old); }
+      }
+      if (current.length) await tx.auditLog.create({ data: { actorId: actor.user.id, action: "cv.replaced", entityType: "Document", entityId: created.id } });
+      return { ...created, replaced: current.length > 0, movedDrafts };
     }, { timeout: 15000 });
+    // The replaced files are removed once the database no longer points at them.
+    for (const old of deleted) await (old.storage === store.kind ? store : cvStore(old.storage)).remove(old.storageKey).catch(() => logEvent("warn", `cv.file_remove_failed.${old.storage}`));
+    return result;
   } catch (error) { await store.remove(key).catch(() => {}); throw error; }
 }
 export async function downloadCv(db: PrismaClient, actor: Actor, id: string) {
@@ -87,7 +110,7 @@ export async function downloadCv(db: PrismaClient, actor: Actor, id: string) {
   return { document: doc, bytes: await readStoredCv(doc) };
 }
 export async function deleteCv(db: PrismaClient, actor: Actor, id: string) {
-  const doc = await db.document.findFirst({ where: { id, userId: actor.user.id } });
+  const doc = await db.document.findFirst({ where: { id, userId: actor.user.id, retiredAt: null } });
   if (!doc) throw new AccessError(404, "NOT_FOUND", "CV not found");
   if (await db.applicationDocument.count({ where: { documentId: id } })) throw new AccessError(409, "CV_IN_USE", "Remove this CV from your draft applications before deleting it");
   try { await db.document.delete({ where: { id } }); }

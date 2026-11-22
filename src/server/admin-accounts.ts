@@ -58,7 +58,7 @@ export async function listAccounts(db: PrismaClient, actor: Actor, input: unknow
       select: {
         id: true, name: true, email: true, role: true, status: true, emailVerified: true, twoFactorEnabled: true, createdAt: true, lastSignInAt: true, avatarVersion: true,
         profile: { select: { fullName: true, phone: true, location: true, summary: true } },
-        documents: { where: { scanStatus: "CLEAN" }, select: { id: true }, take: 1 },
+        documents: { where: { scanStatus: "CLEAN", retiredAt: null }, select: { id: true }, take: 1 },
         _count: { select: { applications: true, recruiterJobs: true } },
         applications: { where: { submittedAt: { not: null } }, select: { id: true } },
       },
@@ -68,7 +68,7 @@ export async function listAccounts(db: PrismaClient, actor: Actor, input: unknow
     db.user.count({ where: { lastSignInAt: { gte: since(30) } } }),
     db.user.count({ where: { createdAt: { gte: since(7) } } }),
     db.user.count({ where: { status: "SUSPENDED" } }),
-    db.user.count({ where: { documents: { some: { scanStatus: "CLEAN" } } } }),
+    db.user.count({ where: { documents: { some: { scanStatus: "CLEAN", retiredAt: null } } } }),
     db.user.count({ where: { applications: { some: { submittedAt: { not: null } } } } }),
     db.user.count({ where: { role: "RECRUITER" } }),
   ]);

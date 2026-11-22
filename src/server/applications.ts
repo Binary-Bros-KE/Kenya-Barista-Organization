@@ -56,8 +56,10 @@ export async function saveApplication(db: PrismaClient, actor: Actor, id: string
     const application = await tx.application.findFirst({ where: { id, userId: actor.user.id }, include: { paymentOrder: { select: { status: true, reviewHold: true } } } });
     if (!application) throw new AccessError(404, "NOT_FOUND", "Application not found");
     if (application.status !== "DRAFT") throw new AccessError(409, "APPLICATION_LOCKED", "This application can no longer be edited");
+    // Checked before the CV so an out-of-date editor is told to reload (its CV may have been replaced meanwhile).
+    if (application.version !== data.version) throw new AccessError(409, "STALE_APPLICATION", "This application changed. Reload before saving again");
     if (application.paymentOrder && (application.paymentOrder.reviewHold || ["PENDING", "NEEDS_REVIEW", "SUCCEEDED", "REFUNDED"].includes(application.paymentOrder.status))) throw new AccessError(409, "PAYMENT_LOCKED", "This draft is locked while its payment is pending, paid, or under review");
-    if (data.documentId && !await tx.document.findFirst({ where: { id: data.documentId, userId: actor.user.id, scanStatus: { in: ["PENDING", "CLEAN"] } } })) throw new AccessError(404, "DOCUMENT_UNAVAILABLE", "CV not found or unavailable");
+    if (data.documentId && !await tx.document.findFirst({ where: { id: data.documentId, userId: actor.user.id, retiredAt: null, scanStatus: { in: ["PENDING", "CLEAN"] } } })) throw new AccessError(404, "DOCUMENT_UNAVAILABLE", "CV not found or unavailable");
     const changed = await tx.application.updateMany({ where: { id, userId: actor.user.id, status: "DRAFT", version: data.version }, data: { coverLetter: data.coverLetter, version: { increment: 1 } } });
     if (!changed.count) throw new AccessError(409, "STALE_APPLICATION", "This application changed. Reload before saving again");
     await tx.applicationDocument.deleteMany({ where: { applicationId: id } });

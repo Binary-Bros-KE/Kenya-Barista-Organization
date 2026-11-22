@@ -43,6 +43,8 @@ test("dashboard overview preserves ownership, CV status and administrator MFA bo
     await t.test("profile readiness follows validation and pending CVs do not count as screened", async () => {
       assert.equal((await getDashboardOverview(db, owner)).profileReady, false);
       await db.applicantProfile.create({ data: { userId: owner.user.id, fullName: "Coffee Professional", phone: "+254712345678", location: "Nairobi", summary: "" } });
+      // A newer CV replaces the pending one (each account has one current CV).
+      await db.document.updateMany({ where: { userId: owner.user.id }, data: { retiredAt: new Date() } });
       await db.document.create({ data: { userId: owner.user.id, storageKey: "overview-clean-" + suffix, filename: "clean.pdf", mimeType: "application/pdf", sizeBytes: 100, scanStatus: "CLEAN" } });
       const data = await getDashboardOverview(db, owner); assert.equal(data.profileReady, true); assert.equal(data.cleanCvs, 1);
     });

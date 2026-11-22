@@ -10,6 +10,13 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.7.0 - 2026-11-22
+
+- One CV per account (was five). Uploading a new CV replaces the current one: editable drafts switch to the new CV, while drafts whose payment has started and applications already sent keep the CV they had. The old CV is deleted unless something still uses it; then it's retired (hidden from its owner, no longer attachable, still downloadable by the recruiters it was sent to). The database allows only one current CV per account.
+- Migration: accounts with several CVs keep their newest as the current one; the rest are retired.
+- The CV panel on My profile shows "Your CV" with Upload CV, or Replace CV once there is one, and explains what happens to drafts and sent applications.
+- Saving a draft from an out-of-date editor now says to reload before it checks the CV.
+
 ## 2.6.0 - 2026-11-22
 
 - CVs can be stored in Cloudinary as private files (no public link; the server fetches them with a short-lived signed request). Set `CV_STORAGE=cloudinary`. Each CV records where its file is (`Document.storage`), so CVs already on disk keep working. Downloads still go through the app with the same permission, virus-scan and integrity checks. The file is uploaded before the database row is written, so a slow upload never holds a database lock, and it's removed again if the row can't be saved.

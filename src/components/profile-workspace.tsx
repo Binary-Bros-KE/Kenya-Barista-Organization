@@ -20,10 +20,10 @@ export function CvManager({ documents }: { documents: ProfileCv[] }) {
   const router = useRouter(); const [refreshing, startRefresh] = useTransition();
   const [message, setMessage] = useState(""); const [error, setError] = useState(false); const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState<File | null>(null); const [removing, setRemoving] = useState<string | null>(null);
-  const full = documents.length >= 5;
+  const hasCv = documents.length > 0;
   function fail(text: string) { setError(true); setMessage(text); }
   return <section className="profile-panel profile-documents" aria-labelledby="profile-cv-heading" aria-busy={busy || refreshing}>
-    <div className="profile-panel-heading"><span className="profile-step">02</span><div><h2 id="profile-cv-heading">Your CV collection</h2><p>Keep your best experience ready to share.</p></div><span className="profile-capacity">{documents.length} / 5</span></div>
+    <div className="profile-panel-heading"><span className="profile-step">02</span><div><h2 id="profile-cv-heading">Your CV</h2><p>One CV, always up to date. Uploading a new one replaces it.</p></div></div>
     <form className="profile-upload" onSubmit={async event => {
       event.preventDefault(); const form = event.currentTarget;
       if (!selected) { fail("Choose a PDF to upload."); return; }
@@ -31,23 +31,22 @@ export function CvManager({ documents }: { documents: ProfileCv[] }) {
       setBusy(true); setMessage(""); setError(false);
       try { const response = await fetch("/api/documents", { method: "POST", headers: { "Content-Type": "application/pdf", "X-Filename": selected.name.replace(/[^a-zA-Z0-9 ._-]/g, "_") }, body: selected });
         const data = await response.json(); if (!response.ok) throw new Error(data.message || "Unable to upload your CV.");
-        form.reset(); setSelected(null); setMessage("CV uploaded. Security screening is pending."); router.refresh();
+        form.reset(); setSelected(null); setMessage(data.replaced ? `CV replaced.${data.movedDrafts ? ` ${data.movedDrafts} draft application${data.movedDrafts === 1 ? " now uses" : "s now use"} it.` : ""} Security screening is pending.` : "CV uploaded. Security screening is pending."); router.refresh();
       } catch (failure) { fail(failure instanceof Error ? failure.message : "Unable to upload your CV."); } finally { setBusy(false); }
     }}>
-      <span className="profile-file-symbol" aria-hidden="true">&#8593;</span><label htmlFor="profile-cv-file">Add your next opportunity<input id="profile-cv-file" name="cv" type="file" accept=".pdf,application/pdf" required disabled={busy || full} aria-describedby="profile-upload-help" onChange={event => { const file = event.target.files?.[0] || null; setSelected(file); setMessage(""); if (file) { const validation = validateCvSelection(file); if (validation) fail(validation); } }} /></label>
-      <p id="profile-upload-help" className="profile-help">PDF only &middot; Up to 5 MB per file &middot; Five CVs maximum</p>
+      <span className="profile-file-symbol" aria-hidden="true">&#8593;</span><label htmlFor="profile-cv-file">{hasCv ? "Replace your CV" : "Add your CV"}<input id="profile-cv-file" name="cv" type="file" accept=".pdf,application/pdf" required disabled={busy} aria-describedby="profile-upload-help" onChange={event => { const file = event.target.files?.[0] || null; setSelected(file); setMessage(""); if (file) { const validation = validateCvSelection(file); if (validation) fail(validation); } }} /></label>
+      <p id="profile-upload-help" className="profile-help">PDF only &middot; Up to 5 MB{hasCv ? " · Your draft applications switch to the new CV; applications you've already sent keep the one you sent" : ""}</p>
       {selected && <p className="profile-selection">{selected.name} <span>({(selected.size / 1024 / 1024).toFixed(2)} MB)</span></p>}
-      {full && <p className="profile-help">Your collection is full. Remove an unused CV before adding another.</p>}
-      <button className="profile-primary" disabled={busy || full || !selected || !!validateCvSelection(selected)}>{busy ? "Uploading..." : "Upload CV"}</button>
+      <button className="profile-primary" disabled={busy || !selected || !!validateCvSelection(selected)}>{busy ? "Uploading..." : hasCv ? "Replace CV" : "Upload CV"}</button>
     </form>
-    <div className="profile-document-heading"><h3>Saved documents</h3><button className="profile-text-button" disabled={busy || refreshing} onClick={() => startRefresh(() => router.refresh())}>{refreshing ? "Refreshing..." : "Refresh status"}</button></div>
+    <div className="profile-document-heading"><h3>Your current CV</h3><button className="profile-text-button" disabled={busy || refreshing} onClick={() => startRefresh(() => router.refresh())}>{refreshing ? "Refreshing..." : "Refresh status"}</button></div>
     {!documents.length && <div className="profile-empty"><strong>Your next chapter starts here.</strong><p>Upload a CV so it is ready when you find the right role.</p></div>}
     <ul className="profile-document-list">{documents.map(doc => { const state = cvPresentation(doc.scanStatus); const attached = !!doc.attachmentCount;
       return <li key={doc.id} className="profile-document"><div className="profile-document-top"><span className="profile-pdf" aria-hidden="true">PDF</span><div className="profile-document-name"><h3>{doc.filename}</h3><p>{doc.sizeBytes !== undefined && (doc.sizeBytes / 1024 / 1024).toFixed(2) + " MB"}{doc.createdAt && " - " + new Intl.DateTimeFormat("en-KE", { dateStyle: "medium", timeZone: "Africa/Nairobi" }).format(new Date(doc.createdAt))}</p></div><span className={"profile-state " + state.tone}>{state.label}</span></div>
-        <p className="profile-document-detail">{state.detail}</p>{attached && <p className="profile-help">Attached to an application. Detach it from drafts before removing it. Submitted attachments are retained.</p>}
+        <p className="profile-document-detail">{state.detail}</p>{attached && <p className="profile-help">Attached to an application, so it can't be removed. To change it, upload a new CV above: your drafts switch to it, and applications you've sent keep this one.</p>}
         <div className="profile-document-actions">{state.downloadable && <a href={"/api/documents/" + doc.id}>Download original <span aria-hidden="true">&#8595;</span></a>}
           <button className="profile-remove" disabled={busy || attached} onClick={() => { setRemoving(doc.id); setMessage(""); }}>Remove<span className="sr-only"> {doc.filename}</span></button></div>
-        {removing === doc.id && <div className="profile-confirm"><p>Remove <strong>{doc.filename}</strong> from your collection?</p><div><button className="profile-danger" disabled={busy} onClick={async () => {
+        {removing === doc.id && <div className="profile-confirm"><p>Remove <strong>{doc.filename}</strong>? You'll need a CV to apply for jobs.</p><div><button className="profile-danger" disabled={busy} onClick={async () => {
           setBusy(true); setMessage(""); setError(false);
           try { const response = await fetch("/api/documents/" + doc.id, { method: "DELETE" }); const data = await response.json(); if (!response.ok) throw new Error(data.message || "Unable to remove your CV."); setRemoving(null); setMessage("CV removed."); router.refresh(); }
           catch (failure) { fail(failure instanceof Error ? failure.message : "Unable to remove your CV."); } finally { setBusy(false); }
