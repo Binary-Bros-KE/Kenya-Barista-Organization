@@ -10,6 +10,12 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.12.0 - 2026-11-22
+
+- Jobs and applicants are one tab for recruiters (**Jobs & applicants**). Each job card shows the newest applicants' photos, the number of applicants and how many are new; clicking it opens the applicants popup.
+- Applicants popup: the list on the left (with All, New, In review, Shortlisted, Hired and Not selected filters) and the selected applicant on the right: their profile card, status, contact details, CV (view in page or download), cover letter, story, message history and the respond form. On phones the list and the applicant open one at a time, with a Back button.
+- Administrators get the same popup on their job list and keep the separate Applicants page for all jobs. Applicant pages linked from emails and the dashboard still work and highlight Jobs & applicants.
+
 ## 2.11.1 - 2026-11-22
 
 - Jobs awaiting review can now be edited from the manage popup (details, fee and cover) without withdrawing them first. Saving keeps the job in review, records "Edited while awaiting review" in its history, and an administrator who still has the older version open must reload before approving.

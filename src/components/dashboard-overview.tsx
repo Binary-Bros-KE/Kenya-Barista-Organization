@@ -55,7 +55,7 @@ export function DashboardOverview({ data, user, now = new Date() }: { data: Dash
   const completed = steps.filter(step => step.ready).length;
   const quickLinks = recruiting ? [
     { title: "Post a job", text: "Create a new opening for KBO to approve", href: "/employer/jobs/new", icon: "briefcase" as const },
-    { title: "Review applicants", text: "Every paid application to your jobs", href: "/employer/applications", icon: "applications" as const },
+    { title: "Jobs & applicants", text: "Your jobs and everyone who applied", href: "/employer/jobs", icon: "applications" as const },
         { title: "My profile", text: "Your photo, skills and CVs", href: "/dashboard/profile", icon: "profile" as const },
   ] : admin ? [
     { title: "Accounts", text: "Every member, their activity and applications", href: "/admin/accounts", icon: "people" as const },

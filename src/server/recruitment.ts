@@ -27,13 +27,14 @@ export async function listReviewApplications(db: PrismaClient, actor: Actor, inp
     ...(query.jobId ? { jobId: query.jobId } : {}), ...(query.q ? { OR: [{ job: { title: { contains: query.q, mode: "insensitive" } } }, { user: { email: { contains: query.q, mode: "insensitive" } } }] } : {}) };
   const [rows, total] = await Promise.all([
     db.application.findMany({ where, select: { id: true, status: true, submittedAt: true, version: true, submissionSnapshot: true,
-      job: { select: { id: true, title: true, recruiter: { select: { name: true } } } } },
+      job: { select: { id: true, title: true, recruiter: { select: { name: true } } } },
+      user: { select: { id: true, avatarVersion: true, profile: { select: { headline: true } } } } },
       orderBy: [{ submittedAt: "desc" }, { id: "asc" }], skip: (query.page - 1) * 20, take: 20 }),
     db.application.count({ where }),
   ]);
-  return { applications: rows.map(({ submissionSnapshot, ...row }) => {
+  return { applications: rows.map(({ submissionSnapshot, user, ...row }) => {
     const snapshot = profileSnapshot.safeParse(submissionSnapshot);
-    return { ...row, applicantName: snapshot.success ? snapshot.data.fullName : "Submitted applicant" };
+    return { ...row, applicantName: snapshot.success ? snapshot.data.fullName : "Submitted applicant", applicant: { id: user.id, avatarVersion: user.avatarVersion, headline: user.profile?.headline ?? null } };
   }), pagination: { page: query.page, total, pageCount: Math.ceil(total / 20) } };
 }
 export async function reviewJobOptions(db: PrismaClient, actor: Actor) {

@@ -35,10 +35,12 @@ test("administrator navigation includes restricted sections without duplicate ac
 });
 test("recruiters see recruiting and job-seeker tabs, and employer routes highlight the right one", () => {
   const html = render("/dashboard", false, true);
-  for (const route of ["/employer/applications", "/employer/jobs", "/dashboard/profile", "/dashboard/applications", "/dashboard/payments", "/dashboard/notifications", "/dashboard/security"]) assert.ok(html.includes(`href="${route}"`), route);
+  for (const route of ["/employer/jobs", "/dashboard/profile", "/dashboard/applications", "/dashboard/payments", "/dashboard/notifications", "/dashboard/security"]) assert.ok(html.includes(`href="${route}"`), route);
   assert.ok(html.includes("Recruiter workspace"));
   assert.deepEqual(activeLinks(render("/employer/jobs/new", false, true)), ["/employer/jobs"]);
-  assert.deepEqual(activeLinks(render("/employer/applications/example", false, true)), ["/employer/applications"]);
+  assert.deepEqual(activeLinks(render("/employer/applications/example", false, true)), ["/employer/jobs"], "Applicant pages belong to Jobs & applicants");
+  assert.ok(!html.includes('href="/employer/applications"'), "Recruiters have one tab for jobs and applicants");
+  assert.ok(html.includes("Jobs &amp; applicants"));
 });
 test("mobile drawer and desktop collapse expose named accessible controls", () => {
   const html = render("/dashboard/security", true);

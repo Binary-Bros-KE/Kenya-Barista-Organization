@@ -7,7 +7,8 @@ import { SignOut } from "./sign-out";
 import { LinkPending } from "./navigation-progress";
 
 type IconName = "account" | "profile" | "applications" | "payments" | "notifications" | "security" | "organisations" | "jobs" | "review" | "settings" | "queue" | "admin" | "menu" | "close" | "collapse" | "expand" | "external";
-type Item = { label: string; href: string; icon: IconName };
+// "also" lists other routes that belong to the item (it highlights there too).
+type Item = { label: string; href: string; icon: IconName; also?: string[] };
 const accountLinks: Item[] = [
   { label: "My account", href: "/dashboard", icon: "account" },
   { label: "My profile", href: "/dashboard/profile", icon: "profile" },
@@ -18,9 +19,9 @@ const accountLinks: Item[] = [
   { label: "Become a recruiter", href: "/dashboard/recruiter-request", icon: "jobs" },
 ];
 const adminOverviewLinks: Item[] = [{ label: "Dashboard", href: "/dashboard", icon: "account" }];
+// Applicants are reviewed from each job's card, so recruiters have one tab for both.
 const recruiterLinks: Item[] = [
-  { label: "Review applicants", href: "/employer/applications", icon: "review" },
-  { label: "Job postings", href: "/employer/jobs", icon: "jobs" },
+  { label: "Jobs & applicants", href: "/employer/jobs", icon: "jobs", also: ["/employer/applications"] },
 ];
 const jobSeekerLinks: Item[] = [
   { label: "My profile", href: "/dashboard/profile", icon: "profile" },
@@ -72,7 +73,7 @@ function matches(pathname: string, href: string) {
 }
 // The most specific matching link wins, so /admin/payments/review highlights only "Payment review".
 function activeItem(pathname: string, items: Item[]) {
-  return items.filter(item => matches(pathname, item.href)).sort((a, b) => b.href.length - a.href.length)[0];
+  return items.filter(item => matches(pathname, item.href) || item.also?.some(href => matches(pathname, href))).sort((a, b) => b.href.length - a.href.length)[0];
 }
 
 export function Workspace({ name, admin, recruiter = false, badges = {}, photo = null, children }: { name: string; admin: boolean; recruiter?: boolean; badges?: Record<string, number>; photo?: string | null; children: ReactNode }) {
