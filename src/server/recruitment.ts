@@ -114,7 +114,8 @@ export async function withdrawApplication(db: PrismaClient, actor: Actor, id: st
     return { id, status: "WITHDRAWN", version: data.version + 1 };
   });
 }
-export async function downloadReviewCv(db: PrismaClient, actor: Actor, id: string) {
+// Viewing in the page and downloading read the same checked file; the audit log records which one happened.
+export async function downloadReviewCv(db: PrismaClient, actor: Actor, id: string, purpose: "download" | "view" = "download") {
   const app = await getReviewApplication(db, actor, id);
   if (!app.cv.available) throw new AccessError(404, "CV_UNAVAILABLE", "The submitted CV is unavailable");
   const document = await db.document.findFirst({ where: { id: app.profile.documentId, scanStatus: "CLEAN", sha256: app.profile.documentSha256, applications: { some: { applicationId: id } } } });
@@ -124,6 +125,6 @@ export async function downloadReviewCv(db: PrismaClient, actor: Actor, id: strin
     throw error;
   });
   if (bytes.length !== document.sizeBytes || createHash("sha256").update(bytes).digest("hex") !== app.profile.documentSha256) throw new AccessError(409, "CV_UNAVAILABLE", "The submitted CV requires security review");
-  await db.auditLog.create({ data: { actorId: actor.user.id, action: "application.cv_downloaded", entityType: "Application", entityId: id } });
+  await db.auditLog.create({ data: { actorId: actor.user.id, action: purpose === "view" ? "application.cv_viewed" : "application.cv_downloaded", entityType: "Application", entityId: id } });
   return { bytes, filename: document.filename };
 }

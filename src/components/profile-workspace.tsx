@@ -1,6 +1,7 @@
 "use client";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { CvViewButton } from "./cv-viewer";
 export type ProfileCv = { id: string; filename: string; scanStatus: string; sizeBytes?: number; createdAt?: string; attachmentCount?: number };
 export function cvPresentation(status: string) {
   if (status === "CLEAN") return { label: "Ready to apply", detail: "Security screening complete.", tone: "ready", downloadable: true };
@@ -44,7 +45,7 @@ export function CvManager({ documents }: { documents: ProfileCv[] }) {
     <ul className="profile-document-list">{documents.map(doc => { const state = cvPresentation(doc.scanStatus); const attached = !!doc.attachmentCount;
       return <li key={doc.id} className="profile-document"><div className="profile-document-top"><span className="profile-pdf" aria-hidden="true">PDF</span><div className="profile-document-name"><h3>{doc.filename}</h3><p>{doc.sizeBytes !== undefined && (doc.sizeBytes / 1024 / 1024).toFixed(2) + " MB"}{doc.createdAt && " - " + new Intl.DateTimeFormat("en-KE", { dateStyle: "medium", timeZone: "Africa/Nairobi" }).format(new Date(doc.createdAt))}</p></div><span className={"profile-state " + state.tone}>{state.label}</span></div>
         <p className="profile-document-detail">{state.detail}</p>{attached && <p className="profile-help">Attached to an application, so it can't be removed. To change it, upload a new CV above: your drafts switch to it, and applications you've sent keep this one.</p>}
-        <div className="profile-document-actions">{state.downloadable && <a href={"/api/documents/" + doc.id}>Download original <span aria-hidden="true">&#8595;</span></a>}
+        <div className="profile-document-actions">{state.downloadable && <CvViewButton src={"/api/documents/" + doc.id} downloadHref={"/api/documents/" + doc.id} filename={doc.filename} className="cv-view-button is-light" />}{state.downloadable && <a href={"/api/documents/" + doc.id}>Download original <span aria-hidden="true">&#8595;</span></a>}
           <button className="profile-remove" disabled={busy || attached} onClick={() => { setRemoving(doc.id); setMessage(""); }}>Remove<span className="sr-only"> {doc.filename}</span></button></div>
         {removing === doc.id && <div className="profile-confirm"><p>Remove <strong>{doc.filename}</strong>? You'll need a CV to apply for jobs.</p><div><button className="profile-danger" disabled={busy} onClick={async () => {
           setBusy(true); setMessage(""); setError(false);

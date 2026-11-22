@@ -57,6 +57,11 @@ test("recruitment isolation, immutable submissions, responses and withdrawal", {
       assert.deepEqual((await downloadReviewCv(db, employer, primary.id)).bytes, pdf);
       await assert.rejects(downloadReviewCv(db, other, primary.id), { status: 404 });
       assert.equal(await db.auditLog.count({ where: { entityId: primary.id, action: "application.cv_downloaded" } }), 1);
+      // The in-page viewer reads the same checked file but is logged as a view.
+      assert.deepEqual((await downloadReviewCv(db, employer, primary.id, "view")).bytes, pdf);
+      assert.equal(await db.auditLog.count({ where: { entityId: primary.id, action: "application.cv_viewed" } }), 1);
+      assert.equal(await db.auditLog.count({ where: { entityId: primary.id, action: "application.cv_downloaded" } }), 1);
+      await assert.rejects(downloadReviewCv(db, other, primary.id, "view"), { status: 404 }, "Viewing follows the same permissions as downloading");
     });
     await t.test("CV screening and file digests are rechecked on download", async () => {
       await db.document.update({ where: { id: cv.id }, data: { scanStatus: "REJECTED" } }); await assert.rejects(downloadReviewCv(db, employer, primary.id), { status: 404 });

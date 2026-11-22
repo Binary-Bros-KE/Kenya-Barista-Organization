@@ -36,6 +36,7 @@ test("the CV panel hides blocked downloads, explains attached CVs and asks befor
  assert.match(html, /class="profile-remove" disabled=""/);
  assert.ok(!html.includes('Yes, remove CV'));
  assert.ok(html.includes('Refresh status'));
+ assert.equal((html.match(/class="cv-view-button is-light"/g) || []).length, 2, "Readable CVs can be viewed in the page; blocked ones can't");
 });
 test("one CV: an empty panel invites an upload, and an existing CV offers to replace it", () => {
  const empty = render(createElement(CvManager, { documents: [] }));

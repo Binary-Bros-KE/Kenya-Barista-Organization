@@ -1,6 +1,6 @@
 {
   "name": "barista-platform",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -34,6 +34,7 @@
     "dotenv": "18.0.8",
     "next": "16.4.1",
     "nodemailer": "10.1.1",
+    "pdfjs-dist": "6.5.438",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "0.0.1",

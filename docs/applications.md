@@ -14,6 +14,12 @@ PDF only, maximum 5 MiB, **one CV per account**. Uploading a new CV replaces the
 
 The general document library download route remains owner-only. The [recruitment workflow](recruitment.md) separately permits authorised reviewers to download a clean, unchanged CV attached to a confirmed submission. It does not expose other documents. Downloads are attachments with private no-store headers. Rejected files cannot be downloaded or attached. CVs are immutable: upload a new one to replace a file. Remove attachments from drafts before deleting a CV. Attached records are protected against deletion by foreign keys.
 
+### Viewing CVs in the page
+
+**View CV** opens the CV in a viewer inside the page (`src/components/cv-viewer.tsx`), so nobody has to download it. It uses pdf.js (`pdfjs-dist`, pinned), which draws each page onto a canvas with a transparent text layer on top for selecting and copying text. It works the same on phones, where browsers can't show PDFs inside a page. pdf.js loads only when the viewer first opens; pages are drawn as they scroll into view.
+
+The viewer fetches the file from the same permission-checked routes as downloads: `/api/documents/:id` for the owner, and `/api/employer/applications/:id/cv?view=1` for recruiters and administrators, which is logged as `application.cv_viewed` rather than `application.cv_downloaded`. Only page contents are drawn: no PDF scripts, forms or links run, and nothing is loaded from elsewhere. Viewing doesn't stop someone taking a screenshot.
+
 ## Malware scanning
 
 Run a ClamAV daemon on a private interface with current signatures. Configure `CLAMAV_HOST` and `CLAMAV_PORT` (defaults `127.0.0.1:3310`). Run:

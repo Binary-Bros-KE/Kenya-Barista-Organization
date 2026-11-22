@@ -10,6 +10,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.8.0 - 2026-11-22
+
+- View CVs in the page, without downloading. A **View CV** button on My profile and on a recruiter's applicant page opens a full-screen viewer built on pdf.js (`pdfjs-dist` 6.5.438): page-by-page scrolling, fit to width, zoom (buttons and + − 0 keys), a page counter, selectable text, and a Download button. It works on phones, where browsers can't show PDFs inside a page. pdf.js loads only when the viewer opens.
+- The viewer uses the same permission-checked routes as downloads. A recruiter's view is logged as `application.cv_viewed`. Only page contents are drawn; PDF scripts, forms and links never run.
+
 ## 2.7.0 - 2026-11-22
 
 - One CV per account (was five). Uploading a new CV replaces the current one: editable drafts switch to the new CV, while drafts whose payment has started and applications already sent keep the CV they had. The old CV is deleted unless something still uses it; then it's retired (hidden from its owner, no longer attachable, still downloadable by the recruiters it was sent to). The database allows only one current CV per account.
