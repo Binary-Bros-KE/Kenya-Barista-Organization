@@ -82,14 +82,17 @@ export async function updateJob(db: PrismaClient, actor: Actor, id: string, inpu
   return db.$transaction(async tx => {
     const job = await scopedJob(tx, actor, id);
     if (job.recruiter.status !== "ACTIVE") throw suspendedRecruiter();
-    if (!["DRAFT", "CHANGES_REQUESTED", "PUBLISHED"].includes(job.status)) throw new AccessError(409, "INVALID_JOB_STATE", "Withdraw or reopen this posting before editing it");
+    if (!["DRAFT", "CHANGES_REQUESTED", "PENDING_REVIEW", "PUBLISHED"].includes(job.status)) throw new AccessError(409, "INVALID_JOB_STATE", "Reopen this posting before editing it");
+    // Edits while awaiting review keep the job in review (the administrator sees the latest version);
+    // any other edit returns it to draft, and a published job leaves the public site until it's approved again.
+    const next = job.status === "PENDING_REVIEW" ? "PENDING_REVIEW" : "DRAFT";
     if (job.version !== data.version) throw new AccessError(409, "STALE_JOB", "This job changed. Reload the latest version before saving.");
     const amount = "applicationFeeKes" in data && typeof data.applicationFeeKes === "number" ? data.applicationFeeKes * 100 : job.applicationFeeMinor;
     if (amount !== job.applicationFeeMinor && await tx.application.count({ where: { jobId: id } })) throw new AccessError(409, "FEE_LOCKED", "The fee cannot change after an application has been started");
     const { title, description, location, category, employmentType, deadline } = data;
-    const result = await tx.job.updateMany({ where: { id, version: data.version }, data: { title, description, location, category, employmentType, deadline, applicationFeeMinor: amount, status: "DRAFT", version: { increment: 1 } } });
+    const result = await tx.job.updateMany({ where: { id, version: data.version }, data: { title, description, location, category, employmentType, deadline, applicationFeeMinor: amount, status: next, version: { increment: 1 } } });
     if (result.count !== 1) throw new AccessError(409, "STALE_JOB", "This job changed. Reload the latest version before saving.");
-    await history(tx, id, actor.user.id, job.status, "DRAFT", "edited", job.status === "PUBLISHED" ? "Published posting returned to draft after editing" : "Posting edited");
+    await history(tx, id, actor.user.id, job.status, next, "edited", job.status === "PUBLISHED" ? "Published posting returned to draft after editing" : job.status === "PENDING_REVIEW" ? "Edited while awaiting review" : "Posting edited");
     if (job.status === "PUBLISHED") await tx.outboxEvent.create({ data: { deduplicationKey: `job:${id}:${data.version + 1}:edited`, kind: "job.updated", aggregateId: id } });
     return tx.job.findUniqueOrThrow({ where: { id } });
   });
@@ -101,16 +104,17 @@ async function coverTarget(db: PrismaClient, actor: Actor, id: string, version: 
   const job = await db.job.findFirst({ where: { id, ...managedScope(actor) }, select: { id: true, status: true, version: true, coverVersion: true, recruiter: { select: { status: true } } } });
   if (!job) throw new AccessError(404, "NOT_FOUND", "Job not found");
   if (job.recruiter.status !== "ACTIVE") throw suspendedRecruiter();
-  if (!["DRAFT", "CHANGES_REQUESTED", "PUBLISHED"].includes(job.status)) throw new AccessError(409, "INVALID_JOB_STATE", "Withdraw or reopen this posting before changing its cover");
+  if (!["DRAFT", "CHANGES_REQUESTED", "PENDING_REVIEW", "PUBLISHED"].includes(job.status)) throw new AccessError(409, "INVALID_JOB_STATE", "Reopen this posting before changing its cover");
   if (job.version !== version) throw new AccessError(409, "STALE_JOB", "This job changed. Reload the latest version before changing the cover.");
   return job;
 }
 async function saveCover(db: PrismaClient, actor: Actor, job: Awaited<ReturnType<typeof coverTarget>>, version: number, coverVersion: number | null) {
   return db.$transaction(async tx => {
-    const result = await tx.job.updateMany({ where: { id: job.id, version }, data: { coverVersion, status: "DRAFT", version: { increment: 1 } } });
+    const next = job.status === "PENDING_REVIEW" ? "PENDING_REVIEW" : "DRAFT";
+    const result = await tx.job.updateMany({ where: { id: job.id, version }, data: { coverVersion, status: next, version: { increment: 1 } } });
     if (result.count !== 1) throw new AccessError(409, "STALE_JOB", "This job changed. Reload the latest version before changing the cover.");
     const note = job.status === "PUBLISHED" ? "Published posting returned to draft after a cover change" : coverVersion ? "Cover photo changed" : "Cover photo removed";
-    await history(tx, job.id, actor.user.id, job.status, "DRAFT", "edited", note);
+    await history(tx, job.id, actor.user.id, job.status, next, "edited", note);
     if (job.status === "PUBLISHED") await tx.outboxEvent.create({ data: { deduplicationKey: `job:${job.id}:${version + 1}:edited`, kind: "job.updated", aggregateId: job.id } });
     return tx.job.findUniqueOrThrow({ where: { id: job.id } });
   });

@@ -39,7 +39,7 @@ The [payment workflow](payments.md) now collects the configured application fee 
 
 Recruiters manage only their own postings. Changing a job ID or filter cannot grant access to another recruiter's jobs. Suspended recruiters, and recruiters changed back to job seekers, lose access on subsequent protected requests.
 
-Postings waiting for review must be withdrawn to draft before editing. Saving an edit to an already published posting immediately returns it to draft and removes it from public view until approved again. The editor explains this before saving. Published edits retain their public slug, so a reapproved posting uses the same URL.
+Postings awaiting review can be edited (details and cover); saving keeps them in review with "Edited while awaiting review" in the history, and an administrator approving an older version is refused until they reload. Saving an edit to an already published posting immediately returns it to draft and removes it from public view until approved again. The editor explains this before saving. Published edits retain their public slug, so a reapproved posting uses the same URL.
 
 ## Administrator workflow
 

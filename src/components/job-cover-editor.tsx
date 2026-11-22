@@ -11,7 +11,7 @@ export function JobCoverEditor({ job, imagesEnabled, blocked, onChanged }: { job
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [message, setMessage] = useState<{ text: string; error: boolean } | null>(null);
-  const editable = ["DRAFT", "CHANGES_REQUESTED", "PUBLISHED"].includes(job.status);
+  const editable = ["DRAFT", "CHANGES_REQUESTED", "PENDING_REVIEW", "PUBLISHED"].includes(job.status);
 
   async function send(method: "POST" | "DELETE", file?: File) {
     setBusy(true); setMessage(null);
@@ -38,7 +38,7 @@ export function JobCoverEditor({ job, imagesEnabled, blocked, onChanged }: { job
       {busy && <span className="employer-cover-busy">Uploading…</span>}
     </div>
     {!imagesEnabled ? <p className="hint">Photo uploads aren't set up yet. Jobs show a branded cover until then.</p>
-      : !editable ? <p className="hint">Withdraw or reopen this posting to change its cover.</p>
+      : !editable ? <p className="hint">Reopen this posting to change its cover.</p>
       : <>
         <p className="hint">A wide photo of your café, team or coffee works best (at least 1600 × 520). JPG, PNG or WebP, up to 8 MB.{job.status === "PUBLISHED" ? " Changing the cover of a live posting sends it back for review." : ""}</p>
         {blocked && <p className="hint">{blocked}</p>}

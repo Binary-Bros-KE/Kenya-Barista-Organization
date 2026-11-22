@@ -113,12 +113,17 @@ test("job approval, public visibility, fees, concurrency, and recruiter isolatio
       job = await transitionJob(db, employer, job.id, { version: job.version, action: "archive" });
       await assert.rejects(getPublicJob(db, job.slug), { status: 404 });
     });
-    await t.test("pending jobs must be withdrawn to edit and archived jobs cannot be submitted", async () => {
+    await t.test("jobs awaiting review can be edited and stay in review; archived jobs cannot be edited or submitted", async () => {
       adminJob = await transitionJob(db, admin, adminJob.id, { version: adminJob.version, action: "submit" });
-      await assert.rejects(updateJob(db, admin, adminJob.id, { ...input, version: adminJob.version }), { code: "INVALID_JOB_STATE" });
+      const reviewedVersion = adminJob.version;
+      adminJob = await updateJob(db, employer, adminJob.id, { ...input, title: "Edited while in review", version: adminJob.version });
+      assert.equal(adminJob.status, "PENDING_REVIEW", "Saving keeps the job in review"); assert.equal(adminJob.title, "Edited while in review");
+      assert.ok((await getManagedJob(db, employer, adminJob.id)).history.some(entry => entry.note === "Edited while awaiting review"));
+      await assert.rejects(transitionJob(db, admin, adminJob.id, { version: reviewedVersion, action: "publish" }), { code: "STALE_JOB" }, "An administrator cannot approve the version from before the edit");
       adminJob = await transitionJob(db, admin, adminJob.id, { version: adminJob.version, action: "withdraw" });
       adminJob = await transitionJob(db, admin, adminJob.id, { version: adminJob.version, action: "archive" });
       await assert.rejects(transitionJob(db, admin, adminJob.id, { version: adminJob.version, action: "submit" }), { code: "INVALID_JOB_STATE" });
+      await assert.rejects(updateJob(db, admin, adminJob.id, { ...input, version: adminJob.version }), { code: "INVALID_JOB_STATE" }, "Archived jobs cannot be edited");
       await assert.rejects(createJob(db, admin, employer.user.id, { ...input, deadline: new Date(Date.now() - 1000).toISOString() }), { code: "DEADLINE_PASSED" });
     });
     await t.test("public search is filtered and paginated without exposing private fields", async () => {

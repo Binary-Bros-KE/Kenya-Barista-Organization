@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.11.1 - 2026-11-22
+
+- Jobs awaiting review can now be edited from the manage popup (details, fee and cover) without withdrawing them first. Saving keeps the job in review, records "Edited while awaiting review" in its history, and an administrator who still has the older version open must reload before approving.
+
 ## 2.11.0 - 2026-11-22
 
 - Job postings: **Manage posting** (and the job title) now opens the job in a popup over the list, with everything the job page had: details, cover photo, fee, submit or withdraw, and for admins approve, request changes and adjust the fee. The list refreshes when the popup closes.

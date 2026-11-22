@@ -33,7 +33,7 @@ export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; a
       const response = await fetch(id ? `/api/employer/jobs/${id}` : "/api/employer/jobs", { method: id ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(id ? { ...input, version: job!.version } : { ...(admin ? { recruiterId: draft.recruiterId } : {}), job: input }) });
       const data = await response.json(); if (!response.ok) throw new Error(data.message);
       if (!id) { router.push(`/${admin ? "admin" : "employer"}/jobs/${data.id}`); }
-      else { await load(); setMessage("Draft saved. Submit it for review when ready."); }
+      else { const wasInReview = job?.status === "PENDING_REVIEW"; await load(); setMessage(wasInReview ? "Changes saved. The job is still awaiting review, and KBO will see your latest version." : "Draft saved. Submit it for review when ready."); }
     } catch (error) { setError(error instanceof Error ? error.message : "Unable to save posting"); }
     finally { setBusy(false); }
   }
@@ -55,7 +55,7 @@ export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; a
     } catch (error) { setError(error instanceof Error ? error.message : "Unable to update posting"); }
     finally { setBusy(false); }
   }
-  const editable = !job || ["DRAFT", "CHANGES_REQUESTED", "PUBLISHED"].includes(job.status);
+  const editable = !job || ["DRAFT", "CHANGES_REQUESTED", "PENDING_REVIEW", "PUBLISHED"].includes(job.status);
   const actionButton = (action: string, label: string, disabled = false) => <button key={action} className="button secondary" disabled={busy || dirty || disabled} onClick={() => void transition(action)}>{label}</button>;
   if (!loading && id && !job) return <p role="alert" className="notice error">{error || "Unable to load this posting."} <button className="underline" onClick={() => void load()}>Retry</button></p>;
   return <div className="employer-job-editor form-stack">
@@ -69,7 +69,7 @@ export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; a
         {["DRAFT", "CHANGES_REQUESTED", "CLOSED"].includes(job.status) && actionButton("archive", "Archive posting")}
       </div>{admin && job.status === "PENDING_REVIEW" && <div className="form-stack"><div className="employer-fee-adjust"><label>Application fee in KES<input type="number" min={1} max={250000} step={1} value={feeOverride ?? String(job.applicationFeeMinor / 100)} onChange={event => setFeeOverride(event.target.value)} /></label><button type="button" className="button secondary" disabled={busy || feeOverride === null || Number(feeOverride) * 100 === job.applicationFeeMinor || !(Number(feeOverride) >= 1)} onClick={() => void adjustFee()}>Adjust fee</button><span className="hint">The recruiter set {formatFee(job.applicationFeeMinor)}. Changing it keeps the job in review and is shown in its history.</span></div><label>Changes required<textarea maxLength={2000} value={reviewNote} onChange={event => setReviewNote(event.target.value)} rows={3} /></label><div>{actionButton("request_changes", "Return with feedback", !reviewNote.trim())}</div></div>}</div>}
       
-      {job?.status === "PUBLISHED" && <p className="notice error">Saving edits will remove this posting from public view and return it to draft. It must be reviewed again before publication.</p>}
+      {job?.status === "PENDING_REVIEW" && <p className="notice success">This job is awaiting review. You can still edit it below; saving keeps it in review with your latest changes.</p>}{job?.status === "PUBLISHED" && <p className="notice error">Saving edits will remove this posting from public view and return it to draft. It must be reviewed again before publication.</p>}
       {job && job.recruiter.status !== "ACTIVE" && <p className="notice error">This recruiter's account is suspended. Reactivate it before editing or publishing jobs.</p>}
       {job && <JobCoverEditor job={job} imagesEnabled={imagesEnabled} blocked={job.recruiter.status !== "ACTIVE" ? "Reactivate the recruiter first." : dirty ? "Save your text changes first, then change the cover." : ""} onChanged={() => load(true)} />}
       {!job && imagesEnabled && <p className="hint">Save the draft first, then add a cover photo.</p>}
