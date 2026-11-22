@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { NavigationProgress } from "@/components/navigation-progress";
 import "./globals.css";
 import "./workspace.css";
 import "./overview.css";
@@ -30,5 +32,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en"><body>{children}</body></html>;
+  // The progress bar reads the URL, so it sits in its own Suspense boundary and never holds back the page.
+  return <html lang="en"><body><Suspense fallback={null}><NavigationProgress /></Suspense>{children}</body></html>;
 }

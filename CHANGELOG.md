@@ -10,6 +10,12 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.10.0 - 2026-11-22
+
+- Clicks never look ignored: a thin progress bar runs across the top of every page as soon as a link to another page is clicked, and the sidebar item being opened shows a small spinner until its page arrives.
+- Loading screens: dashboard, admin and recruiter pages show a placeholder in the content area while the server prepares the page, with the sidebar and top bar staying in place.
+- Admin and recruiter pages now share a layout (`app/admin/layout.tsx`, `app/employer/layout.tsx`) like the job-seeker dashboard, so the sidebar is drawn once instead of on every page. Each page still checks access itself.
+
 ## 2.9.2 - 2026-11-22
 
 - My profile: the "How recruiters see you" preview now lines up with the top of the editor. It was offset 76px for a top bar that sits outside the scrolling area.

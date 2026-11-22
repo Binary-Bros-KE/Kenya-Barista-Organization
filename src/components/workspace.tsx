@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { SignOut } from "./sign-out";
+import { LinkPending } from "./navigation-progress";
 
 type IconName = "account" | "profile" | "applications" | "payments" | "notifications" | "security" | "organisations" | "jobs" | "review" | "settings" | "queue" | "admin" | "menu" | "close" | "collapse" | "expand" | "external";
 type Item = { label: string; href: string; icon: IconName };
@@ -125,7 +126,7 @@ export function Workspace({ name, admin, recruiter = false, badges = {}, photo =
       {links.map(item => <Link key={item.href} href={item.href} className={`workspace-nav-link${item === current ? " is-active" : ""}`}
         aria-current={item === current ? "page" : undefined} aria-label={item.label}
         title={!mobile && collapsed ? item.label : undefined} onClick={mobile ? closeMobile : undefined}>
-        <Icon name={item.icon} /><span className="workspace-link-label">{item.label}</span>{badges[item.href] ? <span className="workspace-nav-badge" aria-label={`${badges[item.href]} waiting`}>{badges[item.href]}</span> : null}
+        <Icon name={item.icon} /><span className="workspace-link-label">{item.label}</span><LinkPending />{badges[item.href] ? <span className="workspace-nav-badge" aria-label={`${badges[item.href]} waiting`}>{badges[item.href]}</span> : null}
       </Link>)}
     </div>;
   }
