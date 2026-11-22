@@ -78,11 +78,11 @@ export function RecruiterRequest({ request, earlier = [], used = request ? 1 : 0
 
     {all.length > 0 && <section className="recruit-history" aria-labelledby="recruit-history-title">
       <div className="recruit-history-title"><h3 id="recruit-history-title">Your requests</h3>{attempts}</div>
-      <ol>{all.map((item, index) => <li key={item.id} className={`is-${item.status.toLowerCase()}`}>
-        <div className="recruit-history-head"><strong>{item.hiringFor}{index === 0 && <span className="recruit-latest">Latest</span>}</strong><span className="recruit-pill">{item.status === "APPROVED" && !(isRecruiter && index === 0) ? "Approved, later removed" : statusLabel[item.status]}</span></div>
+      <ol>{all.map((item, index) => { const reverted = item.status === "APPROVED" && !(isRecruiter && index === 0); return <li key={item.id} className={reverted ? "is-reverted" : `is-${item.status.toLowerCase()}`}>
+        <div className="recruit-history-head"><strong>{item.hiringFor}{index === 0 && <span className="recruit-latest">Latest</span>}</strong><span className="recruit-pill">{reverted ? "Reverted" : statusLabel[item.status]}</span></div>
         <p>Sent {day(item.createdAt)}{item.reviewedAt ? ` · reviewed ${day(item.reviewedAt)}` : ""} · {item.roles}</p>
         {item.status === "REJECTED" && item.reviewNote && <p className="recruit-history-reason">KBO said: “{item.reviewNote}”</p>}
-      </li>)}</ol>
+      </li>; })}</ol>
     </section>}
 
     <p className="recruit-foot">Questions first? <Link href="/contact">Contact KBO</Link>.</p>

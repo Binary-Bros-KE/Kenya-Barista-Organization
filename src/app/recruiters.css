@@ -163,3 +163,5 @@
 .is-approved .recruit-pill { background: #e3f4ea; color: #1f6b41; }
 .is-pending .recruit-pill { background: #fbf0d6; color: #8a5a07; }
 
+.recruit-history li.is-reverted { border-left-color: #9c8b7a; }
+.is-reverted .recruit-pill { background: #efe8dd; color: #5d4d3f; }

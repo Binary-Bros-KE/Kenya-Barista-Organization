@@ -46,7 +46,7 @@ test("the request page shows the form, then the status, then the reason after a 
   assert.ok(recruiter.includes("You&#x27;re a recruiter")); assert.ok(!recruiter.includes("remaining"));
   const demoted = render({ request: approved, used: 1, isRecruiter: false, phone: "", location: "" });
   assert.ok(!demoted.includes("You&#x27;re a recruiter"), "A demoted account is not told it is a recruiter"); assert.ok(demoted.includes("Your recruiter access was removed"));
-  assert.ok(demoted.includes("Apply again")); assert.ok(demoted.includes("2 attempts remaining")); assert.ok(demoted.includes("Approved, later removed"));
+  assert.ok(demoted.includes("Apply again")); assert.ok(demoted.includes("2 attempts remaining")); assert.ok(demoted.includes("Reverted"));
   assert.ok(spent.includes("used all 3 requests")); assert.ok(!spent.includes("Apply again")); assert.ok(!spent.includes("Send request")); assert.ok(!spent.includes("remaining"));
   assert.ok(form.includes("3 attempts remaining"));
 });
