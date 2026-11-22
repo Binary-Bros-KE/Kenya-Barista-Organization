@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.9.1 - 2026-11-22
+
+- Removed the heading at the top of My profile; the page starts with the editor and preview.
+
 ## 2.9.0 - 2026-11-22
 
 - **Create job posting** opens a popup with every job detail, the application fee and an optional cover photo (with preview), on the recruiter and admin job lists. **Save draft** creates the draft and opens it; **Submit for review** also submits it and shows a confirmation on the list.

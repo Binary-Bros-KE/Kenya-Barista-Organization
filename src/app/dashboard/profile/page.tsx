@@ -11,7 +11,7 @@ export default async function Page() {
     db.document.findMany({ where: { userId: actor.user.id, retiredAt: null }, select: { id: true, filename: true, scanStatus: true, sizeBytes: true, createdAt: true, _count: { select: { applications: true } } }, orderBy: { createdAt: "desc" } }),
   ]);
   const usableCvs = documents.filter(doc => doc.scanStatus === "CLEAN" || doc.scanStatus === "PENDING").length;
-  return <div className="profile-workspace"><header className="profile-page-heading"><span className="profile-eyebrow">YOUR PROFILE</span><h1>A great opportunity starts with you.</h1><p>Add a photo, your skills and your story. The preview shows exactly what recruiters see when you apply.</p></header>
+  return <div className="profile-workspace">
     <ProfileStudio userId={actor.user.id} avatarVersion={actor.user.avatarVersion} imagesEnabled={imagesEnabled()} cvCount={usableCvs} initial={{
       fullName: profile?.fullName || actor.user.name || "", phone: profile?.phone || "", location: profile?.location || "", summary: profile?.summary || "",
       headline: profile?.headline || "", experienceYears: profile?.experienceYears ?? null, skills: profile?.skills ?? [], openToWork: profile?.openToWork ?? true,
