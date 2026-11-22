@@ -56,7 +56,7 @@ export function DashboardOverview({ data, user, now = new Date() }: { data: Dash
   const quickLinks = recruiting ? [
     { title: "Post a job", text: "Create a new opening for KBO to approve", href: "/employer/jobs/new", icon: "briefcase" as const },
     { title: "Review applicants", text: "Every paid application to your jobs", href: "/employer/applications", icon: "applications" as const },
-        { title: "Profile and CVs", text: "Your own job-seeker profile", href: "/dashboard/profile", icon: "profile" as const },
+        { title: "My profile", text: "Your photo, skills and CVs", href: "/dashboard/profile", icon: "profile" as const },
   ] : admin ? [
     { title: "Accounts", text: "Every member, their activity and applications", href: "/admin/accounts", icon: "people" as const },
     { title: "Recruiters", text: "Recruiter accounts, their jobs and applicants", href: "/admin", icon: "building" as const },
@@ -64,7 +64,7 @@ export function DashboardOverview({ data, user, now = new Date() }: { data: Dash
     { title: "Payments", text: "M-Pesa settings and payment history", href: "/admin/payments", icon: "money" as const },
     { title: "Delivery queue", text: "Failed emails and notification retries", href: "/admin/notifications", icon: "bell" as const },
   ] : [
-    { title: "Profile and CVs", text: "Keep your professional details ready", href: "/dashboard/profile", icon: "profile" as const },
+    { title: "My profile", text: "Photo, skills, story and CVs", href: "/dashboard/profile", icon: "profile" as const },
     { title: "Payments", text: "Application fees and receipts", href: "/dashboard/payments", icon: "applications" as const },
     { title: "Become a recruiter", text: data.recruiterRequest?.status === "PENDING" ? "Your request is being reviewed by KBO" : data.recruiterRequest?.status === "REJECTED" ? "See why and apply again" : "Hiring? Post jobs through KBO", href: "/dashboard/recruiter-request", icon: "briefcase" as const },
     { title: "Security", text: user.twoFactorEnabled ? "Manage your sign-in protection" : "Add optional two-factor protection", href: "/dashboard/security", icon: "shield" as const },

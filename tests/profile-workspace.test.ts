@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { ProfileForm, CvManager, cvPresentation, validateCvSelection } from "../src/components/profile-workspace";
+import { CvManager, cvPresentation, validateCvSelection } from "../src/components/profile-workspace";
+import { ProfileStudio } from "../src/components/profile-studio";
 function render(component: React.ReactNode) { return renderToStaticMarkup(createElement(AppRouterContext.Provider, { value: { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} } as any }, component)); }
 test("CV selection accepts PDFs up to the boundary without relying on MIME and rejects empty, oversized and other files", () => {
  assert.equal(validateCvSelection({ name: "CV.PDF", size: 5 * 1024 * 1024 }), "");
@@ -15,13 +16,14 @@ test("screening states never advertise rejected or unknown files as usable or do
  assert.equal(cvPresentation("PENDING").downloadable, true);
  for (const status of ["REJECTED", "UNKNOWN"]) assert.equal(cvPresentation(status).downloadable, false);
 });
-test("profile preserves required details, Kenyan phone validation and optional summary", () => {
- const html = render(createElement(ProfileForm, { initial: { fullName: "Coffee Professional", phone: "+254712345678", location: "Nairobi", summary: "" } }));
+test("My profile keeps the required contact details, Kenyan phone validation and an optional story", () => {
+ const html = render(createElement(ProfileStudio, { userId: "u1", avatarVersion: null, imagesEnabled: false, cvCount: 0, initial: { fullName: "Coffee Professional", phone: "+254712345678", location: "Nairobi", summary: "", headline: "", experienceYears: null, skills: [], openToWork: true, instagram: "", linkedin: "", website: "", accent: "espresso" } }));
  assert.ok(html.includes('pattern="\\+254[17][0-9]{8}"'));
- for (const name of ["fullName", "phone", "location"]) assert.ok([...html.matchAll(/<input[^>]*>/g)].some(([input]) => input.includes('name="'+name+'"') && input.includes('required=""')));
+ assert.equal([...html.matchAll(/<input[^>]*required=""[^>]*>/g)].length, 3, "Name, mobile and location are required");
  assert.ok(!/<textarea[^>]*required/.test(html));
  assert.ok(html.includes('maxLength="3000"'));
  assert.ok(html.includes('autoComplete="tel"'));
+ assert.ok(html.includes("Photo uploads are coming soon"), "Explains when uploads are switched off");
 });
 test("CV collection hides blocked downloads, explains retained attachments and asks before deletion", () => {
  const html = render(createElement(CvManager, { documents: [

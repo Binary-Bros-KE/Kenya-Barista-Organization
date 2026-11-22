@@ -3,13 +3,32 @@ import type { PrismaClient } from "../generated/prisma/client";
 import type { Actor } from "./access";
 import { AccessError } from "./errors";
 
+const blankToNull = (value: unknown) => typeof value === "string" && !value.trim() ? null : value;
+// Instagram is stored as a handle; LinkedIn and websites as full https links.
+const instagram = z.preprocess(blankToNull, z.string().trim().max(200)
+  .transform(value => value.replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").replace(/[/?#].*$/, ""))
+  .refine(value => /^[A-Za-z0-9._]{1,30}$/.test(value), "Enter your Instagram handle, e.g. @kenyabarista").nullable());
+const link = (pattern: RegExp, message: string) => z.preprocess(blankToNull, z.string().trim().max(200)
+  .transform(value => /^https?:\/\//i.test(value) ? value : `https://${value}`)
+  .refine(value => pattern.test(value), message).nullable());
 export const profileInput = z.object({
   fullName: z.string().trim().min(2).max(120),
   phone: z.string().trim().regex(/^\+254[17]\d{8}$/, "Use +254 followed by your mobile number"),
   location: z.string().trim().min(2).max(120), summary: z.string().trim().max(3000),
+  headline: z.preprocess(blankToNull, z.string().trim().max(100).nullable()).optional(),
+  experienceYears: z.number().int().min(0).max(50).nullable().optional(),
+  skills: z.array(z.string().trim().min(2).max(30)).max(12, "Choose up to 12 skills")
+    .transform(skills => skills.filter((skill, index) => skills.findIndex(other => other.toLowerCase() === skill.toLowerCase()) === index)).optional(),
+  openToWork: z.boolean().optional(),
+  instagram: instagram.optional(),
+  linkedin: link(/^https:\/\/([a-z]{2,3}\.)?(www\.)?linkedin\.com\/\S+$/i, "Enter your LinkedIn profile link").optional(),
+  website: link(/^https?:\/\/[\w.-]+\.[a-z]{2,}(\/\S*)?$/i, "Enter a website link, e.g. yourcafe.co.ke").optional(),
+  accent: z.enum(["espresso", "teal", "gold", "rose", "forest"]).optional(),
 }).strict();
 export async function saveProfile(db: PrismaClient, actor: Actor, input: unknown) {
-  const data = profileInput.parse(input);
+  const parsed = profileInput.safeParse(input);
+  if (!parsed.success) throw new AccessError(400, "INVALID_PROFILE", parsed.error.issues[0]?.message || "Check your profile details and try again");
+  const data = parsed.data;
   return db.applicantProfile.upsert({ where: { userId: actor.user.id }, create: { userId: actor.user.id, ...data }, update: data });
 }
 export async function ownApplication(db: PrismaClient, actor: Actor, id: string) {

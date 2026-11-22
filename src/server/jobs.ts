@@ -4,6 +4,8 @@ import type { PrismaClient, Prisma } from "../generated/prisma/client";
 import { assertAdmin, type Actor } from "./access";
 import { AccessError } from "./errors";
 import { paidSubmission } from "./submitted-application";
+import { checkImage, defaultImageStore, type ImageStore } from "./images";
+import { imagePublicId } from "../lib/images";
 
 const category = z.enum(["BARISTA", "ROASTING", "HOSPITALITY", "TRAINING", "MANAGEMENT", "OTHER"]);
 const employmentType = z.enum(["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP", "TEMPORARY"]);
@@ -89,6 +91,40 @@ export async function updateJob(db: PrismaClient, actor: Actor, id: string, inpu
     if (job.status === "PUBLISHED") await tx.outboxEvent.create({ data: { deduplicationKey: `job:${id}:${data.version + 1}:edited`, kind: "job.updated", aggregateId: id } });
     return tx.job.findUniqueOrThrow({ where: { id } });
   });
+}
+
+// Cover photos follow the same rules as other edits: only editable postings, the latest version,
+// and a published posting goes back to draft so an administrator reviews the new image.
+async function coverTarget(db: PrismaClient, actor: Actor, id: string, version: number) {
+  const job = await db.job.findFirst({ where: { id, ...managedScope(actor) }, select: { id: true, status: true, version: true, coverVersion: true, recruiter: { select: { status: true } } } });
+  if (!job) throw new AccessError(404, "NOT_FOUND", "Job not found");
+  if (job.recruiter.status !== "ACTIVE") throw suspendedRecruiter();
+  if (!["DRAFT", "CHANGES_REQUESTED", "PUBLISHED"].includes(job.status)) throw new AccessError(409, "INVALID_JOB_STATE", "Withdraw or reopen this posting before changing its cover");
+  if (job.version !== version) throw new AccessError(409, "STALE_JOB", "This job changed. Reload the latest version before changing the cover.");
+  return job;
+}
+async function saveCover(db: PrismaClient, actor: Actor, job: Awaited<ReturnType<typeof coverTarget>>, version: number, coverVersion: number | null) {
+  return db.$transaction(async tx => {
+    const result = await tx.job.updateMany({ where: { id: job.id, version }, data: { coverVersion, status: "DRAFT", version: { increment: 1 } } });
+    if (result.count !== 1) throw new AccessError(409, "STALE_JOB", "This job changed. Reload the latest version before changing the cover.");
+    const note = job.status === "PUBLISHED" ? "Published posting returned to draft after a cover change" : coverVersion ? "Cover photo changed" : "Cover photo removed";
+    await history(tx, job.id, actor.user.id, job.status, "DRAFT", "edited", note);
+    if (job.status === "PUBLISHED") await tx.outboxEvent.create({ data: { deduplicationKey: `job:${job.id}:${version + 1}:edited`, kind: "job.updated", aggregateId: job.id } });
+    return tx.job.findUniqueOrThrow({ where: { id: job.id } });
+  });
+}
+export async function setJobCover(db: PrismaClient, actor: Actor, id: string, version: number, bytes: Buffer, store: ImageStore = defaultImageStore()) {
+  checkImage(bytes, "job-covers");
+  const job = await coverTarget(db, actor, id, version);
+  const uploaded = await store.upload(imagePublicId("job-covers", job.id, store.folder), bytes, "job-covers");
+  return saveCover(db, actor, job, version, uploaded.version);
+}
+export async function removeJobCover(db: PrismaClient, actor: Actor, id: string, version: number, store: ImageStore = defaultImageStore()) {
+  const job = await coverTarget(db, actor, id, version);
+  if (!job.coverVersion) throw new AccessError(404, "NOT_FOUND", "This posting has no cover photo");
+  const saved = await saveCover(db, actor, job, version, null);
+  await store.remove(imagePublicId("job-covers", job.id, store.folder)).catch(() => undefined);
+  return saved;
 }
 
 export async function transitionJob(db: PrismaClient, actor: Actor, id: string, input: unknown) {

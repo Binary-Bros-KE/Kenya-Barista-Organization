@@ -109,12 +109,45 @@ Production rejects development mailbox mode. Verification and password-reset mai
 
 On the VPS, expose the application only through its reverse proxy, overwrite incoming forwarded client-IP headers, rate-limit traffic at the proxy, and omit sensitive URL query strings from access logs. Do not trust client-supplied forwarding headers from an exposed Node port.
 
+## Profiles and photos
+
+**My profile** (`/dashboard/profile`) is where every member edits how they appear to recruiters:
+
+- **Photo:** JPG, PNG or WebP, up to 5 MB. It replaces the initials everywhere: the top bar, admin lists and popups, the recruiter's view of an applicant, and (for recruiters) as the employer logo on their jobs.
+- **Basics:** name, headline, mobile number, location and years of experience. Name, mobile and location are still required to apply.
+- **About, skills and links:** a short story, up to 12 skills, an "Open to work" switch, Instagram, LinkedIn and a website.
+- **Card colour:** espresso, teal, crema, berry or forest.
+
+A live preview shows the card exactly as recruiters see it, next to a checklist of what's missing. CVs are managed on the same page.
+
+Recruiters see the candidate's current card at the top of an application. The submitted details below it (contact details, summary, cover letter, CV) stay exactly as they were when the application was submitted.
+
+### Job cover photos
+
+Recruiters and administrators add a cover in the job editor once the draft is saved: JPG, PNG or WebP, up to 8 MB, ideally at least 1600 × 520. Changing the cover of a published job sends it back to draft for review, like any other edit, so an administrator sees every image before it goes public. Jobs without a cover get a branded cover coloured by category.
+
+## Image uploads (Cloudinary)
+
+Photos are stored in Cloudinary. The server checks each file's first bytes (not its name) before uploading, so only real JPG, PNG and WebP files are accepted; SVG and other formats are refused. Uploads are signed on the server and the API secret never reaches the browser. Each account and job has one fixed image (`<folder>/avatars/<user id>` and `<folder>/job-covers/<job id>`), so a new photo replaces the old one and nothing piles up. The database only keeps the image version.
+
+Configure `.env` with the value from the Cloudinary dashboard (**API Keys**):
+
+```dotenv
+CLOUDINARY_URL=cloudinary://<api key>:<api secret>@<cloud name>
+# Use a different folder per environment so local tests never replace live photos.
+CLOUDINARY_FOLDER=kbo
+```
+
+`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` work instead of `CLOUDINARY_URL`. Restart the app after changing these: the cloud name is read when the app starts. Without them, uploads are switched off and pages explain that photos are coming soon; profiles show initials and jobs show branded covers.
+
 ## Routes and permissions
 
 | Route | Access |
 | --- | --- |
 | `/register`, `/sign-in`, recovery and verification screens | Public |
-| `/dashboard`, `/dashboard/security` | Verified active account |
+| `/dashboard`, `/dashboard/security`, `/dashboard/profile` | Verified active account |
+| `POST`/`DELETE /api/me/avatar` | Verified active account: its own photo (raw image body) |
+| `POST`/`DELETE /api/employer/jobs/:id/cover?version=` | The job's recruiter, or an administrator |
 | `/admin` and `/api/admin/*` | Administrator |
 | `/employer` | Verified active account; lists its memberships only |
 | `POST /api/admin/memberships` | Administrator: add an existing account to a recruiter, or change its role |

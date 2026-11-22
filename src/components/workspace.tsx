@@ -9,7 +9,7 @@ type IconName = "account" | "profile" | "applications" | "payments" | "notificat
 type Item = { label: string; href: string; icon: IconName };
 const accountLinks: Item[] = [
   { label: "My account", href: "/dashboard", icon: "account" },
-  { label: "Profile and CVs", href: "/dashboard/profile", icon: "profile" },
+  { label: "My profile", href: "/dashboard/profile", icon: "profile" },
   { label: "Applications", href: "/dashboard/applications", icon: "applications" },
   { label: "Payments", href: "/dashboard/payments", icon: "payments" },
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
@@ -22,7 +22,7 @@ const recruiterLinks: Item[] = [
   { label: "Job postings", href: "/employer/jobs", icon: "jobs" },
 ];
 const jobSeekerLinks: Item[] = [
-  { label: "Profile and CVs", href: "/dashboard/profile", icon: "profile" },
+  { label: "My profile", href: "/dashboard/profile", icon: "profile" },
   { label: "Applications", href: "/dashboard/applications", icon: "applications" },
   { label: "Payments", href: "/dashboard/payments", icon: "payments" },
 ];
@@ -36,6 +36,7 @@ const adminLinks: Item[] = [
   { label: "Delivery queue", href: "/admin/notifications", icon: "queue" },
 ];
 const adminAccountLinks: Item[] = [
+  { label: "My profile", href: "/dashboard/profile", icon: "profile" },
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
   { label: "Security", href: "/dashboard/security", icon: "security" },
 ];
@@ -73,7 +74,7 @@ function activeItem(pathname: string, items: Item[]) {
   return items.filter(item => matches(pathname, item.href)).sort((a, b) => b.href.length - a.href.length)[0];
 }
 
-export function Workspace({ name, admin, recruiter = false, badges = {}, children }: { name: string; admin: boolean; recruiter?: boolean; badges?: Record<string, number>; children: ReactNode }) {
+export function Workspace({ name, admin, recruiter = false, badges = {}, photo = null, children }: { name: string; admin: boolean; recruiter?: boolean; badges?: Record<string, number>; photo?: string | null; children: ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -152,7 +153,7 @@ export function Workspace({ name, admin, recruiter = false, badges = {}, childre
         </div>
         <div className="workspace-topbar-trailing">
           <Link href="/" className="workspace-website-link"><Icon name="external" /><span>Website</span></Link>
-          <div className="workspace-user" aria-label={`Signed in as ${name}`}><span className="workspace-avatar" aria-hidden="true">{initials}</span><span className="workspace-user-copy"><strong title={name}>{name}</strong><span>{admin ? "Administrator" : recruiter ? "Recruiter" : "Member"}</span></span></div>
+          <div className="workspace-user" aria-label={`Signed in as ${name}`}><Link href="/dashboard/profile" className={`workspace-avatar${photo ? " has-photo" : ""}`} title="My profile" aria-label="My profile">{photo ? <img src={photo} alt="" /> : initials}</Link><span className="workspace-user-copy"><strong title={name}>{name}</strong><span>{admin ? "Administrator" : recruiter ? "Recruiter" : "Member"}</span></span></div>
         </div>
       </header>
       <main className="workspace-content" id="workspace-content" tabIndex={-1}>{children}</main>

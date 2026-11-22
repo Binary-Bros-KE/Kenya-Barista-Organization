@@ -62,7 +62,7 @@ export function AdminRecruiterRequests({ data }: { data: RecruiterRequestList })
       {data.requests.length ? <div className={`accounts-list${pending ? " is-pending" : ""}`} role="table" aria-label="Requests">
         <div className="accounts-row requests-row accounts-head" role="row"><span role="columnheader">Person</span><span role="columnheader">Hiring for</span><span role="columnheader">Contact</span><span role="columnheader">Status</span><span role="columnheader">Sent</span><span aria-hidden="true" /></div>
         {data.requests.map(request => <button type="button" key={request.id} className="accounts-row requests-row" role="row" onClick={() => setOpen(request)} aria-label={`Review ${request.user.name || request.user.email}`}>
-          <span role="cell" className="accounts-member"><Avatar name={request.user.name} email={request.user.email} /><span><strong>{request.user.name || "No name yet"}</strong><span>{request.user.email}</span></span></span>
+          <span role="cell" className="accounts-member"><Avatar name={request.user.name} email={request.user.email} id={request.user.id} avatarVersion={request.user.avatarVersion} /><span><strong>{request.user.name || "No name yet"}</strong><span>{request.user.email}</span></span></span>
           <span role="cell" className="requests-hiring"><strong>{request.hiringFor}</strong><span>{request.roles}</span></span>
           <span role="cell" className="requests-hiring"><strong>{request.phone}</strong><span>{request.location}</span></span>
           <span role="cell" className="accounts-badges"><em className={statusText[request.status].tone}>{statusText[request.status].label}</em></span>
@@ -100,7 +100,7 @@ function ReviewModal({ request, onClose, onDone }: { request: Request; onClose: 
   const website = request.website ? (/^https?:/.test(request.website) ? request.website : `https://${request.website}`) : null;
   return <dialog ref={dialog} className="accounts-modal" aria-labelledby="request-title" onClose={onClose} onClick={event => { if (event.target === event.currentTarget) dialog.current?.close(); }}>
     <div className="accounts-modal-panel">
-      <header className="accounts-modal-head requests-modal-head"><Avatar name={request.user.name} email={request.user.email} large /><div><h2 id="request-title">{name}</h2><p>{request.user.email}</p><div className="accounts-badges"><em className={statusText[request.status].tone}>{statusText[request.status].label}</em><em className="is-plain">Asked {relative(request.createdAt)}</em></div></div><button type="button" className="accounts-modal-close" aria-label="Close" onClick={() => dialog.current?.close()}><Icon name="close" /></button></header>
+      <header className="accounts-modal-head requests-modal-head"><Avatar name={request.user.name} email={request.user.email} id={request.user.id} avatarVersion={request.user.avatarVersion} large /><div><h2 id="request-title">{name}</h2><p>{request.user.email}</p><div className="accounts-badges"><em className={statusText[request.status].tone}>{statusText[request.status].label}</em><em className="is-plain">Asked {relative(request.createdAt)}</em></div></div><button type="button" className="accounts-modal-close" aria-label="Close" onClick={() => dialog.current?.close()}><Icon name="close" /></button></header>
       <div className="accounts-modal-body">
         <div className="accounts-facts">
           <Fact label="Member since" value={date(request.user.createdAt)} sub={request.user.emailVerified ? "Email confirmed" : "Email not confirmed"} />

@@ -27,8 +27,8 @@ test("accounts page opens with stat cards and lists each member with status, rea
     query: accountQuery.parse({}), stats: { total: 40, verified: 30, unverified: 10, active30: 12, newThisWeek: 3, suspended: 1, withCv: 9, applied: 7, recruiters: 2 },
     pagination: { page: 1, matching: 2, pageCount: 1 },
     accounts: [
-      { id: "a", name: "Wanjiru Kamau", email: "wanjiru@example.invalid", role: "APPLICANT", status: "ACTIVE", emailVerified: true, twoFactorEnabled: false, createdAt: new Date("2026-10-01"), lastSignInAt: null, phone: null, location: null, profileReady: true, hasCv: true, applications: 3, submitted: 2, jobs: 0 },
-      { id: "b", name: null, email: "new@example.invalid", role: "APPLICANT", status: "SUSPENDED", emailVerified: false, twoFactorEnabled: false, createdAt: new Date("2026-11-01"), lastSignInAt: null, phone: null, location: null, profileReady: false, hasCv: false, applications: 0, submitted: 0, jobs: 0 },
+      { id: "a", name: "Wanjiru Kamau", email: "wanjiru@example.invalid", role: "APPLICANT", status: "ACTIVE", avatarVersion: null, emailVerified: true, twoFactorEnabled: false, createdAt: new Date("2026-10-01"), lastSignInAt: null, phone: null, location: null, profileReady: true, hasCv: true, applications: 3, submitted: 2, jobs: 0 },
+      { id: "b", name: null, email: "new@example.invalid", role: "APPLICANT", status: "SUSPENDED", avatarVersion: null, emailVerified: false, twoFactorEnabled: false, createdAt: new Date("2026-11-01"), lastSignInAt: null, phone: null, location: null, profileReady: false, hasCv: false, applications: 0, submitted: 0, jobs: 0 },
     ],
   };
   const html = render(data);

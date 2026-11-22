@@ -56,7 +56,7 @@ export async function listAccounts(db: PrismaClient, actor: Actor, input: unknow
     db.user.findMany({
       where, orderBy: orderBy[query.sort], skip: (query.page - 1) * ACCOUNTS_PER_PAGE, take: ACCOUNTS_PER_PAGE,
       select: {
-        id: true, name: true, email: true, role: true, status: true, emailVerified: true, twoFactorEnabled: true, createdAt: true, lastSignInAt: true,
+        id: true, name: true, email: true, role: true, status: true, emailVerified: true, twoFactorEnabled: true, createdAt: true, lastSignInAt: true, avatarVersion: true,
         profile: { select: { fullName: true, phone: true, location: true, summary: true } },
         documents: { where: { scanStatus: "CLEAN" }, select: { id: true }, take: 1 },
         _count: { select: { applications: true, recruiterJobs: true } },
@@ -78,7 +78,7 @@ export async function listAccounts(db: PrismaClient, actor: Actor, input: unknow
     pagination: { page: query.page, matching, pageCount: Math.max(1, Math.ceil(matching / ACCOUNTS_PER_PAGE)) },
     accounts: rows.map(row => ({
       id: row.id, name: row.profile?.fullName || row.name, email: row.email, role: row.role, status: row.status,
-      emailVerified: row.emailVerified, twoFactorEnabled: row.twoFactorEnabled, createdAt: row.createdAt, lastSignInAt: row.lastSignInAt,
+      emailVerified: row.emailVerified, twoFactorEnabled: row.twoFactorEnabled, createdAt: row.createdAt, lastSignInAt: row.lastSignInAt, avatarVersion: row.avatarVersion,
       phone: row.profile?.phone || null, location: row.profile?.location || null,
       profileReady: profileInput.safeParse({ fullName: row.profile?.fullName || "", phone: row.profile?.phone || "", location: row.profile?.location || "", summary: row.profile?.summary || "" }).success,
       hasCv: row.documents.length > 0, applications: row._count.applications, submitted: row.applications.length, jobs: row._count.recruiterJobs,
@@ -91,7 +91,7 @@ export async function accountDetail(db: PrismaClient, actor: Actor, id: string, 
   assertAdmin(actor);
   const [user, audit] = await Promise.all([db.user.findUnique({ where: { id }, select: {
     id: true, name: true, email: true, role: true, status: true, emailVerified: true, emailVerifiedAt: true, twoFactorEnabled: true,
-    notificationEmails: true, createdAt: true, updatedAt: true, lastSignInAt: true,
+    notificationEmails: true, createdAt: true, updatedAt: true, lastSignInAt: true, avatarVersion: true,
     profile: { select: { fullName: true, phone: true, location: true, summary: true, updatedAt: true } },
     documents: { select: { id: true, filename: true, sizeBytes: true, scanStatus: true, createdAt: true }, orderBy: { createdAt: "desc" }, take: 10 },
     applications: { select: {

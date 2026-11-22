@@ -1,0 +1,142 @@
+/* My profile: the editor, the live profile card, and photos in avatars across the app. */
+.studio { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; align-items: start; }
+.studio-editor { display: grid; gap: 16px; min-width: 0; }
+.studio-panel { padding: 20px 22px; border: 1px solid #ebe3d7; border-radius: 16px; background: #fffefa; }
+.studio-panel > header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.studio-panel > header h2 { margin: 0; font-size: 17px; color: #2f2219; }
+.studio-panel > header p { margin: 3px 0 0; color: #736553; font-size: 13px; line-height: 1.5; }
+.studio-step { display: grid; place-items: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: #2f2219; color: #e0b766; font-size: 11px; font-weight: 800; }
+.studio-count { margin-left: auto; padding: 3px 10px; border-radius: 999px; background: #f2ece3; color: #5d4d3f; font-size: 12px; font-weight: 700; }
+.studio-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; align-items: start; }
+.studio-grid .studio-wide, .studio-wide { grid-column: 1 / -1; }
+.studio label { display: grid; gap: 6px; color: #3e2f23; font-size: 13px; font-weight: 600; }
+.studio label { align-content: start; }
+.studio label > span.studio-label { color: #3e2f23; font-size: 13px; font-weight: 600; }
+.studio-label em { margin-left: 4px; font-style: normal; font-weight: 500; color: #9a8877; font-size: 12px; }
+.studio label > span { color: #8a7867; font-size: 12px; font-weight: 400; }
+.studio input:not([type=radio]):not([type=checkbox]):not([type=file]), .studio select, .studio textarea { width: 100%; padding: 10px 12px; border: 1px solid #e2d8ca; border-radius: 10px; background: #fff; color: #2f2219; font: inherit; font-weight: 400; font-size: 14px; }
+.studio textarea { resize: vertical; line-height: 1.6; }
+.studio input:focus, .studio select:focus, .studio textarea:focus { outline: 2px solid #0b766d55; border-color: #0b766d; }
+
+.studio-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; border: 0; border-radius: 10px; background: linear-gradient(140deg, #14a397, #0b5f58); color: #fff; font-weight: 700; font-size: 13.5px; cursor: pointer; }
+.studio-button:disabled { opacity: .55; cursor: not-allowed; }
+.studio-button.is-light { background: #e3f4f1; color: #0b5f58; }
+.studio-link { padding: 0; border: 0; background: none; color: #736553; font-weight: 600; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.studio-link.is-danger { color: #b0183e; }
+
+/* Photo */
+.studio-photo { display: flex; align-items: center; gap: 18px; padding: 14px; border: 2px dashed #e2d8ca; border-radius: 14px; background: #fbf8f2; transition: border-color .15s, background .15s; }
+.studio-photo.is-dragging { border-color: #0b766d; background: #e3f4f1; }
+.studio-photo-frame { position: relative; display: grid; place-items: center; flex-shrink: 0; width: 96px; height: 96px; border-radius: 50%; overflow: hidden; background: linear-gradient(140deg, #5a3a26, #2f1f16); color: #fff; font-size: 28px; font-weight: 700; box-shadow: 0 0 0 4px #fff, 0 6px 18px -8px #0006; }
+.studio-photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+.studio-photo-spinner { position: absolute; inset: 0; background: #0006; }
+.studio-photo-spinner::after { content: ""; position: absolute; inset: 34px; border: 3px solid #fff6; border-top-color: #fff; border-radius: 50%; animation: studio-spin .8s linear infinite; }
+@keyframes studio-spin { to { transform: rotate(360deg); } }
+.studio-photo-copy strong { display: block; color: #2f2219; font-size: 15px; }
+.studio-photo-copy p { margin: 4px 0 10px; color: #736553; font-size: 13px; line-height: 1.5; }
+.studio-photo-actions { display: flex; align-items: center; gap: 14px; }
+.studio-note { margin: 10px 0 0 !important; color: #1f6b41 !important; font-weight: 600; }
+.studio-note.is-error { color: #b0183e !important; }
+
+/* Card colour */
+.studio-accents { margin: 16px 0 0; padding: 0; border: 0; }
+.studio-accents legend { margin-bottom: 8px; color: #3e2f23; font-size: 13px; font-weight: 600; }
+.studio-accents > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.studio .studio-accents label { position: relative; display: flex; align-items: flex-end; width: 86px; height: 50px; padding: 6px 8px; border-radius: 10px; color: #fff; font-size: 11.5px; font-weight: 700; cursor: pointer; box-shadow: inset 0 0 0 2px transparent; }
+.studio-accents label.is-on { box-shadow: 0 0 0 2px #fffefa, 0 0 0 4px #2f2219; }
+.studio-accents input { position: absolute; opacity: 0; pointer-events: none; }
+.studio .studio-accents label > span { color: #fff; font-size: 11.5px; font-weight: 700; text-shadow: 0 1px 2px #0005; }
+.studio-accents label:has(input:focus-visible) { outline: 2px solid #0b766d; outline-offset: 3px; }
+
+/* Skills */
+.studio-skills { display: flex; flex-wrap: wrap; gap: 8px; }
+.studio-skills button { padding: 7px 12px; border: 1px solid #e2d8ca; border-radius: 999px; background: #fff; color: #5d4d3f; font-size: 13px; font-weight: 600; cursor: pointer; }
+.studio-skills button:hover { border-color: #0b766d; color: #0b5f58; }
+.studio-skills button.is-on { border-color: #0b766d; background: #0b766d; color: #fff; }
+.studio-custom { display: flex; gap: 8px; margin-top: 12px; }
+
+/* Open to work switch */
+.studio .studio-switch { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 12px 14px; border-radius: 12px; background: #f5fbf9; cursor: pointer; }
+.studio-switch input { position: absolute; opacity: 0; }
+.studio-switch > span { position: relative; flex-shrink: 0; width: 42px; height: 24px; border-radius: 999px; background: #d6ccbf; transition: background .15s; }
+.studio-switch > span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 3px #0003; }
+.studio-switch input:checked + span { background: #0b766d; }
+.studio-switch input:checked + span::after { transform: translateX(18px); }
+.studio-switch input:focus-visible + span { outline: 2px solid #0b766d; outline-offset: 2px; }
+.studio-switch strong { display: block; color: #2f2219; font-size: 14px; }
+.studio-switch small { color: #736553; font-size: 12.5px; font-weight: 400; }
+
+/* Save bar */
+.studio-savebar { position: sticky; bottom: 12px; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border: 1px solid #ebe3d7; border-radius: 14px; background: #fffefaee; backdrop-filter: blur(6px); box-shadow: 0 10px 30px -18px #0007; }
+.studio-savebar.is-dirty { border-color: #e0b766; }
+.studio-savebar p { margin: 0; color: #736553; font-size: 13px; }
+.studio-savebar p.is-ok { color: #1f6b41; font-weight: 600; }
+.studio-savebar p.is-error { color: #b0183e; font-weight: 600; }
+
+/* Preview column */
+.studio-side { position: sticky; top: 76px; display: grid; gap: 14px; }
+.studio-side-label { margin: 0; color: #8a7867; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.studio-progress { display: flex; gap: 14px; padding: 16px; border: 1px solid #ebe3d7; border-radius: 16px; background: #fffefa; }
+.studio-ring { display: grid; place-items: center; flex-shrink: 0; width: 64px; height: 64px; border-radius: 50%; }
+.studio-ring span { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: #fffefa; color: #2f2219; font-size: 14px; font-weight: 800; }
+.studio-progress strong { color: #2f2219; font-size: 14px; }
+.studio-progress ul { display: grid; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; font-size: 12.5px; color: #5d4d3f; }
+.studio-progress li::before { content: "○"; margin-right: 6px; color: #b9ab9b; }
+.studio-progress li.is-done { color: #9a8877; text-decoration: line-through; }
+.studio-progress li.is-done::before { content: "✓"; color: #0b766d; text-decoration: none; }
+.studio-cvs { margin-top: 22px; }
+
+/* Profile card (preview and applicant pages) */
+.profile-card { overflow: hidden; border: 1px solid #ebe3d7; border-radius: 18px; background: #fffefa; box-shadow: 0 18px 40px -30px #0008; }
+.profile-card-banner { position: relative; height: 92px; background: linear-gradient(140deg, var(--card-from), var(--card-to)); }
+.profile-card-banner::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(#ffffff2e 1.2px, transparent 1.4px); background-size: 14px 14px; }
+.profile-card-open { position: absolute; top: 12px; right: 12px; padding: 4px 10px; border-radius: 999px; background: #fff; color: #0b5f58; font-size: 11px; font-weight: 800; letter-spacing: .02em; }
+.profile-card-open::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: #22a06b; vertical-align: 1px; }
+.profile-card-body { padding: 0 20px 20px; }
+.profile-card-photo { display: grid; place-items: center; width: 84px; height: 84px; margin-top: -42px; border-radius: 50%; overflow: hidden; background: linear-gradient(140deg, var(--card-from), var(--card-to)); color: #fff; font-size: 26px; font-weight: 700; box-shadow: 0 0 0 4px #fffefa; position: relative; }
+.profile-card-photo img { width: 100%; height: 100%; object-fit: cover; }
+.profile-card h3 { margin: 10px 0 2px; color: #2f2219; font-size: 19px; overflow-wrap: anywhere; }
+.profile-card-headline { margin: 0; color: #5d4d3f; font-size: 13.5px; line-height: 1.5; overflow-wrap: anywhere; }
+.profile-card-headline .is-empty { color: #b0a08f; font-style: italic; }
+.profile-card ul { margin: 0; padding: 0; list-style: none; }
+.profile-card-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 10px !important; color: #736553; font-size: 12.5px; }
+.profile-card-meta li { display: inline-flex; align-items: center; gap: 5px; }
+.profile-card-skills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px !important; }
+.profile-card-skills li { padding: 4px 9px; border-radius: 999px; background: #f2ece3; color: #4a3a2c; font-size: 12px; font-weight: 600; }
+.profile-card-summary { margin: 12px 0 0; color: #5d4d3f; font-size: 13px; line-height: 1.6; white-space: pre-line; overflow-wrap: anywhere; }
+.profile-card-links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 14px !important; padding-top: 12px !important; border-top: 1px solid #f0e9df; }
+.profile-card-links a { display: inline-flex; align-items: center; gap: 5px; color: #0b766d; font-size: 12.5px; font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+.profile-card-links a:hover { text-decoration: underline; }
+
+/* Photos inside the existing initials avatars */
+.accounts-avatar.has-photo, .workspace-avatar.has-photo { overflow: hidden; padding: 0; }
+.accounts-avatar img, .workspace-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+a.workspace-avatar { text-decoration: none; }
+
+@media (max-width: 1080px) {
+  .studio { grid-template-columns: 1fr; }
+  .studio-side { position: static; order: -1; }
+}
+@media (max-width: 640px) {
+  .studio-panel { padding: 16px; }
+  .studio-grid { grid-template-columns: 1fr; }
+  .studio-photo { flex-direction: column; text-align: center; }
+  .studio-photo-actions { justify-content: center; }
+  .studio-accents label { width: calc(33% - 6px); }
+}
+
+/* Job covers: uploaded photo or a branded cover by category */
+.job-cover { position: relative; display: grid; place-items: center; overflow: hidden; aspect-ratio: 12 / 5; background: linear-gradient(140deg, var(--cover-from, #6b4329), var(--cover-to, #2f1f16)); color: #ffffff38; }
+.job-cover::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(#ffffff26 1.2px, transparent 1.4px); background-size: 14px 14px; }
+.job-cover.has-photo::before { display: none; }
+.job-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.job-cover svg { position: relative; width: 26%; max-width: 110px; height: auto; }
+.job-cover.is-hero { aspect-ratio: 40 / 13; }
+.career-job-card > .job-cover { margin: -26px -26px 20px; border-radius: 4px 4px 0 0; }
+.career-hero-cover { margin: 0 0 28px; border-radius: 6px; }
+.career-employer-logo { display: inline-block; width: 22px; height: 22px; margin-right: 7px; border-radius: 50%; object-fit: cover; vertical-align: -6px; box-shadow: 0 0 0 1px #ded3bc; }
+.employer-cover .employer-cover-frame { position: relative; margin: 14px 0 10px; overflow: hidden; border-radius: 10px; }
+.employer-cover-busy { position: absolute; inset: 0; display: grid; place-items: center; background: #0007; color: #fff; font-weight: 700; }
+.employer-cover-actions { display: flex; align-items: center; gap: 16px; margin: 10px 0 4px; }
+@media (max-width: 699px) { .career-job-card > .job-cover { margin: -26px -26px 16px; } .job-cover.is-hero { aspect-ratio: 16 / 7; } }
+.employer-candidate-card { max-width: 460px; margin: 0 0 20px; }

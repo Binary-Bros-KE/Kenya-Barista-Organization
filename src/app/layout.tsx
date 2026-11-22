@@ -6,6 +6,7 @@ import "./signature.css";
 import "./accounts.css";
 import "./recruiters.css";
 import "./profile.css";
+import "./profile-studio.css";
 import "./applications.css";
 import "./activity.css";
 import "./security.css";

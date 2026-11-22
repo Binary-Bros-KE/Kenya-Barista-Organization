@@ -120,7 +120,7 @@ export function AdminRecruiters({ data }: { data: RecruiterList }) {
 function Row({ recruiter, onOpen }: { recruiter: Recruiter; onOpen: () => void }) {
   const prefetch = () => void loadDetail(recruiter.id).catch(() => {});
   return <button type="button" className="accounts-row recruiters-row" role="row" onClick={onOpen} onPointerEnter={prefetch} onFocus={prefetch} aria-label={`Open ${recruiter.name || recruiter.email}`}>
-    <span role="cell" className="accounts-member"><Avatar name={recruiter.name} email={recruiter.email} /><span><strong>{recruiter.name || "No name yet"}{recruiter.verified && <> <VerifiedBadge compact /></>}</strong><span>{recruiter.email}</span></span></span>
+    <span role="cell" className="accounts-member"><Avatar name={recruiter.name} email={recruiter.email} id={recruiter.id} avatarVersion={recruiter.avatarVersion} /><span><strong>{recruiter.name || "No name yet"}{recruiter.verified && <> <VerifiedBadge compact /></>}</strong><span>{recruiter.email}</span></span></span>
     <span role="cell" className="accounts-badges">{recruiter.suspended ? <em className="is-danger">Suspended</em> : recruiter.verified ? <em className="is-good">Verified</em> : <em className="is-warn">Unverified</em>}{recruiter.totalJobs === 0 && <em className="is-plain">No jobs yet</em>}</span>
     <span role="cell" className="accounts-apps"><strong>{recruiter.totalJobs}</strong> in total</span>
     <span role="cell" className="accounts-apps"><strong>{recruiter.liveJobs}</strong> live</span>
@@ -163,7 +163,7 @@ function RecruiterModal({ preview, onClose, onChanged }: { preview: Recruiter; o
   return <dialog ref={ref} className="accounts-modal" aria-labelledby="recruiter-modal-title" {...props}>
     <div className="accounts-modal-panel">
       <header className="accounts-modal-head recruiters-modal-head">
-        <Avatar name={preview.name} email={preview.email} large /><div><h2 id="recruiter-modal-title">{recruiter?.name ?? preview.name ?? "No name yet"}</h2><p>{preview.email}</p><div className="accounts-badges">{demoted ? <em className="is-plain">Now a job seeker</em> : suspended ? <em className="is-danger">Suspended</em> : <em className="is-good">Active</em>}{(recruiter ? !!recruiter.verification : preview.verified) && <VerifiedBadge />}</div></div>
+        <Avatar name={preview.name} email={preview.email} id={preview.id} avatarVersion={recruiter?.avatarVersion ?? preview.avatarVersion} large /><div><h2 id="recruiter-modal-title">{recruiter?.name ?? preview.name ?? "No name yet"}</h2><p>{preview.email}</p><div className="accounts-badges">{demoted ? <em className="is-plain">Now a job seeker</em> : suspended ? <em className="is-danger">Suspended</em> : <em className="is-good">Active</em>}{(recruiter ? !!recruiter.verification : preview.verified) && <VerifiedBadge />}</div></div>
         <button type="button" className="accounts-modal-close" aria-label="Close" onClick={close}><Icon name="close" /></button>
       </header>
       <div className="accounts-modal-body">

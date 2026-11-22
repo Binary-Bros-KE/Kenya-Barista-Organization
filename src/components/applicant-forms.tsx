@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { postJson } from "./auth-form";
 async function put(url: string, body: unknown) { const response = await fetch(url, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || "Unable to save"); return data; }
-export { ProfileForm, CvManager } from "./profile-workspace";
+export { CvManager } from "./profile-workspace";
 
 export function StartApplication({ slug }: { slug: string }) {
  const router = useRouter(); const [message,setMessage] = useState(""); const [busy,setBusy] = useState(false);

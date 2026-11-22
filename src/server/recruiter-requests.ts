@@ -111,7 +111,7 @@ export async function listRecruiterRequests(db: PrismaClient, actor: Actor, inpu
     db.recruiterRequest.findMany({
       where, orderBy: [{ createdAt: query.status === "PENDING" ? "asc" : "desc" }, { id: "asc" }], skip: (query.page - 1) * 25, take: 25,
       select: { ...requestSelect, reviewedBy: { select: { name: true, email: true } },
-        user: { select: { id: true, name: true, email: true, role: true, status: true, emailVerified: true, createdAt: true, lastSignInAt: true, _count: { select: { applications: true } } } } },
+        user: { select: { id: true, name: true, email: true, role: true, status: true, emailVerified: true, createdAt: true, lastSignInAt: true, avatarVersion: true, _count: { select: { applications: true } } } } },
     }),
     db.recruiterRequest.count({ where: { status: "PENDING" } }),
   ]);

@@ -28,8 +28,8 @@ test("recruiters page opens with stat cards, an add button and one row per recru
     query: recruiterQuery.parse({}), stats: { total: 14, active: 13, suspended: 1, liveJobs: 9, pendingJobs: 3, applications: 61, noJobs: 2, verified: 10, pendingRequests: 3 },
     pagination: { page: 1, matching: 2, pageCount: 1 }, activity: [],
     recruiters: [
-      { id: "a", name: "Java House HR", email: "hr@java.co.ke", suspended: false, verified: true, createdAt: new Date("2026-09-01"), lastSignInAt: new Date(), liveJobs: 3, totalJobs: 4, applications: 12 },
-      { id: "b", name: "Bean Lab", email: "jobs@beanlab.co.ke", suspended: true, verified: false, createdAt: new Date("2026-10-01"), lastSignInAt: null, liveJobs: 0, totalJobs: 0, applications: 0 },
+      { id: "a", name: "Java House HR", email: "hr@java.co.ke", avatarVersion: null, suspended: false, verified: true, createdAt: new Date("2026-09-01"), lastSignInAt: new Date(), liveJobs: 3, totalJobs: 4, applications: 12 },
+      { id: "b", name: "Bean Lab", email: "jobs@beanlab.co.ke", avatarVersion: null, suspended: true, verified: false, createdAt: new Date("2026-10-01"), lastSignInAt: null, liveJobs: 0, totalJobs: 0, applications: 0 },
     ],
   };
   const html = render(data);

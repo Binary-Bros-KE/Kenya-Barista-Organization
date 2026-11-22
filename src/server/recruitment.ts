@@ -46,6 +46,7 @@ export async function getReviewApplication(db: PrismaClient, actor: Actor, id: s
     job: { select: { id: true, title: true, status: true, recruiter: { select: { name: true, status: true } } } },
     paymentOrder: { select: { amountMinor: true, currency: true } },
     documents: { select: { document: { select: { id: true, userId: true, filename: true, scanStatus: true, sha256: true } } } },
+    user: { select: { avatarVersion: true, profile: { select: { headline: true, experienceYears: true, skills: true, openToWork: true, instagram: true, linkedin: true, website: true, accent: true } } } },
   } });
   if (!application) throw new AccessError(404, "NOT_FOUND", "Application not found");
   const snapshot = profileSnapshot.safeParse(application.submissionSnapshot);
@@ -54,8 +55,10 @@ export async function getReviewApplication(db: PrismaClient, actor: Actor, id: s
   }
   const cv = application.documents.find(item => item.document.id === snapshot.data.documentId)?.document;
   const cvAvailable = application.status !== "WITHDRAWN" && cv?.userId === application.userId && cv.scanStatus === "CLEAN" && cv.sha256 === snapshot.data.documentSha256;
-  return { id: application.id, status: application.status, version: application.version, submittedAt: application.submittedAt,
-    job: application.job, profile: snapshot.data, cv: { available: Boolean(cvAvailable), filename: cv?.filename || "Submitted CV.pdf" } };
+  return { id: application.id, userId: application.userId, status: application.status, version: application.version, submittedAt: application.submittedAt,
+    job: application.job, profile: snapshot.data, cv: { available: Boolean(cvAvailable), filename: cv?.filename || "Submitted CV.pdf" },
+    // The candidate's current photo and profile card; the submitted details above stay as they were at submission.
+    candidate: { avatarVersion: application.user.avatarVersion, ...application.user.profile } };
 }
 const responseSelect = { id: true, source: true, senderLabel: true, body: true, status: true, createdAt: true } as const;
 async function responses(db: PrismaClient, applicationId: string, rawPage: unknown) {

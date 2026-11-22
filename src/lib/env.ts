@@ -14,6 +14,13 @@ const schema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().optional(),
+  // Cloudinary image uploads: either CLOUDINARY_URL (cloudinary://key:secret@cloud) or the three separate values.
+  CLOUDINARY_URL: z.string().optional(),
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
+  // Folder for uploaded images, so local testing (e.g. kbo-dev) and the live site never overwrite each other.
+  CLOUDINARY_FOLDER: z.string().regex(/^[a-z0-9_-]{1,40}$/).default("kbo"),
 });
 
 export function getEnv() {

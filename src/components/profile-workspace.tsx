@@ -16,30 +16,6 @@ export function validateCvSelection(file: { name: string; size: number }) {
 function Feedback({ message, error }: { message: string; error: boolean }) {
   return <p role={error ? "alert" : "status"} className={message ? "profile-feedback " + (error ? "is-error" : "is-success") : "profile-feedback-empty"}>{message}</p>;
 }
-export function ProfileForm({ initial }: { initial: { fullName: string; phone: string; location: string; summary: string } }) {
-  const router = useRouter();
-  const [message, setMessage] = useState(""); const [error, setError] = useState(false); const [busy, setBusy] = useState(false);
-  const [summary, setSummary] = useState(initial.summary);
-  return <form className="profile-panel profile-form" aria-busy={busy} onSubmit={async event => {
-    event.preventDefault(); const values = Object.fromEntries(new FormData(event.currentTarget));
-    setBusy(true); setMessage(""); setError(false);
-    try { const response = await fetch("/api/profile", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });
-      const result = await response.json(); if (!response.ok) throw new Error(result.message || "Unable to save your profile.");
-      setMessage("Your profile has been saved."); router.refresh();
-    } catch (failure) { setError(true); setMessage(failure instanceof Error ? failure.message : "Unable to save your profile."); }
-    finally { setBusy(false); }
-  }}>
-    <div className="profile-panel-heading"><span className="profile-step">01</span><div><h2>Professional details</h2><p>Introduce yourself to your next employer.</p></div></div>
-    <fieldset disabled={busy}><legend>Contact information</legend><p className="profile-help">These details are required when applying for a job.</p>
-      <label htmlFor="profile-name">Full name<input id="profile-name" name="fullName" required minLength={2} maxLength={120} defaultValue={initial.fullName} autoComplete="name" /></label>
-      <div className="profile-field-pair"><label htmlFor="profile-phone">Mobile number<input id="profile-phone" type="tel" name="phone" required pattern={"\\+254[17][0-9]{8}"} placeholder="+254712345678" defaultValue={initial.phone} autoComplete="tel" aria-describedby="profile-phone-help" /><span id="profile-phone-help" className="profile-help">Use +254 followed by your mobile number.</span></label>
-      <label htmlFor="profile-location">Location<input id="profile-location" name="location" required minLength={2} maxLength={120} defaultValue={initial.location} placeholder="e.g. Nairobi, Kenya" autoComplete="address-level2" /></label></div>
-    </fieldset>
-    <fieldset disabled={busy}><legend>Your experience</legend><label htmlFor="profile-summary">Professional summary <span className="profile-optional">Optional</span><textarea id="profile-summary" name="summary" maxLength={3000} rows={6} value={summary} onChange={event => setSummary(event.target.value)} placeholder="Tell employers about your coffee skills, experience and career interests." aria-describedby="profile-summary-help" /></label><p id="profile-summary-help" className="profile-help profile-character-count">{summary.length.toLocaleString()} / 3,000 characters</p></fieldset>
-    <div className="profile-save"><p>You can update these details at any time.</p><button className="profile-primary" disabled={busy}>{busy ? "Saving..." : "Save profile"}</button></div>
-    <Feedback message={message} error={error} />
-  </form>;
-}
 export function CvManager({ documents }: { documents: ProfileCv[] }) {
   const router = useRouter(); const [refreshing, startRefresh] = useTransition();
   const [message, setMessage] = useState(""); const [error, setError] = useState(false); const [busy, setBusy] = useState(false);

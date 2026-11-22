@@ -46,7 +46,7 @@ export async function listRecruiters(db: PrismaClient, actor: Actor, input: unkn
     db.user.count({ where }),
     db.user.findMany({
       where, orderBy: orderBy[query.sort], skip: (query.page - 1) * RECRUITERS_PER_PAGE, take: RECRUITERS_PER_PAGE,
-      select: { id: true, name: true, email: true, status: true, createdAt: true, lastSignInAt: true, recruiterVerifiedAt: true, _count: { select: { recruiterJobs: { where: { status: "PUBLISHED" } } } } },
+      select: { id: true, name: true, email: true, status: true, createdAt: true, lastSignInAt: true, avatarVersion: true, recruiterVerifiedAt: true, _count: { select: { recruiterJobs: { where: { status: "PUBLISHED" } } } } },
     }),
     db.user.count({ where: { ...recruiters, status: "ACTIVE" } }),
     db.user.count({ where: { ...recruiters, status: "SUSPENDED" } }),
@@ -70,7 +70,7 @@ export async function listRecruiters(db: PrismaClient, actor: Actor, input: unkn
     stats: { total, active, suspended, liveJobs, pendingJobs, applications, noJobs, verified, pendingRequests },
     pagination: { page: query.page, matching, pageCount: Math.max(1, Math.ceil(matching / RECRUITERS_PER_PAGE)) },
     recruiters: rows.map(row => ({
-      id: row.id, name: row.name, email: row.email, suspended: row.status === "SUSPENDED", verified: !!row.recruiterVerifiedAt, createdAt: row.createdAt, lastSignInAt: row.lastSignInAt,
+      id: row.id, name: row.name, email: row.email, suspended: row.status === "SUSPENDED", verified: !!row.recruiterVerifiedAt, createdAt: row.createdAt, lastSignInAt: row.lastSignInAt, avatarVersion: row.avatarVersion,
       liveJobs: row._count.recruiterJobs, totalJobs: totals.get(row.id)?.jobs ?? 0, applications: totals.get(row.id)?.applications ?? 0,
     })),
     activity: activity.map(entry => ({ id: entry.id, action: entry.action, entityType: entry.entityType, createdAt: entry.createdAt, by: entry.actor?.name || entry.actor?.email || "System" })),
@@ -81,7 +81,7 @@ export type RecruiterList = Awaited<ReturnType<typeof listRecruiters>>;
 export async function recruiterDetail(db: PrismaClient, actor: Actor, id: string) {
   assertAdmin(actor);
   const recruiter = await db.user.findFirst({ where: { id, role: "RECRUITER" }, select: {
-    id: true, name: true, email: true, status: true, emailVerified: true, createdAt: true, lastSignInAt: true,
+    id: true, name: true, email: true, status: true, emailVerified: true, createdAt: true, lastSignInAt: true, avatarVersion: true,
     recruiterVerifiedAt: true, recruiterVerification: true, recruiterVerifiedBy: { select: { name: true, email: true } },
     profile: { select: { phone: true, location: true } },
     recruiterRequests: { where: { status: "APPROVED" }, select: { hiringFor: true, roles: true, phone: true, location: true, website: true, message: true, createdAt: true, reviewedAt: true }, orderBy: { createdAt: "desc" }, take: 1 },

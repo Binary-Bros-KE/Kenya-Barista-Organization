@@ -10,6 +10,15 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.5.0 - 2026-11-22
+
+- Image uploads with Cloudinary. The server checks each file really is a JPG, PNG or WebP, then uploads it with a signed request; the API secret never reaches the browser. Each account and job has one fixed image, so a new photo replaces the old one. Set `CLOUDINARY_URL` and `CLOUDINARY_FOLDER` (see docs/accounts.md); without them uploads are switched off and pages say so.
+- My profile (was Profile and CVs): profile photo, headline, years of experience, up to 12 skills, an Open to work switch, Instagram, LinkedIn and website links, and a card colour, with a live preview of what recruiters see and a completeness checklist. CVs stay on the same page.
+- Profile photos replace initials in the top bar (which now links to My profile), admin lists and popups, and the recruiter's view of an applicant. A recruiter's photo is the employer logo on their jobs.
+- Job cover photos: added from the job editor once a draft is saved. Changing the cover of a published job sends it back for review. Job cards show the cover, or a branded cover coloured by category; job pages show a wide cover when there is a photo.
+- Applicant pages for recruiters start with the candidate's current profile card; the submitted details below are unchanged.
+- Job editor pages now use the shared workspace frame, so recruiters see their own menu and photo there.
+
 ## 2.4.6 - 2026-11-22
 
 - Admin detail popups (Accounts, Recruiters, Requests): a compact header with the name on one line and the email and badges below it, beside a small avatar; the dot pattern now covers the whole header; corners are 16px.

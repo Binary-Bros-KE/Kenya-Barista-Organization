@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { avatarSrc } from "@/lib/images";
 
 // Shared pieces for the administrator list pages (Accounts, Recruiters).
 export type IconName = "plus" | "users" | "send" | "trash" | "external" | "people" | "check" | "mail" | "pulse" | "search" | "close" | "chevron" | "file" | "briefcase" | "building" | "shield" | "device" | "clock" | "ban" | "undo" | "phone" | "pin" | "spark";
@@ -53,8 +54,10 @@ export function freshness(value: Date | string | null) {
 }
 export function initials(name: string | null, email: string) { return ((name || email).trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("") || "?").toUpperCase(); }
 export function hue(text: string) { let h = 0; for (const c of text) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
-export function Avatar({ name, email, large = false }: { name: string | null; email: string; large?: boolean }) {
-  return <span className={`accounts-avatar${large ? " is-large" : ""}`} style={{ "--avatar-hue": hue(email) } as CSSProperties} aria-hidden="true">{initials(name, email)}</span>;
+// Shows the profile photo when there is one, otherwise coloured initials.
+export function Avatar({ name, email, large = false, id, avatarVersion }: { name: string | null; email: string; large?: boolean; id?: string; avatarVersion?: number | null }) {
+  const photo = id ? avatarSrc(id, avatarVersion, large ? 72 : 40) : null;
+  return <span className={`accounts-avatar${large ? " is-large" : ""}${photo ? " has-photo" : ""}`} style={{ "--avatar-hue": hue(email) } as CSSProperties} aria-hidden="true">{photo ? <img src={photo} alt="" loading="lazy" /> : initials(name, email)}</span>;
 }
 export function device(agent: string | null) {
   if (!agent) return "Unknown device";

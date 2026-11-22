@@ -89,6 +89,8 @@ model User {
   emailVerifiedAt DateTime?     @db.Timestamptz(3)
   emailVerified   Boolean       @default(false)
   image           String?
+  // Cloudinary version of the profile photo (public id kbo/avatars/<id>); null means initials.
+  avatarVersion   Int?
   twoFactorEnabled Boolean      @default(false)
   notificationEmails Boolean    @default(true)
   role            PlatformRole  @default(APPLICANT)
@@ -131,6 +133,15 @@ model ApplicantProfile {
   phone      String?
   location   String?
   summary    String?
+  headline   String?
+  experienceYears Int?
+  skills     String[] @default([])
+  openToWork Boolean  @default(true)
+  instagram  String?
+  linkedin   String?
+  website    String?
+  // Colour theme of the profile card: espresso, teal, gold, rose or forest.
+  accent     String   @default("espresso")
   user       User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   updatedAt  DateTime @updatedAt @db.Timestamptz(3)
 }
@@ -229,6 +240,8 @@ model Job {
   reviewedById        String?
   reviewedAt          DateTime? @db.Timestamptz(3)
   reviewNote          String?
+  // Cloudinary version of the cover photo (public id kbo/job-covers/<id>); null shows a branded cover.
+  coverVersion        Int?
   createdAt           DateTime  @default(now()) @db.Timestamptz(3)
   updatedAt           DateTime  @updatedAt @db.Timestamptz(3)
   recruiter           User      @relation("RecruiterJobs", fields: [recruiterId], references: [id], onDelete: Restrict)

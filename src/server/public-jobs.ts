@@ -11,8 +11,9 @@ export const publicJobQuery = z.object({
 }).strict();
 export function availableJobs(now = new Date()): Prisma.JobWhereInput { return { status: "PUBLISHED", deadline: { gt: now }, recruiter: { status: "ACTIVE" } }; }
 // Jobs show the recruiter's account name as the employer.
-const employerSelect = { recruiter: { select: { id: true, name: true, recruiterVerifiedAt: true } } } as const;
-const withEmployer = <T extends { recruiter: { id: string; name: string | null; recruiterVerifiedAt: Date | null } }>({ recruiter, ...job }: T) => ({ ...job, employer: { id: recruiter.id, name: recruiter.name || "KBO recruiter", verified: !!recruiter.recruiterVerifiedAt } });
+// The recruiter's profile photo doubles as the employer logo.
+const employerSelect = { recruiter: { select: { id: true, name: true, recruiterVerifiedAt: true, avatarVersion: true } } } as const;
+const withEmployer = <T extends { recruiter: { id: string; name: string | null; recruiterVerifiedAt: Date | null; avatarVersion: number | null } }>({ recruiter, ...job }: T) => ({ ...job, employer: { id: recruiter.id, name: recruiter.name || "KBO recruiter", verified: !!recruiter.recruiterVerifiedAt, avatarVersion: recruiter.avatarVersion } });
 
 export async function listPublicJobs(db: PrismaClient, input: unknown) {
   const query = publicJobQuery.parse(input);
@@ -25,7 +26,7 @@ export async function listPublicJobs(db: PrismaClient, input: unknown) {
   };
   const [total, jobs] = await db.$transaction([
     db.job.count({ where }),
-    db.job.findMany({ where, skip: (query.page - 1) * 12, take: 12, orderBy: [{ publishedAt: "desc" }, { id: "desc" }], select: { slug: true, title: true, description: true, location: true, category: true, employmentType: true, deadline: true, publishedAt: true, applicationFeeMinor: true, ...employerSelect } }),
+    db.job.findMany({ where, skip: (query.page - 1) * 12, take: 12, orderBy: [{ publishedAt: "desc" }, { id: "desc" }], select: { id: true, coverVersion: true, slug: true, title: true, description: true, location: true, category: true, employmentType: true, deadline: true, publishedAt: true, applicationFeeMinor: true, ...employerSelect } }),
   ]);
   return { jobs: jobs.map(({ description, ...job }) => ({ ...withEmployer(job), summary: description.slice(0, 200) })), pagination: { page: query.page, total, pageCount: Math.ceil(total / 12) } };
 }
@@ -37,7 +38,7 @@ export async function publicJobFacets(db: PrismaClient) {
 
 export async function getPublicJob(db: PrismaClient, slug: string) {
   if (slug.length > 160) throw new AccessError(404, "NOT_FOUND", "Job not found");
-  const job = await db.job.findFirst({ where: { slug, status: { in: ["PUBLISHED", "CLOSED"] }, publishedAt: { not: null }, recruiter: { status: "ACTIVE" } }, select: { slug: true, title: true, description: true, location: true, category: true, employmentType: true, deadline: true, publishedAt: true, applicationFeeMinor: true, status: true, ...employerSelect } });
+  const job = await db.job.findFirst({ where: { slug, status: { in: ["PUBLISHED", "CLOSED"] }, publishedAt: { not: null }, recruiter: { status: "ACTIVE" } }, select: { id: true, coverVersion: true, slug: true, title: true, description: true, location: true, category: true, employmentType: true, deadline: true, publishedAt: true, applicationFeeMinor: true, status: true, ...employerSelect } });
   if (!job) throw new AccessError(404, "NOT_FOUND", "Job not found");
   return { ...withEmployer(job), isOpen: job.status === "PUBLISHED" && job.deadline > new Date() };
 }

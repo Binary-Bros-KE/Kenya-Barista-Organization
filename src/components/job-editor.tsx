@@ -2,17 +2,19 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { JobCoverEditor } from "./job-cover-editor";
 import { categories, employmentTypes, statusLabels, formatDeadline, formatFee, nairobiInput, nairobiToIso } from "@/lib/job-format";
-type Job = { id: string; title: string; description: string; location: string; category: string; employmentType: string; deadline: string; slug: string; applicationFeeMinor: number; version: number; status: keyof typeof statusLabels; reviewNote: string | null; recruiterId: string; recruiter: { name: string | null; email: string; status: string }; history: { id: string; fromStatus: keyof typeof statusLabels | null; toStatus: keyof typeof statusLabels; note: string | null; createdAt: string }[] };
+type Job = { id: string; title: string; description: string; location: string; category: string; employmentType: string; deadline: string; slug: string; applicationFeeMinor: number; version: number; status: keyof typeof statusLabels; reviewNote: string | null; recruiterId: string; coverVersion: number | null; recruiter: { name: string | null; email: string; status: string }; history: { id: string; fromStatus: keyof typeof statusLabels | null; toStatus: keyof typeof statusLabels; note: string | null; createdAt: string }[] };
 type Draft = { title: string; description: string; location: string; category: string; employmentType: string; deadline: string; applicationFeeKes: string; recruiterId: string };
 const empty: Draft = { title: "", description: "", location: "", category: "BARISTA", employmentType: "FULL_TIME", deadline: "", applicationFeeKes: "", recruiterId: "" };
 
-export function JobEditor({ id, admin }: { id?: string; admin: boolean }) {
+export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; admin: boolean; imagesEnabled?: boolean }) {
   const router = useRouter();
   const [job, setJob] = useState<Job | null>(null); const [draft, setDraft] = useState<Draft>(empty); const [recruiters, setRecruiters] = useState<{ id: string; name: string | null; email: string }[]>([]);
   const [defaultFee, setDefaultFee] = useState<number | null>(null); const [loading, setLoading] = useState(true); const [busy, setBusy] = useState(false); const [dirty, setDirty] = useState(false); const [error, setError] = useState(""); const [message, setMessage] = useState(""); const [reviewNote, setReviewNote] = useState("");
-  const load = useCallback(async () => {
-    setLoading(true); setError("");
+  // A quiet reload keeps the editor on screen (used after a cover change).
+  const load = useCallback(async (quiet = false) => {
+    if (!quiet) setLoading(true); setError("");
     try {
       const response = await fetch(id ? `/api/employer/jobs/${id}` : "/api/employer/job-options", { cache: "no-store" });
       const data = await response.json(); if (!response.ok) throw new Error(data.message);
@@ -60,6 +62,8 @@ export function JobEditor({ id, admin }: { id?: string; admin: boolean }) {
       {!id && !admin && defaultFee == null && <p className="notice error">An administrator must configure the application fee before you can create a posting.</p>}
       {job?.status === "PUBLISHED" && <p className="notice error">Saving edits will remove this posting from public view and return it to draft. It must be reviewed again before publication.</p>}
       {job && job.recruiter.status !== "ACTIVE" && <p className="notice error">This recruiter's account is suspended. Reactivate it before editing or publishing jobs.</p>}
+      {job && <JobCoverEditor job={job} imagesEnabled={imagesEnabled} blocked={job.recruiter.status !== "ACTIVE" ? "Reactivate the recruiter first." : dirty ? "Save your text changes first, then change the cover." : ""} onChanged={() => load(true)} />}
+      {!job && imagesEnabled && <p className="hint">Save the draft first, then add a cover photo.</p>}
       {editable && <form onSubmit={save} className="card form-stack employer-editor-form"><div className="employer-section-heading"><div><span className="employer-eyebrow">ROLE DETAILS</span><h2>{job ? "Edit your opportunity" : "Create a draft"}</h2></div><span className="employer-save-state">{dirty ? "Unsaved changes" : job ? "Saved" : "New posting"}</span></div>
         {!id && admin && <label>Recruiter<select required value={draft.recruiterId} onChange={event => field("recruiterId", event.target.value)}><option value="" disabled>Choose the recruiter this job belongs to</option>{recruiters.map(recruiter => <option key={recruiter.id} value={recruiter.id}>{recruiter.name || recruiter.email}</option>)}</select>{!recruiters.length && <span className="hint">No recruiter accounts yet. Make an account a recruiter from Accounts first.</span>}</label>}
         <label>Job title<input required minLength={5} maxLength={160} value={draft.title} onChange={event => field("title", event.target.value)} /></label>
