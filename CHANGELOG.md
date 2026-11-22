@@ -12,7 +12,7 @@ Then add an entry below and restart the app.
 
 ## 2.4.6 - 2026-11-22
 
-- Admin detail popups (Accounts, Recruiters, Requests): a compact header with the name, email and badges on one line beside a small avatar; the dot pattern now covers the whole header; corners are 8px.
+- Admin detail popups (Accounts, Recruiters, Requests): a compact header with the name on one line and the email and badges below it, beside a small avatar; the dot pattern now covers the whole header; corners are 8px.
 
 ## 2.4.5 - 2026-11-22
 
