@@ -17,9 +17,9 @@ test("admin cards preserve the review route without changing employer applicatio
  const html = render(createElement(ManagedJobCards, { jobs: [job], admin: true }));
  assert.ok(html.includes('href="/admin/jobs/job"')); assert.ok(html.includes('Review / manage')); assert.ok(html.includes('href="/employer/applications?jobId=job"'));
 });
-test("posting list retains the create link, labeled filters and a loading state", () => {
+test("posting list has the create button, labeled filters and a loading state", () => {
  const html = render(createElement(JobList, {}));
- assert.ok(html.includes('href="/employer/jobs/new"')); assert.ok(html.includes('for="employer-job-status"'));
+ assert.ok(html.includes("Create job posting")); assert.ok(!html.includes('href="/employer/jobs/new"'), "Creating opens a popup instead of a new page"); assert.ok(html.includes('for="employer-job-status"'));
  assert.ok(html.includes('role="status"')); assert.ok(html.includes('Loading job postings...'));
 });
 test("recruiter response choices follow current review transitions and exclude unavailable outcomes", () => {

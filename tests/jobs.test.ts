@@ -5,7 +5,7 @@ import { test } from "node:test";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import type { Actor } from "../src/server/access";
-import { createJob, updateJob, transitionJob, getManagedJob, listManagedJobs, setDefaultFee, closeExpiredJobs } from "../src/server/jobs";
+import { createJob, updateJob, transitionJob, getManagedJob, listManagedJobs, setDefaultFee, setJobFee, closeExpiredJobs } from "../src/server/jobs";
 import { getPublicJob, listPublicJobs } from "../src/server/public-jobs";
 
 test("job approval, public visibility, fees, concurrency, and recruiter isolation", { skip: process.env.RUN_DB_TESTS !== "true" || !process.env.JOB_TEST_DATABASE_URL, timeout: 120000 }, async t => {
@@ -27,11 +27,14 @@ test("job approval, public visibility, fees, concurrency, and recruiter isolatio
       return { user, session: { id: randomUUID(), mfaVerifiedAt: null } };
     }
     const admin = await actor("job-admin", "ADMIN"); const employer = await actor("job-employer", "RECRUITER"); const outsider = await actor("job-outsider", "RECRUITER"); const applicant = await actor("job-applicant");
-    await t.test("only an MFA-verified administrator configures fees and employers cannot override them", async () => {
+    await t.test("only administrators set the default fee; recruiters choose their own job's fee", async () => {
       await assert.rejects(createJob(db, employer, undefined, input), { code: "FEE_NOT_CONFIGURED" });
       await assert.rejects(setDefaultFee(db, employer, { applicationFeeKes: 100 }), { status: 403 });
       await setDefaultFee(db, admin, { applicationFeeKes: 100 });
-      await assert.rejects(createJob(db, employer, undefined, { ...input, applicationFeeKes: 1 }));
+      const ownFee = await createJob(db, outsider, undefined, { ...input, title: "Own fee posting", applicationFeeKes: 350 });
+      assert.equal(ownFee.applicationFeeMinor, 35000, "A recruiter's own fee is used instead of the default");
+      await assert.rejects(createJob(db, outsider, undefined, { ...input, applicationFeeKes: 0 }), "Fees are at least KES 1");
+      await db.jobStatusHistory.deleteMany({ where: { jobId: ownFee.id } }); await db.auditLog.deleteMany({ where: { entityId: ownFee.id } }); await db.job.delete({ where: { id: ownFee.id } });
       await assert.rejects(createJob(db, applicant, undefined, input), { status: 403 }, "Job seekers cannot post jobs");
       await assert.rejects(createJob(db, admin, undefined, input), { status: 404 }, "Administrators must choose a recruiter");
       await assert.rejects(createJob(db, admin, applicant.user.id, input), { status: 404 }, "Jobs can only belong to recruiters");
@@ -54,6 +57,12 @@ test("job approval, public visibility, fees, concurrency, and recruiter isolatio
     await t.test("review requires explicit submission and feedback; employers cannot publish", async () => {
       job = await transitionJob(db, employer, job.id, { version: job.version, action: "submit" });
       assert.equal(job.status, "PENDING_REVIEW");
+      // Administrators can adjust the fee while the job waits for approval; it stays in review.
+      await assert.rejects(setJobFee(db, employer, job.id, { version: job.version, applicationFeeKes: 120 }), { status: 403 });
+      await assert.rejects(setJobFee(db, admin, job.id, { version: job.version - 1, applicationFeeKes: 120 }), { code: "STALE_JOB" });
+      job = await setJobFee(db, admin, job.id, { version: job.version, applicationFeeKes: 120 });
+      assert.equal(job.applicationFeeMinor, 12000); assert.equal(job.status, "PENDING_REVIEW", "Adjusting the fee doesn't send the job back to draft");
+      assert.ok((await getManagedJob(db, employer, job.id)).history.some(entry => entry.note?.startsWith("Application fee changed from")), "The recruiter sees the change in the history");
       await assert.rejects(transitionJob(db, employer, job.id, { version: job.version, action: "publish" }), { status: 403 });
       await assert.rejects(transitionJob(db, admin, job.id, { version: job.version, action: "request_changes" }), { code: "REVIEW_NOTE_REQUIRED" });
       job = await transitionJob(db, admin, job.id, { version: job.version, action: "request_changes", note: "Private review: clarify working hours" });
@@ -61,6 +70,7 @@ test("job approval, public visibility, fees, concurrency, and recruiter isolatio
       job = await updateJob(db, employer, job.id, { ...input, version: job.version });
       job = await transitionJob(db, employer, job.id, { version: job.version, action: "submit" });
       job = await transitionJob(db, admin, job.id, { version: job.version, action: "publish" });
+      await assert.rejects(setJobFee(db, admin, job.id, { version: job.version, applicationFeeKes: 90 }), { code: "INVALID_JOB_STATE" }, "Only before approval");
       const published = await getPublicJob(db, job.slug);
       assert.equal(published.isOpen, true);
       assert.equal("reviewNote" in published, false); assert.equal("reviewedById" in published, false); assert.equal("createdById" in published, false);
@@ -84,7 +94,7 @@ test("job approval, public visibility, fees, concurrency, and recruiter isolatio
       await db.application.create({ data: { userId: applicant.user.id, jobId: job.id } });
       await assert.rejects(updateJob(db, admin, job.id, { ...input, version: job.version, applicationFeeKes: 250 }), { code: "FEE_LOCKED" });
       await setDefaultFee(db, admin, { applicationFeeKes: 150 });
-      assert.equal((await db.job.findUniqueOrThrow({ where: { id: job.id } })).applicationFeeMinor, 10000);
+      assert.equal((await db.job.findUniqueOrThrow({ where: { id: job.id } })).applicationFeeMinor, 12000);
       const created = await createJob(db, employer, undefined, { ...input, title: "New fee posting" }); assert.equal(created.applicationFeeMinor, 15000);
     });
     await t.test("deadlines hide expired jobs immediately and scheduled closing is replay-safe", async () => {

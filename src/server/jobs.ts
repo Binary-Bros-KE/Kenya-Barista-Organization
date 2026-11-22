@@ -6,6 +6,7 @@ import { AccessError } from "./errors";
 import { paidSubmission } from "./submitted-application";
 import { checkImage, defaultImageStore, type ImageStore } from "./images";
 import { imagePublicId } from "../lib/images";
+import { formatFee } from "../lib/job-format";
 
 const category = z.enum(["BARISTA", "ROASTING", "HOSPITALITY", "TRAINING", "MANAGEMENT", "OTHER"]);
 const employmentType = z.enum(["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP", "TEMPORARY"]);
@@ -15,8 +16,9 @@ const fields = {
   location: z.string().trim().min(2).max(120), category, employmentType,
   deadline: z.iso.datetime({ offset: true }).transform(value => new Date(value)),
 };
-const employerInput = z.object(fields).strict();
-const adminInput = employerInput.extend({ applicationFeeKes: feeKes.optional() }).strict();
+// Recruiters set the application fee for their jobs (the platform default is used if they leave it out);
+// administrators can adjust it before approval with setJobFee.
+const jobInput = z.object({ ...fields, applicationFeeKes: feeKes.optional() }).strict();
 const suspendedRecruiter = () => new AccessError(409, "RECRUITER_SUSPENDED", "Reactivate the recruiter's account before editing, submitting or publishing this job");
 const actions = z.enum(["submit", "withdraw", "publish", "request_changes", "close", "archive", "reopen"]);
 type Action = z.infer<typeof actions>;
@@ -54,7 +56,7 @@ export async function setDefaultFee(db: PrismaClient, actor: Actor, input: unkno
 export async function createJob(db: PrismaClient, actor: Actor, recruiterId: string | undefined, input: unknown) {
   const isAdmin = actor.user.role === "ADMIN";
   if (isAdmin) assertAdmin(actor);
-  const data = (isAdmin ? adminInput : employerInput).parse(input);
+  const data = jobInput.parse(input);
   futureDeadline(data.deadline);
   return db.$transaction(async tx => {
     const ownerId = isAdmin ? recruiterId : actor.user.id;
@@ -63,7 +65,7 @@ export async function createJob(db: PrismaClient, actor: Actor, recruiterId: str
     if (!owner) throw new AccessError(404, "NOT_FOUND", "Active recruiter not found");
     const suppliedFee = "applicationFeeKes" in data && typeof data.applicationFeeKes === "number" ? data.applicationFeeKes * 100 : null;
     const amount = suppliedFee ?? (await tx.platformSettings.findUnique({ where: { id: "platform" } }))?.defaultApplicationFeeMinor;
-    if (amount == null) throw new AccessError(409, "FEE_NOT_CONFIGURED", "An administrator must configure the application fee first");
+    if (amount == null) throw new AccessError(409, "FEE_NOT_CONFIGURED", "Enter the application fee for this job");
     const { title, description, location, category, employmentType, deadline } = data;
     const slug = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70) || "coffee-career"}-${randomUUID().slice(0, 8)}`;
     const job = await tx.job.create({ data: { recruiterId: owner.id, createdById: actor.user.id, title, description, location, category, employmentType, deadline, slug, applicationFeeMinor: amount } });
@@ -74,7 +76,7 @@ export async function createJob(db: PrismaClient, actor: Actor, recruiterId: str
 
 export async function updateJob(db: PrismaClient, actor: Actor, id: string, input: unknown) {
   const isAdmin = actor.user.role === "ADMIN";
-  const schema = (isAdmin ? adminInput : employerInput).extend({ version: z.number().int().positive() }).strict();
+  const schema = jobInput.extend({ version: z.number().int().positive() }).strict();
   const data = schema.parse(input);
   futureDeadline(data.deadline);
   return db.$transaction(async tx => {
@@ -125,6 +127,25 @@ export async function removeJobCover(db: PrismaClient, actor: Actor, id: string,
   const saved = await saveCover(db, actor, job, version, null);
   await store.remove(imagePublicId("job-covers", job.id, store.folder)).catch(() => undefined);
   return saved;
+}
+
+// Administrators can change a job's application fee before it's approved, without sending it back to draft.
+// The change is recorded in the job's history, which the recruiter sees.
+export async function setJobFee(db: PrismaClient, actor: Actor, id: string, input: unknown) {
+  assertAdmin(actor);
+  const data = z.object({ version: z.number().int().positive(), applicationFeeKes: feeKes }).strict().parse(input);
+  return db.$transaction(async tx => {
+    const job = await scopedJob(tx, actor, id);
+    if (!["DRAFT", "CHANGES_REQUESTED", "PENDING_REVIEW"].includes(job.status)) throw new AccessError(409, "INVALID_JOB_STATE", "The fee can only be changed before the job is approved");
+    if (job.version !== data.version) throw new AccessError(409, "STALE_JOB", "This job changed. Reload the latest version before changing the fee.");
+    const amount = data.applicationFeeKes * 100;
+    if (amount === job.applicationFeeMinor) return job;
+    if (await tx.application.count({ where: { jobId: id } })) throw new AccessError(409, "FEE_LOCKED", "The fee cannot change after an application has been started");
+    const result = await tx.job.updateMany({ where: { id, version: data.version }, data: { applicationFeeMinor: amount, version: { increment: 1 } } });
+    if (result.count !== 1) throw new AccessError(409, "STALE_JOB", "This job changed. Reload the latest version before changing the fee.");
+    await history(tx, id, actor.user.id, job.status, job.status, "fee_changed", `Application fee changed from ${formatFee(job.applicationFeeMinor)} to ${formatFee(amount)} by KBO`);
+    return tx.job.findUniqueOrThrow({ where: { id } });
+  });
 }
 
 export async function transitionJob(db: PrismaClient, actor: Actor, id: string, input: unknown) {

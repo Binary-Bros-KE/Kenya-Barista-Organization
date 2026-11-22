@@ -1,0 +1,45 @@
+/* "Create job posting" popup and the administrator's fee adjustment in the job editor. */
+.job-create { width: min(860px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 0; border: 0; background: transparent; overflow: visible; }
+.job-create::backdrop { background: #1d140ecc; backdrop-filter: blur(2px); }
+.job-create-panel { display: flex; flex-direction: column; max-height: calc(100dvh - 40px); overflow: hidden; border-radius: 16px; background: #fbf8f2; color: #3d2d22; box-shadow: 0 30px 60px -20px #000a; }
+.job-create-head { position: relative; isolation: isolate; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px 14px 22px; color: #fff; background: linear-gradient(140deg, #5a3a26, #2f1f16); }
+.job-create-head::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(#ffffff2e 1.2px, transparent 1.4px); background-size: 14px 14px; }
+.job-create-head h2 { margin: 0; font-size: 18px; }
+.job-create-head p { margin: 2px 0 0; color: #ead9c6; font-size: 13px; }
+.job-create-close { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 50%; background: #ffffff22; color: #fff; font-size: 22px; line-height: 1; cursor: pointer; }
+.job-create-close:hover { background: #ffffff38; }
+.job-create-body { display: flex; flex-direction: column; gap: 16px; padding: 18px 22px; overflow-y: auto; }
+.job-create-body > * { flex-shrink: 0; }
+
+.job-create-cover { position: relative; display: grid; place-items: center; height: 170px; overflow: hidden; border: 2px dashed #ddd1c1; border-radius: 12px; background: linear-gradient(140deg, #f6efe4, #efe4d3); text-align: center; }
+.job-create-cover.has-photo { border-style: solid; border-color: transparent; }
+.job-create-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.job-create-cover > div:first-child { display: grid; gap: 4px; max-width: 460px; padding: 14px 14px 52px; }
+.job-create-cover strong { color: #3d2d22; font-size: 15px; }
+.job-create-cover span { color: #7a6655; font-size: 12.5px; line-height: 1.5; }
+.job-create-cover-actions { position: absolute; right: 10px; bottom: 10px; display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 10px; background: #fffdf8e6; }
+
+.job-create-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.job-create-fields label { display: grid; gap: 6px; align-content: start; color: #3e2f23; font-size: 13px; font-weight: 600; }
+.job-create-fields .is-wide { grid-column: 1 / -1; }
+.job-create-fields label > span { color: #8a7867; font-size: 12px; font-weight: 400; }
+.job-create-fields :is(input, select, textarea) { width: 100%; padding: 10px 12px; border: 1px solid #e2d8ca; border-radius: 10px; background: #fff; color: #2f2219; font: inherit; font-size: 14px; font-weight: 400; }
+.job-create-fields textarea { resize: vertical; line-height: 1.6; }
+.job-create-fields :is(input, select, textarea):focus { outline: 2px solid #0b766d55; border-color: #0b766d; }
+.job-create-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; padding: 12px 22px 16px; border-top: 1px solid #ebe3d7; background: #fffdf8; }
+.job-create-foot :is(.employer-primary, .employer-secondary):disabled { opacity: .55; cursor: not-allowed; }
+
+.employer-fee-adjust { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 12px; padding: 12px; border-radius: 10px; background: #fbf3df; }
+.employer-fee-adjust label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+.employer-fee-adjust input { width: 140px; }
+.employer-fee-adjust .hint { flex-basis: 100%; }
+
+@media (max-width: 640px) {
+  .job-create { width: 100vw; max-height: 100dvh; }
+  .job-create-panel { max-height: 100dvh; border-radius: 0; }
+  .job-create-body { padding: 14px; }
+  .job-create-fields { grid-template-columns: 1fr; }
+  .job-create-cover { height: 190px; }
+  .job-create-foot { padding: 10px 14px 14px; }
+  .job-create-foot .employer-text-button { margin-right: auto; }
+}

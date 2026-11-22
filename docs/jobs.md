@@ -22,7 +22,9 @@ Restart an existing development application after regenerating the client. This 
 
 Sign in as an administrator and open `/admin/jobs`. Expand **Default application fee**, enter the amount in whole KES, and save it.
 
-No fee amount is invented or seeded. Employers cannot create postings until the administrator configures a default. Administrators can also supply an explicit fee when creating an individual job. Fees are stored as integer minor units. Employers cannot override them, and changing the platform default affects new postings only. A job's fee cannot be changed after an application has been started, preserving later payment-order consistency.
+Recruiters set the application fee for each job when they create or edit it (KES 1–250,000). The platform default is only a suggestion that pre-fills the field; without a default, recruiters type the amount. While a job waits for approval (draft, changes requested or awaiting review), an administrator can **Adjust fee** from the job's review panel (`PATCH /api/employer/jobs/:id/fee`). That keeps the job in review and adds "Application fee changed from … to … by KBO" to its history, which the recruiter sees. Fees are stored as integer minor units, and changing the platform default affects new postings only. A job's fee cannot be changed after an application has been started, preserving later payment-order consistency.
+
+**Create job posting** opens a popup with every job detail and an optional cover photo. **Save draft** creates the draft and opens it; **Submit for review** also submits it. If the cover or the submission fails after the draft is saved, the popup says so and links to the draft.
 
 The [payment workflow](payments.md) now collects the configured application fee through M-Pesa. Configure only whole KES within the supported range, KES 1–250,000.
 
@@ -81,7 +83,8 @@ Outbox events are recorded for workflow transitions and edits to published posti
 | --- | --- |
 | `GET /api/jobs` | Public filtered/paginated available listings |
 | `GET /api/jobs/[slug]` | Public visible job detail |
-| `GET /api/employer/job-options` | Current default fee, and for administrators the list of active recruiters |
+| `GET /api/employer/job-options` | Current default (suggested) fee, and for administrators the list of active recruiters |
+| `PATCH /api/employer/jobs/:id/fee` | Administrator: adjust a job's fee before approval |
 | `GET/POST /api/employer/jobs` | Scoped management listing and draft creation |
 | `GET/PATCH /api/employer/jobs/[id]` | Scoped private detail and versioned edit |
 | `POST /api/employer/jobs/[id]/transitions` | Versioned workflow action; review actions require an administrator |

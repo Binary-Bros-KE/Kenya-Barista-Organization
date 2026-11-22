@@ -10,6 +10,13 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.9.0 - 2026-11-22
+
+- **Create job posting** opens a popup with every job detail, the application fee and an optional cover photo (with preview), on the recruiter and admin job lists. **Save draft** creates the draft and opens it; **Submit for review** also submits it and shows a confirmation on the list.
+- Recruiters set their own application fee when creating or editing a job. The platform default only pre-fills the field, and recruiters no longer need an admin to configure it first.
+- Administrators can **Adjust fee** while a job waits for approval. The job stays in review and its history shows "Application fee changed from … to … by KBO". Fees still lock once an application has been started.
+- Removed the heading at the top of Job postings.
+
 ## 2.8.0 - 2026-11-22
 
 - View CVs in the page, without downloading. A **View CV** button on My profile and on a recruiter's applicant page opens a full-screen viewer built on pdf.js (`pdfjs-dist` 6.5.438): page-by-page scrolling, fit to width, zoom (buttons and + − 0 keys), a page counter, selectable text, and a Download button. It works on phones, where browsers can't show PDFs inside a page. pdf.js loads only when the viewer opens.
