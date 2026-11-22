@@ -1,6 +1,5 @@
-import { createHash } from "node:crypto";
 import type { PrismaClient } from "../generated/prisma/client";
-import { getEnv } from "../lib/env";
+import { cloudinaryCall, cloudinaryConfig, type CloudinaryConfig } from "./cloudinary";
 import { imagePublicId, type ImageKind } from "../lib/images";
 import { logEvent } from "../lib/logger";
 import type { Actor } from "./access";
@@ -20,44 +19,15 @@ export type ImageStore = {
   remove(publicId: string): Promise<void>;
 };
 
-type CloudinaryConfig = { cloudName: string; apiKey: string; apiSecret: string; folder: string };
-export function cloudinaryConfig(env = getEnv()): CloudinaryConfig | null {
-  const url = env.CLOUDINARY_URL?.match(/^cloudinary:\/\/([^:]+):([^@]+)@(.+)$/);
-  const [apiKey, apiSecret, cloudName] = url ? [url[1], url[2], url[3]] : [env.CLOUDINARY_API_KEY, env.CLOUDINARY_API_SECRET, env.CLOUDINARY_CLOUD_NAME];
-  return apiKey && apiSecret && cloudName ? { cloudName, apiKey, apiSecret, folder: env.CLOUDINARY_FOLDER } : null;
-}
-
-// Cloudinary's signature: the parameters sorted by name, joined as a query string, plus the API secret, SHA-1 hashed.
-export function signParams(params: Record<string, string>, secret: string) {
-  const query = Object.keys(params).sort().map(key => `${key}=${params[key]}`).join("&");
-  return createHash("sha1").update(query + secret).digest("hex");
-}
-
 export function cloudinaryStore(config: CloudinaryConfig, request: typeof fetch = fetch): ImageStore {
-  const endpoint = (action: string) => `https://api.cloudinary.com/v1_1/${encodeURIComponent(config.cloudName)}/image/${action}`;
-  async function call(action: string, params: Record<string, string>, file?: Buffer) {
-    const signed = { ...params, timestamp: String(Math.floor(Date.now() / 1000)) };
-    const body = new FormData();
-    for (const [key, value] of Object.entries(signed)) body.set(key, value);
-    body.set("api_key", config.apiKey);
-    body.set("signature", signParams(signed, config.apiSecret));
-    if (file) body.set("file", new Blob([new Uint8Array(file)]));
-    const response = await request(endpoint(action), { method: "POST", body, signal: AbortSignal.timeout(30000) }).catch(() => null);
-    const data = response ? await response.json().catch(() => ({})) as { version?: number; result?: string; error?: { message?: string } } : {};
-    if (!response?.ok) {
-      logEvent("warn", `cloudinary.${action}_failed.${response?.status ?? "no_response"}`);
-      throw new AccessError(502, "IMAGE_SERVICE_FAILED", "The photo service didn't respond. Please try again in a moment.");
-    }
-    return data;
-  }
   return {
     folder: config.folder,
     async upload(publicId, bytes, kind) {
-      const data = await call("upload", { public_id: publicId, overwrite: "true", invalidate: "true", transformation: IMAGE_LIMITS[kind].incoming }, bytes);
-      if (typeof data.version !== "number") throw new AccessError(502, "IMAGE_SERVICE_FAILED", "The photo service didn't respond. Please try again in a moment.");
+      const data = await cloudinaryCall(config, "image", "upload", { public_id: publicId, overwrite: "true", invalidate: "true", transformation: IMAGE_LIMITS[kind].incoming }, bytes, request);
+      if (typeof data.version !== "number") throw new AccessError(502, "STORAGE_SERVICE_FAILED", "The photo service didn't respond. Please try again in a moment.");
       return { version: data.version };
     },
-    async remove(publicId) { await call("destroy", { public_id: publicId, invalidate: "true" }); },
+    async remove(publicId) { await cloudinaryCall(config, "image", "destroy", { public_id: publicId, invalidate: "true" }, undefined, request); },
   };
 }
 

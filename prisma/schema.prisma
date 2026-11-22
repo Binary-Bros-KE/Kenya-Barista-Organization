@@ -305,6 +305,8 @@ model Document {
   id          String   @id @default(cuid())
   userId      String
   storageKey  String   @unique
+  // Where the file lives: "disk" (PRIVATE_UPLOAD_DIR) or "cloudinary" (a private file <folder>/cvs/<storageKey>).
+  storage     String   @default("disk")
   filename    String
   mimeType    String
   sizeBytes   Int

@@ -21,6 +21,8 @@ const schema = z.object({
   CLOUDINARY_API_SECRET: z.string().optional(),
   // Folder for uploaded images, so local testing (e.g. kbo-dev) and the live site never overwrite each other.
   CLOUDINARY_FOLDER: z.string().regex(/^[a-z0-9_-]{1,40}$/).default("kbo"),
+  // Where new CVs are stored. Existing CVs are always read from where they were saved.
+  CV_STORAGE: z.enum(["disk", "cloudinary"]).default("disk"),
 });
 
 export function getEnv() {

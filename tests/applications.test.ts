@@ -1,4 +1,6 @@
 import "dotenv/config";
+// Tests keep CVs on disk; they never upload to Cloudinary.
+process.env.CV_STORAGE = "disk";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { test } from "node:test";

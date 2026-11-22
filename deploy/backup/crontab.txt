@@ -1,0 +1,2 @@
+# KBO nightly database backup at 00:30 server time (CET), which is 02:30 in Nairobi. Output goes to shared/logs/backup.log.
+30 0 * * * /bin/bash /home/evans/barista-platform/shared/bin/run-backup.sh >> /home/evans/barista-platform/shared/logs/backup.log 2>&1

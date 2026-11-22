@@ -119,8 +119,8 @@ export async function downloadReviewCv(db: PrismaClient, actor: Actor, id: strin
   if (!app.cv.available) throw new AccessError(404, "CV_UNAVAILABLE", "The submitted CV is unavailable");
   const document = await db.document.findFirst({ where: { id: app.profile.documentId, scanStatus: "CLEAN", sha256: app.profile.documentSha256, applications: { some: { applicationId: id } } } });
   if (!document) throw new AccessError(404, "CV_UNAVAILABLE", "The submitted CV is unavailable");
-  const bytes = await readStoredCv(document.storageKey).catch((error: NodeJS.ErrnoException) => {
-    if (error.code === "ENOENT") throw new AccessError(404, "CV_UNAVAILABLE", "The submitted CV is unavailable");
+  const bytes = await readStoredCv(document).catch((error: unknown) => {
+    if (error instanceof AccessError && error.code === "CV_UNAVAILABLE") throw new AccessError(404, "CV_UNAVAILABLE", "The submitted CV is unavailable");
     throw error;
   });
   if (bytes.length !== document.sizeBytes || createHash("sha256").update(bytes).digest("hex") !== app.profile.documentSha256) throw new AccessError(409, "CV_UNAVAILABLE", "The submitted CV requires security review");

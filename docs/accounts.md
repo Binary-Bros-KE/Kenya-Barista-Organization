@@ -138,7 +138,7 @@ CLOUDINARY_URL=cloudinary://<api key>:<api secret>@<cloud name>
 CLOUDINARY_FOLDER=kbo
 ```
 
-`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` work instead of `CLOUDINARY_URL`. Restart the app after changing these: the cloud name is read when the app starts. Without them, uploads are switched off and pages explain that photos are coming soon; profiles show initials and jobs show branded covers.
+CVs and the nightly database backup use the same Cloudinary account as private files; see [backups.md](backups.md). `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` work instead of `CLOUDINARY_URL`. Restart the app after changing these: the cloud name is read when the app starts. Without them, uploads are switched off and pages explain that photos are coming soon; profiles show initials and jobs show branded covers.
 
 ## Routes and permissions
 

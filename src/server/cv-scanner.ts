@@ -30,7 +30,7 @@ export async function scanPendingCvs(db: PrismaClient) {
   const documents = await db.document.findMany({ where: { scanStatus: "PENDING" }, orderBy: { createdAt: "asc" }, take: 50 });
   let processed=0;
   for (const document of documents) {
-    const bytes = await readStoredCv(document.storageKey);
+    const bytes = await readStoredCv(document);
     const digest=createHash("sha256").update(bytes).digest("hex");
     const status = document.sha256 && digest===document.sha256 ? await scanBytes(bytes) : "REJECTED";
     const result=await db.document.updateMany({ where: { id: document.id, scanStatus: "PENDING", sha256: document.sha256 }, data: { scanStatus: status } });

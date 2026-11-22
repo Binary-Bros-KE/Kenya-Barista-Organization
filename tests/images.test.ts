@@ -7,7 +7,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import type { Actor } from "../src/server/access";
-import { checkImage, cloudinaryConfig, cloudinaryStore, removeAvatar, setAvatar, signParams, sniffImage, type ImageStore } from "../src/server/images";
+import { checkImage, cloudinaryStore, removeAvatar, setAvatar, sniffImage, type ImageStore } from "../src/server/images";
+import { cloudinaryConfig, signParams } from "../src/server/cloudinary";
 import { avatarSrc, coverSrc, imagePublicId } from "../src/lib/images";
 import { profileInput, saveProfile } from "../src/server/applications";
 import { getManagedJob, removeJobCover, setJobCover } from "../src/server/jobs";
@@ -50,7 +51,7 @@ test("upload requests are signed the way Cloudinary documents", async () => {
   const signed = Object.fromEntries(["invalidate", "overwrite", "public_id", "timestamp", "transformation"].map(key => [key, String(body.get(key))]));
   assert.equal(body.get("signature"), signParams(signed, "s3cret"));
   const failing = cloudinaryStore({ cloudName: "c", apiKey: "k", apiSecret: "s", folder: "kbo" }, (async () => new Response("{}", { status: 401 })) as unknown as typeof fetch);
-  await assert.rejects(failing.upload("kbo/avatars/u1", png, "avatars"), { code: "IMAGE_SERVICE_FAILED" });
+  await assert.rejects(failing.upload("kbo/avatars/u1", png, "avatars"), { code: "STORAGE_SERVICE_FAILED" });
 });
 
 test("image URLs are resized, versioned and empty without a photo", () => {

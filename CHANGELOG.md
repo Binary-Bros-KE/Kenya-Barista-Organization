@@ -10,6 +10,12 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.6.0 - 2026-11-22
+
+- CVs can be stored in Cloudinary as private files (no public link; the server fetches them with a short-lived signed request). Set `CV_STORAGE=cloudinary`. Each CV records where its file is (`Document.storage`), so CVs already on disk keep working. Downloads still go through the app with the same permission, virus-scan and integrity checks. The file is uploaded before the database row is written, so a slow upload never holds a database lock, and it's removed again if the row can't be saved.
+- Nightly database backups: `scripts/backup-database.mjs` runs `pg_dump`, stores the dump in Cloudinary as a private file and keeps the newest 14. It has `--list` and `--download` for restores. On the VPS it runs from the `evans` crontab at 02:30 Nairobi time. See docs/backups.md for checking and restoring.
+- Photos, CVs and backups share one Cloudinary connection (`src/server/cloudinary.ts`). Tests always keep CVs on disk.
+
 ## 2.5.0 - 2026-11-22
 
 - Image uploads with Cloudinary. The server checks each file really is a JPG, PNG or WebP, then uploads it with a signed request; the API secret never reaches the browser. Each account and job has one fixed image, so a new photo replaces the old one. Set `CLOUDINARY_URL` and `CLOUDINARY_FOLDER` (see docs/accounts.md); without them uploads are switched off and pages say so.
