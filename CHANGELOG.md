@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.4.6 - 2026-11-22
+
+- Admin detail popups (Accounts, Recruiters, Requests): a compact header with the name, email and badges on one line beside a small avatar; the dot pattern now covers the whole header; corners are 4px.
+
 ## 2.4.5 - 2026-11-22
 
 - Become a recruiter: an approved request whose recruiter access was later removed is now labelled "Reverted", in grey, instead of "Approved, later removed".
