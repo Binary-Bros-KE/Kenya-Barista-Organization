@@ -80,7 +80,7 @@ button.accounts-row:focus-visible { outline: 2px solid #14a397; outline-offset: 
 /* Detail modal */
 .accounts-modal { margin: auto; inset: 0; padding: 0; border: 0; background: transparent; width: min(980px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); overflow: visible; }
 .accounts-modal::backdrop { background: #1d140ecc; backdrop-filter: blur(2px); }
-.accounts-modal-panel { display: flex; flex-direction: column; max-height: calc(100dvh - 40px); border-radius: 8px; background: #fbf8f2; box-shadow: 0 30px 60px -20px #000a; overflow: hidden; }
+.accounts-modal-panel { display: flex; flex-direction: column; max-height: calc(100dvh - 40px); border-radius: 16px; background: #fbf8f2; box-shadow: 0 30px 60px -20px #000a; overflow: hidden; }
 .accounts-modal-head { position: relative; isolation: isolate; display: flex; align-items: center; gap: 12px; padding: 13px 54px 13px 20px; color: #fff; background: linear-gradient(140deg, #14a397, #0b5f58); }
 .accounts-modal-head::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(#ffffff2e 1.2px, transparent 1.4px); background-size: 14px 14px; }
 /* Compact header: the name on one line, then the email and badges, beside a small avatar. */
