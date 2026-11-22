@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.9.2 - 2026-11-22
+
+- My profile: the "How recruiters see you" preview now lines up with the top of the editor. It was offset 76px for a top bar that sits outside the scrolling area.
+
 ## 2.9.1 - 2026-11-22
 
 - Removed the heading at the top of My profile; the page starts with the editor and preview.
