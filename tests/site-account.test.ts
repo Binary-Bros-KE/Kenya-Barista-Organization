@@ -14,6 +14,7 @@ test("the website header shows sign-in buttons to visitors and an account menu o
   assert.ok(visitor.includes('href="/sign-in"')); assert.ok(visitor.includes("My account")); assert.ok(!visitor.includes("is-checking"));
   const signedIn = render(member);
   assert.ok(!signedIn.includes('href="/sign-in"')); assert.ok(!signedIn.includes("My account"));
+  assert.ok(signedIn.includes('name="site-nav"'), "The account menu closes the other header dropdowns when opened");
   assert.ok(signedIn.includes("Achieng &lt;b&gt;Odhiambo&lt;/b&gt;")); assert.ok(!signedIn.includes("<b>Odhiambo"));
   assert.ok(signedIn.includes("achieng@example.invalid")); assert.ok(render({ ...member, name: "Achieng Odhiambo" }).includes(">AO<"), "Initials stand in for a missing photo");
   assert.ok(signedIn.includes("Member")); assert.ok(signedIn.includes('href="/dashboard/applications"')); assert.ok(signedIn.includes("Sign out"));

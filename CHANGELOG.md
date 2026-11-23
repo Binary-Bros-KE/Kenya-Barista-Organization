@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.20.2 - 2026-11-23
+
+- Website header dropdowns (Education, About us, Barista hub and the account menu) open one at a time: opening one closes the others, so they no longer stack on top of each other.
+
 ## 2.20.1 - 2026-11-23
 
 - The website header knows when you're signed in. Instead of **My account** and **Sign in**, it shows your photo (or initials), first name and role (Member, Recruiter or Administrator). Clicking it opens a menu with your name and email, Dashboard, Jobs & applicants (recruiters) or Job review (administrators), My applications, Profile & CV, Notifications with your unread count, and Sign out. A small dot on the photo means you have unread notifications.

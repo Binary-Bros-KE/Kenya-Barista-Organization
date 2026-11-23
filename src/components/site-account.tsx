@@ -48,7 +48,7 @@ export function SiteAccountView({ user, onNavigate }: { user: SiteUser | null | 
   </div>;
   const name = user.name || user.email;
   return <div className="site-desktop-account">
-    <details className="site-nav-dropdown site-user-menu">
+    <details className="site-nav-dropdown site-user-menu" name="site-nav">
       <summary aria-label={`Account menu for ${name}`}>
         <span className="site-user-photo"><SiteAvatar user={user} />{user.unread > 0 && <span className="site-user-dot" aria-hidden="true" />}</span>
         <span className="site-user-copy"><strong>{name.split(/\s+/)[0]}</strong><span>{roleLabel[user.role]}</span></span>
