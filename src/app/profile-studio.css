@@ -1,12 +1,12 @@
-/* My profile: the editor, the live profile card, and photos in avatars across the app. */
+/* Profile & CV: the editor, the live profile card, and photos in avatars across the app. */
 .studio { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; align-items: start; }
 .studio-editor { display: grid; gap: 16px; min-width: 0; }
-.studio-panel { padding: 20px 22px; border: 1px solid #ebe3d7; border-radius: 16px; background: #fffefa; }
+.studio-panel { padding: 20px 22px; border: 1px solid #d6c7b5; border-radius: 16px; background: #fffefa; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
 .studio-panel > header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
 .studio-panel > header h2 { margin: 0; font-size: 17px; color: #2f2219; }
 .studio-panel > header p { margin: 3px 0 0; color: #736553; font-size: 13px; line-height: 1.5; }
 .studio-step { display: grid; place-items: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: #2f2219; color: #e0b766; font-size: 11px; font-weight: 800; }
-.studio-count { margin-left: auto; padding: 3px 10px; border-radius: 999px; background: #f2ece3; color: #5d4d3f; font-size: 12px; font-weight: 700; }
+.studio-count { margin-left: auto; padding: 3px 10px; border-radius: 999px; background: #ece2d4; color: #4a3a2c; font-size: 12px; font-weight: 700; }
 .studio-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; align-items: start; }
 .studio-grid .studio-wide, .studio-wide { grid-column: 1 / -1; }
 .studio label { display: grid; gap: 6px; color: #3e2f23; font-size: 13px; font-weight: 600; }
@@ -14,7 +14,7 @@
 .studio label > span.studio-label { color: #3e2f23; font-size: 13px; font-weight: 600; }
 .studio-label em { margin-left: 4px; font-style: normal; font-weight: 500; color: #9a8877; font-size: 12px; }
 .studio label > span { color: #8a7867; font-size: 12px; font-weight: 400; }
-.studio input:not([type=radio]):not([type=checkbox]):not([type=file]), .studio select, .studio textarea { width: 100%; padding: 10px 12px; border: 1px solid #e2d8ca; border-radius: 10px; background: #fff; color: #2f2219; font: inherit; font-weight: 400; font-size: 14px; }
+.studio input:not([type=radio]):not([type=checkbox]):not([type=file]), .studio select, .studio textarea { width: 100%; padding: 10px 12px; border: 1px solid #cdbba6; border-radius: 10px; background: #fff; color: #2f2219; font: inherit; font-weight: 400; font-size: 14px; }
 .studio textarea { resize: vertical; line-height: 1.6; }
 .studio input:focus, .studio select:focus, .studio textarea:focus { outline: 2px solid #0b766d55; border-color: #0b766d; }
 
@@ -25,7 +25,7 @@
 .studio-link.is-danger { color: #b0183e; }
 
 /* Photo */
-.studio-photo { display: flex; align-items: center; gap: 18px; padding: 14px; border: 2px dashed #e2d8ca; border-radius: 14px; background: #fbf8f2; transition: border-color .15s, background .15s; }
+.studio-photo { display: flex; align-items: center; gap: 18px; padding: 14px; border: 2px dashed #cbb69f; border-radius: 14px; background: #fbf6ee; transition: border-color .15s, background .15s; }
 .studio-photo.is-dragging { border-color: #0b766d; background: #e3f4f1; }
 .studio-photo-frame { position: relative; display: grid; place-items: center; flex-shrink: 0; width: 96px; height: 96px; border-radius: 50%; overflow: hidden; background: linear-gradient(140deg, #5a3a26, #2f1f16); color: #fff; font-size: 28px; font-weight: 700; box-shadow: 0 0 0 4px #fff, 0 6px 18px -8px #0006; }
 .studio-photo-frame img { width: 100%; height: 100%; object-fit: cover; }
@@ -50,7 +50,7 @@
 
 /* Skills */
 .studio-skills { display: flex; flex-wrap: wrap; gap: 8px; }
-.studio-skills button { padding: 7px 12px; border: 1px solid #e2d8ca; border-radius: 999px; background: #fff; color: #5d4d3f; font-size: 13px; font-weight: 600; cursor: pointer; }
+.studio-skills button { padding: 7px 12px; border: 1px solid #cdbba6; border-radius: 999px; background: #fff; color: #5d4d3f; font-size: 13px; font-weight: 600; cursor: pointer; }
 .studio-skills button:hover { border-color: #0b766d; color: #0b5f58; }
 .studio-skills button.is-on { border-color: #0b766d; background: #0b766d; color: #fff; }
 .studio-custom { display: flex; gap: 8px; margin-top: 12px; }
@@ -67,7 +67,7 @@
 .studio-switch small { color: #736553; font-size: 12.5px; font-weight: 400; }
 
 /* Save bar */
-.studio-savebar { position: sticky; bottom: 12px; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border: 1px solid #ebe3d7; border-radius: 14px; background: #fffefaee; backdrop-filter: blur(6px); box-shadow: 0 10px 30px -18px #0007; }
+.studio-savebar { position: sticky; bottom: 12px; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border: 1px solid #d6c7b5; border-radius: 14px; background: #fffefaee; backdrop-filter: blur(6px); box-shadow: 0 10px 30px -18px #0007; }
 .studio-savebar.is-dirty { border-color: #e0b766; }
 .studio-savebar p { margin: 0; color: #736553; font-size: 13px; }
 .studio-savebar p.is-ok { color: #1f6b41; font-weight: 600; }
@@ -76,18 +76,19 @@
 /* Preview column */
 .studio-side { position: sticky; top: 16px; display: grid; gap: 14px; }
 .studio-side-label { margin: 0; color: #8a7867; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
-.studio-progress { display: flex; gap: 14px; padding: 16px; border: 1px solid #ebe3d7; border-radius: 16px; background: #fffefa; }
+.studio-progress { display: flex; gap: 14px; padding: 16px; border: 1px solid #d6c7b5; border-radius: 16px; background: #fffefa; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
 .studio-ring { display: grid; place-items: center; flex-shrink: 0; width: 64px; height: 64px; border-radius: 50%; }
 .studio-ring span { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: #fffefa; color: #2f2219; font-size: 14px; font-weight: 800; }
 .studio-progress strong { color: #2f2219; font-size: 14px; }
-.studio-progress ul { display: grid; gap: 4px; margin: 8px 0 0; padding: 0; list-style: none; font-size: 12.5px; color: #5d4d3f; }
-.studio-progress li::before { content: "○"; margin-right: 6px; color: #b9ab9b; }
-.studio-progress li.is-done { color: #9a8877; text-decoration: line-through; }
-.studio-progress li.is-done::before { content: "✓"; color: #0b766d; text-decoration: none; }
+.studio-progress ul { display: grid; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; font-size: 12.5px; color: #5d4d3f; }
+.studio-progress li { display: flex; align-items: center; gap: 8px; }
+.studio-progress li::before { content: ""; display: grid; place-items: center; flex-shrink: 0; width: 16px; height: 16px; box-sizing: border-box; border: 1.5px solid #c9b49b; border-radius: 50%; background: #fff; color: #fff; font-size: 10px; font-weight: 900; line-height: 1; }
+.studio-progress li.is-done { color: #3a2c20; }
+.studio-progress li.is-done::before { content: "✓"; border-color: #1f8a5b; background: #1f8a5b; }
 .studio-cvs { margin-top: 22px; }
 
 /* Profile card (preview and applicant pages) */
-.profile-card { overflow: hidden; border: 1px solid #ebe3d7; border-radius: 18px; background: #fffefa; box-shadow: 0 18px 40px -30px #0008; }
+.profile-card { overflow: hidden; border: 1px solid #d6c7b5; border-radius: 18px; background: #fffefa; box-shadow: 0 18px 40px -30px #0008; }
 .profile-card-banner { position: relative; height: 92px; background: linear-gradient(140deg, var(--card-from), var(--card-to)); }
 .profile-card-banner::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(#ffffff2e 1.2px, transparent 1.4px); background-size: 14px 14px; }
 .profile-card-open { position: absolute; top: 12px; right: 12px; padding: 4px 10px; border-radius: 999px; background: #fff; color: #0b5f58; font-size: 11px; font-weight: 800; letter-spacing: .02em; }
@@ -104,7 +105,7 @@
 .profile-card-skills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px !important; }
 .profile-card-skills li { padding: 4px 9px; border-radius: 999px; background: #f2ece3; color: #4a3a2c; font-size: 12px; font-weight: 600; }
 .profile-card-summary { margin: 12px 0 0; color: #5d4d3f; font-size: 13px; line-height: 1.6; white-space: pre-line; overflow-wrap: anywhere; }
-.profile-card-links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 14px !important; padding-top: 12px !important; border-top: 1px solid #f0e9df; }
+.profile-card-links { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 14px !important; padding-top: 12px !important; border-top: 1px solid #e3d7c8; }
 .profile-card-links a { display: inline-flex; align-items: center; gap: 5px; color: #0b766d; font-size: 12.5px; font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
 .profile-card-links a:hover { text-decoration: underline; }
 
@@ -142,8 +143,8 @@ a.workspace-avatar { text-decoration: none; }
 .employer-candidate-card { max-width: 460px; margin: 0 0 20px; }
 
 /* The current CV */
-.cv-card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; align-items: start; border: 1px solid #e9e0d7; border-radius: 16px; padding: 20px; background: linear-gradient(135deg, #fbf6ef, #fffdfa 60%); }
-.cv-card.is-blocked { background: #fff8f5; border-color: #f0d9d0; }
+.cv-card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; align-items: start; border: 1px solid #d6c7b5; border-radius: 16px; padding: 20px; background: linear-gradient(135deg, #fbf6ef, #fffdfa 60%); }
+.cv-card.is-blocked { background: #fff8f5; border-color: #e5bfb2; }
 .cv-card-preview { padding: 6px 4px 4px; }
 .cv-card-thumb { position: relative; display: block; padding: 0; border: 0; background: none; cursor: zoom-in; border-radius: 6px; transition: transform .18s ease; }
 .cv-card-thumb:hover { transform: translateY(-2px) rotate(-1deg); }
@@ -170,3 +171,8 @@ a.workspace-avatar { text-decoration: none; }
   .cv-card-body { width: 100%; }
   .cv-card .profile-remove { margin-left: 0; }
 }
+.studio-cvs .profile-step { width: 30px; height: 30px; border-radius: 50%; background: #2f2219; color: #e0b766; font-size: 11px; font-weight: 800; }
+.studio-cvs .profile-panel-heading { align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+.studio-cvs .profile-panel-heading h2 { font-size: 17px; color: #2f2219; }
+.studio-cvs .profile-panel-heading p { font-size: 13px; color: #736553; margin-top: 3px; }
+.studio-cvs .profile-panel { padding: 20px 22px; border-radius: 16px; }

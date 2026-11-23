@@ -38,9 +38,9 @@
 .workspace-footer-note { margin: 12px 0 0; color: #ad9681; font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; text-align: center; }
 .workspace-footer-note span { color: #ead9c8; letter-spacing: .6px; text-transform: none; }
 .workspace-frame { margin-left: var(--workspace-sidebar-width); min-height: 100dvh; min-width: 0; transition: margin-left 180ms ease; }
-.workspace-topbar { position: sticky; top: 0; z-index: 30; min-height: 60px; padding: 8px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #e9e2d9; background: #fffdfaf5; backdrop-filter: blur(12px); }
+.workspace-topbar { position: sticky; top: 0; z-index: 30; min-height: 60px; padding: 8px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #d8cec2; background: #fffdfaf5; backdrop-filter: blur(12px); }
 .workspace-topbar-leading, .workspace-topbar-trailing { display: flex; align-items: center; gap: 16px; min-width: 0; }
-.workspace-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex-shrink: 0; padding: 8px; border: 1px solid #e5dcd1; border-radius: 9px; background: #fffdfa; color: #6d5340; cursor: pointer; }
+.workspace-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex-shrink: 0; padding: 8px; border: 1px solid #cabcad; border-radius: 9px; background: #fffdfa; color: #6d5340; cursor: pointer; }
 .workspace-icon-button:hover { background: #f3ede5; }
 .workspace-icon-button svg { width: 22px; height: 22px; }
 .workspace-page-context { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -49,8 +49,8 @@
 .workspace-website-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 34px; padding: 6px 12px; color: #715640; font-size: 12px; border-radius: 8px; text-decoration: none; }
 .workspace-website-link:hover { background: #f2eae0; }
 .workspace-website-link svg { width: 16px; height: 16px; }
-.workspace-user { display: flex; align-items: center; gap: 10px; min-width: 0; border-left: 1px solid #e8dfd5; padding-left: 16px; }
-.workspace-avatar { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 34px; height: 34px; border: 1px solid #e6d4c0; border-radius: 50%; color: #775032; background: #f3e7d8; font-size: 12px; font-weight: 600; }
+.workspace-user { display: flex; align-items: center; gap: 10px; min-width: 0; border-left: 1px solid #d7cbbf; padding-left: 16px; }
+.workspace-avatar { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 34px; height: 34px; border: 1px solid #cbb6a1; border-radius: 50%; color: #775032; background: #f3e7d8; font-size: 12px; font-weight: 600; }
 .workspace-user-copy { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .workspace-user-copy strong { max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #4d3a2a; font-size: 12px; font-weight: 600; }
 .workspace-user-copy > span { color: #786656; font-size: 11px; }
@@ -106,11 +106,11 @@
 .workspace-loading i { display: block; border-radius: 8px; background: linear-gradient(90deg, #efe7dc 0%, #f8f3ec 40%, #efe7dc 80%); background-size: 300% 100%; animation: workspace-shimmer 1.3s ease-in-out infinite; }
 .workspace-loading-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .workspace-loading-stats i { height: 64px; border-radius: 14px; }
-.workspace-loading-panel { display: grid; gap: 14px; padding: 18px; border: 1px solid #ebe3d7; border-radius: 16px; background: #fffefa; }
+.workspace-loading-panel { display: grid; gap: 14px; padding: 18px; border: 1px solid #cec1b1; border-radius: 16px; background: #fffefa; }
 .workspace-loading-toolbar { display: flex; gap: 12px; }
 .workspace-loading-toolbar i:first-child { flex: 1; height: 42px; }
 .workspace-loading-toolbar i:last-child { width: 220px; height: 42px; }
-.workspace-loading-row { display: flex; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px solid #f2ece3; }
+.workspace-loading-row { display: flex; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px solid #dfd6ca; }
 .workspace-loading-row > div { display: grid; flex: 1; gap: 7px; }
 .workspace-loading-row > div i:first-child { width: 38%; height: 13px; }
 .workspace-loading-row > div i:last-child { width: 58%; height: 11px; }

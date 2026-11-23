@@ -11,7 +11,7 @@ type IconName = "account" | "profile" | "applications" | "payments" | "notificat
 type Item = { label: string; href: string; icon: IconName; also?: string[] };
 const accountLinks: Item[] = [
   { label: "My account", href: "/dashboard", icon: "account" },
-  { label: "My profile", href: "/dashboard/profile", icon: "profile" },
+  { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
   { label: "Applications", href: "/dashboard/applications", icon: "applications" },
   { label: "Payments", href: "/dashboard/payments", icon: "payments" },
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
@@ -24,7 +24,7 @@ const recruiterLinks: Item[] = [
   { label: "Jobs & applicants", href: "/employer/jobs", icon: "jobs", also: ["/employer/applications"] },
 ];
 const jobSeekerLinks: Item[] = [
-  { label: "My profile", href: "/dashboard/profile", icon: "profile" },
+  { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
   { label: "Applications", href: "/dashboard/applications", icon: "applications" },
   { label: "Payments", href: "/dashboard/payments", icon: "payments" },
 ];
@@ -38,7 +38,7 @@ const adminLinks: Item[] = [
   { label: "Delivery queue", href: "/admin/notifications", icon: "queue" },
 ];
 const adminAccountLinks: Item[] = [
-  { label: "My profile", href: "/dashboard/profile", icon: "profile" },
+  { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
   { label: "Security", href: "/dashboard/security", icon: "security" },
 ];
@@ -86,7 +86,7 @@ export function Workspace({ name, admin, recruiter = false, badges = {}, photo =
   const groups: [string, Item[]][] = admin
     ? [["Overview", adminOverviewLinks], ["Administration", adminLinks], ["Your account", adminAccountLinks], ["Explore", exploreLinks]]
     : recruiter
-      ? [["Overview", adminOverviewLinks], ["Recruiting", recruiterLinks], ["Job seeking", jobSeekerLinks], ["Your account", adminAccountLinks], ["Explore", exploreLinks]]
+      ? [["Overview", adminOverviewLinks], ["Recruiting", recruiterLinks], ["Job seeking", jobSeekerLinks], ["Your account", adminAccountLinks.filter(link => link.href !== "/dashboard/profile")], ["Explore", exploreLinks]]
       : [["Your workspace", accountLinks], ["Explore", exploreLinks]];
   const current = activeItem(pathname, groups.flatMap(([, links]) => links));
   const currentGroup = groups.find(([, links]) => current && links.includes(current))?.[0];
@@ -155,7 +155,7 @@ export function Workspace({ name, admin, recruiter = false, badges = {}, photo =
         </div>
         <div className="workspace-topbar-trailing">
           <Link href="/" className="workspace-website-link"><Icon name="external" /><span>Website</span></Link>
-          <div className="workspace-user" aria-label={`Signed in as ${name}`}><Link href="/dashboard/profile" className={`workspace-avatar${photo ? " has-photo" : ""}`} title="My profile" aria-label="My profile">{photo ? <img src={photo} alt="" /> : initials}</Link><span className="workspace-user-copy"><strong title={name}>{name}</strong><span>{admin ? "Administrator" : recruiter ? "Recruiter" : "Member"}</span></span></div>
+          <div className="workspace-user" aria-label={`Signed in as ${name}`}><Link href="/dashboard/profile" className={`workspace-avatar${photo ? " has-photo" : ""}`} title="Profile & CV" aria-label="Profile & CV">{photo ? <img src={photo} alt="" /> : initials}</Link><span className="workspace-user-copy"><strong title={name}>{name}</strong><span>{admin ? "Administrator" : recruiter ? "Recruiter" : "Member"}</span></span></div>
         </div>
       </header>
       <main className="workspace-content" id="workspace-content" tabIndex={-1}>{children}</main>

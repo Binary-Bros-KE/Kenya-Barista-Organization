@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { accents, type Accent } from "@/lib/images";
 
-// How a member appears to recruiters: used as the live preview on My profile and on applicant pages.
+// How a member appears to recruiters: used as the live preview on Profile & CV and on applicant pages.
 export type ProfileCardData = {
   name: string; headline: string | null; location: string | null; experienceYears: number | null;
   skills: string[]; openToWork: boolean; summary?: string | null; accent: string; photo: string | null;

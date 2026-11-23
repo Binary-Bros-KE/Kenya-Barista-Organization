@@ -111,7 +111,7 @@ On the VPS, expose the application only through its reverse proxy, overwrite inc
 
 ## Profiles and photos
 
-**My profile** (`/dashboard/profile`) is where every member edits how they appear to recruiters:
+**Profile & CV** (`/dashboard/profile`) is where every member edits how they appear to recruiters:
 
 - **Photo:** JPG, PNG or WebP, up to 5 MB. It replaces the initials everywhere: the top bar, admin lists and popups, the recruiter's view of an applicant, and (for recruiters) as the employer logo on their jobs.
 - **Basics:** name, headline, mobile number, location and years of experience. Name, mobile and location are still required to apply.

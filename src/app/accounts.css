@@ -6,13 +6,13 @@ button.overview-stat { border: 0; font: inherit; text-align: left; cursor: point
 .accounts-insights { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 0 0 18px; padding: 11px 16px; border: 1px dashed #dccfbf; border-radius: 12px; background: #fffdf8; color: #6f6052; font-size: 13px; }
 .accounts-insights > span:first-of-type { font-weight: 600; color: #4a3a2c; }
 .accounts .accounts-insights > svg { color: #c79a3e; width: 16px; height: 16px; }
-.accounts-insights button, .accounts-insight { padding: 4px 11px; border: 1px solid #e6dccd; border-radius: 999px; background: #fff; color: #5d4d3f; font: inherit; font-size: 12.5px; }
+.accounts-insights button, .accounts-insight { padding: 4px 11px; border: 1px solid #cbbcaa; border-radius: 999px; background: #fff; color: #5d4d3f; font: inherit; font-size: 12.5px; }
 .accounts-insights button { cursor: pointer; }
 .accounts-insights button:hover { border-color: #c7af94; background: #fbf6ec; }
 .accounts-insights strong { color: #2f2219; }
 
-.accounts-panel { border: 1px solid #e7dfd5; border-radius: 16px; background: #fffefa; box-shadow: 0 2px 5px #49342103; overflow: hidden; }
-.accounts-toolbar { display: grid; grid-template-columns: minmax(240px, 1.3fr) auto; gap: 12px 16px; align-items: center; padding: 18px 20px 14px; border-bottom: 1px solid #efe8de; }
+.accounts-panel { border: 1px solid #cbbeb0; border-radius: 16px; background: #fffefa; box-shadow: 0 2px 5px #49342103; overflow: hidden; }
+.accounts-toolbar { display: grid; grid-template-columns: minmax(240px, 1.3fr) auto; gap: 12px 16px; align-items: center; padding: 18px 20px 14px; border-bottom: 1px solid #ddd3c6; }
 .accounts-search { position: relative; display: flex; align-items: center; }
 .accounts .accounts-search > svg { position: absolute; left: 13px; color: #9a8877; pointer-events: none; }
 .accounts-search input { width: 100%; height: 44px; padding: 0 40px 0 40px; border: 1px solid #ddd3c6; border-radius: 11px; background: #fff; color: #33271e; font-size: 14px; }
@@ -24,7 +24,7 @@ button.overview-stat { border: 0; font: inherit; text-align: left; cursor: point
 .accounts-chips button:hover { color: #33271e; }
 .accounts-chips button.is-on { background: linear-gradient(140deg, #14a397, #0b766d); color: #fff; box-shadow: 0 6px 14px -8px #0b766d; }
 .accounts-selects { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; }
-.accounts-selects label { white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; padding: 0 4px 0 12px; height: 38px; border: 1px solid #e3d9cc; border-radius: 10px; background: #fff; color: #8a7867; font-size: 12px; font-weight: 600; }
+.accounts-selects label { white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; padding: 0 4px 0 12px; height: 38px; border: 1px solid #c9baa9; border-radius: 10px; background: #fff; color: #8a7867; font-size: 12px; font-weight: 600; }
 .accounts-selects select { height: 34px; padding: 0 6px; border: 0; background: transparent; color: #33271e; font-size: 13px; font-weight: 600; cursor: pointer; }
 .accounts-selects select:focus-visible { outline: 2px solid #14a397; border-radius: 6px; }
 
@@ -36,7 +36,7 @@ button.overview-stat { border: 0; font: inherit; text-align: left; cursor: point
 
 .accounts-list { transition: opacity .15s; }
 .accounts-list.is-pending { opacity: .55; }
-.accounts-row { display: grid; grid-template-columns: minmax(220px, 2fr) minmax(190px, 1.3fr) 110px minmax(110px, .9fr) minmax(120px, 1fr) 105px 24px; align-items: center; gap: 14px; width: 100%; padding: 13px 20px; border: 0; border-top: 1px solid #f1ebe2; background: transparent; color: #4b3c30; font: inherit; font-size: 13px; text-align: left; }
+.accounts-row { display: grid; grid-template-columns: minmax(220px, 2fr) minmax(190px, 1.3fr) 110px minmax(110px, .9fr) minmax(120px, 1fr) 105px 24px; align-items: center; gap: 14px; width: 100%; padding: 13px 20px; border: 0; border-top: 1px solid #dfd5c9; background: transparent; color: #4b3c30; font: inherit; font-size: 13px; text-align: left; }
 button.accounts-row { cursor: pointer; transition: background .12s; }
 button.accounts-row:hover { background: #fbf7f0; }
 button.accounts-row:hover .accounts-chevron { color: #0b766d; transform: translateX(3px); }
@@ -73,8 +73,8 @@ button.accounts-row:focus-visible { outline: 2px solid #14a397; outline-offset: 
 .accounts-empty > span { display: grid; place-items: center; width: 58px; height: 58px; margin-bottom: 6px; border-radius: 50%; background: #f3eee6; color: #9a8877; }
 .accounts-empty h3 { margin: 0; color: #33271e; font-size: 17px; }
 .accounts-empty p { margin: 0 0 12px; font-size: 13px; }
-.accounts-pages { display: flex; justify-content: center; align-items: center; gap: 14px; padding: 14px 20px 18px; border-top: 1px solid #f1ebe2; color: #75695f; font-size: 13px; }
-.accounts-pages button { padding: 8px 14px; border: 1px solid #e0d6c8; border-radius: 9px; background: #fff; color: #33271e; font-weight: 600; cursor: pointer; }
+.accounts-pages { display: flex; justify-content: center; align-items: center; gap: 14px; padding: 14px 20px 18px; border-top: 1px solid #dfd5c9; color: #75695f; font-size: 13px; }
+.accounts-pages button { padding: 8px 14px; border: 1px solid #c6b8a6; border-radius: 9px; background: #fff; color: #33271e; font-weight: 600; cursor: pointer; }
 .accounts-pages button:disabled { opacity: .45; cursor: default; }
 
 /* Detail modal */
@@ -97,7 +97,7 @@ button.accounts-row:focus-visible { outline: 2px solid #14a397; outline-offset: 
 .accounts-skeleton span { height: 70px; border-radius: 12px; background: linear-gradient(90deg, #efe8dd, #f8f3eb, #efe8dd); background-size: 200% 100%; animation: accounts-shimmer 1.2s infinite linear; }
 @keyframes accounts-shimmer { to { background-position: -200% 0; } }
 .accounts-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
-.accounts-fact { display: flex; flex-direction: column; gap: 2px; padding: 14px; border: 1px solid #ebe3d7; border-radius: 13px; background: #fff; min-width: 0; }
+.accounts-fact { display: flex; flex-direction: column; gap: 2px; padding: 14px; border: 1px solid #cec1b1; border-radius: 13px; background: #fff; min-width: 0; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
 .accounts-fact-icon { display: grid; place-items: center; width: 30px; height: 30px; margin-bottom: 6px; border-radius: 50%; background: #e3f4f1; color: #0b766d; }
 .accounts-fact > span:nth-child(2) { color: #8a7867; font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; }
 .accounts-fact strong { color: #2f2219; font-size: 15px; overflow-wrap: anywhere; }
@@ -106,13 +106,13 @@ button.accounts-row:focus-visible { outline: 2px solid #14a397; outline-offset: 
 .accounts-section { margin-bottom: 18px; }
 .accounts-section h3 { margin: 0 0 9px; color: #8a7867; font-size: 11.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 .accounts-muted { margin: 0; color: #9a8877; font-size: 13px; }
-.accounts-dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; padding: 14px; border: 1px solid #ebe3d7; border-radius: 13px; background: #fff; }
+.accounts-dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; padding: 14px; border: 1px solid #cec1b1; border-radius: 13px; background: #fff; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
 .accounts-dl div.is-wide { grid-column: 1 / -1; }
 .accounts-dl dt { display: flex; align-items: center; gap: 6px; color: #8a7867; font-size: 12px; }
 .accounts-dl dd { margin: 3px 0 0; color: #2f2219; font-size: 13.5px; line-height: 1.6; overflow-wrap: anywhere; }
 .accounts-dl a { color: #0b766d; }
 .accounts-files, .accounts-apps-list, .accounts-flags, .accounts-timeline { list-style: none; margin: 0; padding: 0; }
-.accounts-files li, .accounts-apps-list li { display: flex; align-items: center; gap: 11px; padding: 11px 13px; border: 1px solid #ebe3d7; border-radius: 12px; background: #fff; }
+.accounts-files li, .accounts-apps-list li { display: flex; align-items: center; gap: 11px; padding: 11px 13px; border: 1px solid #cec1b1; border-radius: 12px; background: #fff; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
 .accounts-files li + li, .accounts-apps-list li + li { margin-top: 7px; }
 .accounts-files li > svg { color: #0b766d; flex-shrink: 0; }
 .accounts-files li > span, .accounts-apps-list li > span:first-child { flex: 1; display: flex; flex-direction: column; min-width: 0; }
@@ -133,7 +133,7 @@ button.accounts-row:focus-visible { outline: 2px solid #14a397; outline-offset: 
 .accounts-timeline li::before { content: ""; position: absolute; left: -17px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: #14a397; box-shadow: 0 0 0 3px #fbf8f2; }
 .accounts-timeline strong { color: #2f2219; font-size: 13.5px; text-transform: none; }
 .accounts-timeline span { color: #8a7867; font-size: 12px; }
-.accounts-modal-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; padding: 14px 24px 18px; border-top: 1px solid #ebe3d7; background: #fffdf8; }
+.accounts-modal-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; padding: 14px 24px 18px; border-top: 1px solid #dacec0; background: #fffdf8; }
 .accounts-modal-foot p { margin: 0 auto 0 0; color: #0b766d; font-size: 13px; font-weight: 600; }
 .accounts-confirm { color: #b0183e; font-size: 13px; font-weight: 600; }
 .accounts-ghost { height: 44px; padding: 0 14px; border: 1px solid #ddd3c6; border-radius: 12px; background: #fff; color: #4b3c30; font-weight: 600; cursor: pointer; }
@@ -168,7 +168,7 @@ button.accounts-row:focus-visible { outline: 2px solid #14a397; outline-offset: 
 
 /* Account type switch in the account detail view. */
 .accounts-type { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.accounts-type button { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border: 1px solid #ebe3d7; border-radius: 12px; background: #fff; color: #4b3c30; text-align: left; cursor: pointer; }
+.accounts-type button { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border: 1px solid #cec1b1; border-radius: 12px; background: #fff; color: #4b3c30; text-align: left; cursor: pointer; }
 .accounts-type button strong { font-size: 14px; color: #2f2219; }
 .accounts-type button span { font-size: 12px; color: #8a7867; }
 .accounts-type button:hover:not(:disabled) { border-color: #14a397; }

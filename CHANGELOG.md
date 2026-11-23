@@ -10,6 +10,13 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.14.0 - 2026-11-23
+
+- "My profile" is now **Profile & CV** in the sidebar, the page title, the avatar link and the dashboard shortcuts.
+- Firmer, easier-to-see edges across the workspace: Profile & CV, Applications, Payments, Notifications, Security, Become a recruiter, recruiter job pages and popups, and the admin pages. Faint borders and dividers are darker, and the main cards have the same soft shadow as the dashboard.
+- Profile & CV: the completion checklist shows solid green ticks instead of faint crossed-out text, form fields have clearer outlines, and the CV section is numbered 06 to follow the five sections above it.
+- Recruiters no longer see Profile & CV twice in the sidebar.
+
 ## 2.13.1 - 2026-11-23
 
 - Dashboard (My account): cards have firmer edges and a soft shadow so they stand out from the background. Account essentials shows completed steps as solid green ticks with a green progress bar; to-do steps, icons, dividers and labels are darker and easier to read.

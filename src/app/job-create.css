@@ -23,10 +23,10 @@
 .job-create-fields label { display: grid; gap: 6px; align-content: start; color: #3e2f23; font-size: 13px; font-weight: 600; }
 .job-create-fields .is-wide { grid-column: 1 / -1; }
 .job-create-fields label > span { color: #8a7867; font-size: 12px; font-weight: 400; }
-.job-create-fields :is(input, select, textarea) { width: 100%; padding: 10px 12px; border: 1px solid #e2d8ca; border-radius: 10px; background: #fff; color: #2f2219; font: inherit; font-size: 14px; font-weight: 400; }
+.job-create-fields :is(input, select, textarea) { width: 100%; padding: 10px 12px; border: 1px solid #c8b9a8; border-radius: 10px; background: #fff; color: #2f2219; font: inherit; font-size: 14px; font-weight: 400; }
 .job-create-fields textarea { resize: vertical; line-height: 1.6; }
 .job-create-fields :is(input, select, textarea):focus { outline: 2px solid #0b766d55; border-color: #0b766d; }
-.job-create-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; padding: 12px 22px 16px; border-top: 1px solid #ebe3d7; background: #fffdf8; }
+.job-create-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; padding: 12px 22px 16px; border-top: 1px solid #dacec0; background: #fffdf8; }
 .job-create-foot :is(.employer-primary, .employer-secondary):disabled { opacity: .55; cursor: not-allowed; }
 
 .employer-fee-adjust { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 12px; padding: 12px; border-radius: 10px; background: #fbf3df; }
@@ -54,7 +54,7 @@
 .employer-job-title-button:hover { text-decoration: underline; text-underline-offset: 4px; }
 
 /* Applicants on the job card: newest faces, count and how many are new */
-.job-card-applicants { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border: 1px solid #e7dccd; border-radius: 999px; background: #fffdf8; color: #3d2d22; font: inherit; cursor: pointer; }
+.job-card-applicants { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 6px; border: 1px solid #cbbcaa; border-radius: 999px; background: #fffdf8; color: #3d2d22; font: inherit; cursor: pointer; }
 .job-card-applicants:hover { border-color: #0b766d; background: #f2faf8; }
 .job-card-applicants.is-empty { padding: 0; border: 0; background: none; color: #9a8877; font-size: 12px; cursor: default; }
 .job-card-faces { display: inline-flex; }
@@ -68,14 +68,14 @@
 .applicants-modal { width: min(1180px, calc(100vw - 32px)); }
 .applicants-modal .job-create-panel { height: calc(100dvh - 40px); }
 .applicants-body { display: grid; grid-template-columns: 340px minmax(0, 1fr); flex: 1; min-height: 0; }
-.applicants-list { display: block; min-height: 0; overflow-y: auto; padding: 14px; border-right: 1px solid #ebe3d7; background: #fbf8f2; }
+.applicants-list { display: block; min-height: 0; overflow-y: auto; padding: 14px; border-right: 1px solid #dacec0; background: #fbf8f2; }
 .applicants-list ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .applicants-filters { display: flex; flex-wrap: wrap; gap: 6px; }
-.applicants-filters button { padding: 5px 10px; border: 1px solid #e2d8ca; border-radius: 999px; background: #fff; color: #5d4d3f; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.applicants-filters button { padding: 5px 10px; border: 1px solid #c8b9a8; border-radius: 999px; background: #fff; color: #5d4d3f; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
 .applicants-filters button.is-on { border-color: #0b766d; background: #0b766d; color: #fff; }
 .applicants-count { margin: 12px 2px 8px; color: #8a7867; font-size: 12px; }
 .applicant-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px; border: 1px solid transparent; border-radius: 12px; background: #fff; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.applicant-row:hover { border-color: #e2d8ca; }
+.applicant-row:hover { border-color: #c8b9a8; }
 .applicant-row.is-on { border-color: #0b766d; box-shadow: 0 0 0 3px #0b766d1f; }
 .applicant-face { display: grid; place-items: center; flex-shrink: 0; overflow: hidden; border-radius: 50%; background: linear-gradient(140deg, #6b4329, #2f1f16); color: #fff; font-weight: 700; }
 .applicant-face img { width: 100%; height: 100%; object-fit: cover; }
@@ -102,16 +102,16 @@
 .applicants-back { display: none; justify-self: start; padding: 0; border: 0; background: none; color: #0b766d; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
 .applicants-loading { padding: 40px; color: #8a7867; text-align: center; }
 .applicants-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: #736553; font-size: 12.5px; }
-.applicants-contact { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 14px 16px; border: 1px solid #ebe3d7; border-radius: 14px; background: #fffefa; }
+.applicants-contact { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 14px 16px; border: 1px solid #cec1b1; border-radius: 14px; background: #fffefa; }
 .applicants-contact dt { color: #8a7867; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .applicants-contact dd { margin: 2px 0 0; color: #2f2219; font-size: 13.5px; overflow-wrap: anywhere; }
 .applicants-contact a { color: #0b766d; }
-.applicants-cv { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1px solid #ebe3d7; border-radius: 14px; background: #fffefa; }
+.applicants-cv { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border: 1px solid #cec1b1; border-radius: 14px; background: #fffefa; }
 .applicants-cv > div:first-child { display: grid; min-width: 0; }
 .applicants-cv strong { color: #2f2219; font-size: 14px; }
 .applicants-cv span { overflow: hidden; color: #8a7867; font-size: 12.5px; text-overflow: ellipsis; white-space: nowrap; }
 .applicants-cv-actions { display: flex; align-items: center; gap: 8px; }
-.applicants-text { padding: 14px 16px; border: 1px solid #ebe3d7; border-radius: 14px; background: #fffefa; }
+.applicants-text { padding: 14px 16px; border: 1px solid #cec1b1; border-radius: 14px; background: #fffefa; }
 .applicants-text h3 { margin: 0 0 8px; color: #2f2219; font-size: 14px; }
 .applicants-text > p { margin: 0; color: #4a3a2c; font-size: 13.5px; line-height: 1.7; white-space: pre-line; overflow-wrap: anywhere; }
 .applicants-muted { color: #9a8877 !important; font-size: 13px; }

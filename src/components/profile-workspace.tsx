@@ -27,7 +27,7 @@ export function CvManager({ documents }: { documents: ProfileCv[] }) {
   function cancelReplace() { setReplacing(false); setSelected(null); setMessage(""); }
   const date = (value: string) => new Intl.DateTimeFormat("en-KE", { dateStyle: "medium", timeZone: "Africa/Nairobi" }).format(new Date(value));
   return <section className="profile-panel profile-documents" aria-labelledby="profile-cv-heading" aria-busy={busy || refreshing}>
-    <div className="profile-panel-heading"><span className="profile-step">02</span><div><h2 id="profile-cv-heading">Your CV</h2><p>One CV, always up to date. Uploading a new one replaces it.</p></div></div>
+    <div className="profile-panel-heading"><span className="profile-step">06</span><div><h2 id="profile-cv-heading">Your CV</h2><p>One CV, always up to date. Uploading a new one replaces it.</p></div></div>
     {!hasCv && <div className="profile-empty"><strong>Your next chapter starts here.</strong><p>Upload a CV so it is ready when you find the right role.</p></div>}
     {(!hasCv || replacing) && <form className="profile-upload" onSubmit={async event => {
       event.preventDefault(); const form = event.currentTarget;

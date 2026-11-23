@@ -16,7 +16,7 @@ test("screening states never advertise rejected or unknown files as usable or do
  assert.equal(cvPresentation("PENDING").downloadable, true);
  for (const status of ["REJECTED", "UNKNOWN"]) assert.equal(cvPresentation(status).downloadable, false);
 });
-test("My profile keeps the required contact details, Kenyan phone validation and an optional story", () => {
+test("Profile & CV keeps the required contact details, Kenyan phone validation and an optional story", () => {
  const html = render(createElement(ProfileStudio, { userId: "u1", avatarVersion: null, imagesEnabled: false, cvCount: 0, initial: { fullName: "Coffee Professional", phone: "+254712345678", location: "Nairobi", summary: "", headline: "", experienceYears: null, skills: [], openToWork: true, instagram: "", linkedin: "", website: "", accent: "espresso" } }));
  assert.ok(html.includes('pattern="\\+254[17][0-9]{8}"'));
  assert.equal([...html.matchAll(/<input[^>]*required=""[^>]*>/g)].length, 3, "Name, mobile and location are required");
