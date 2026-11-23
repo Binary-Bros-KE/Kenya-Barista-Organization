@@ -33,7 +33,7 @@ export async function saveProfile(db: PrismaClient, actor: Actor, input: unknown
 }
 export async function ownApplication(db: PrismaClient, actor: Actor, id: string) {
   const application = await db.application.findFirst({ where: { id, userId: actor.user.id }, include: {
-    job: { select: { title: true, slug: true, status: true, deadline: true, recruiter: { select: { name: true, status: true } } } },
+    job: { select: { title: true, slug: true, status: true, deadline: true, recruiter: { select: { id: true, name: true, status: true, role: true, avatarVersion: true, recruiterVerifiedAt: true } } } },
     documents: { select: { document: { select: { id: true, filename: true, scanStatus: true } } } },
   } });
   if (!application) throw new AccessError(404, "NOT_FOUND", "Application not found");

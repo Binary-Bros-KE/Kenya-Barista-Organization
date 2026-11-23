@@ -21,3 +21,30 @@
 /* Recruiter photo (or the KBO logo) in place of initials */
 .application-company-mark.has-photo{overflow:hidden;padding:0;background:#fff}
 .application-company-mark.has-photo img{width:100%;height:100%;object-fit:cover;display:block}
+/* Application page colour: a green banner, colour-coded fact tiles and accented panels */
+.application-detail-heading.application-hero{position:relative;overflow:hidden;padding:28px 30px;border-radius:20px;background:radial-gradient(circle at 92% 0%,#e0b76638,transparent 42%),linear-gradient(135deg,#1d3526 0%,#2a4d36 55%,#3b6a48 100%);color:#fff;box-shadow:0 18px 36px -22px #1d3526cc}
+.application-hero::after{content:"";position:absolute;right:-40px;bottom:-60px;width:220px;height:220px;border-radius:50%;border:28px solid #ffffff0d;pointer-events:none}
+.application-hero-who{display:flex;align-items:center;gap:18px;min-width:0}
+.application-hero-who>div{min-width:0}
+.application-hero .application-company-mark{width:60px;height:60px;border-radius:16px;border:2px solid #ffffff40;background:#f3eadb;font-size:17px;box-shadow:0 6px 16px #0000003d}
+.application-hero .application-eyebrow{color:#e0b766}
+.application-hero h1{color:#fff;margin-top:8px}
+.application-hero>.application-status{position:relative;z-index:1;background:#fff;border-color:#fff;box-shadow:0 4px 12px #00000033}
+.application-facts{background:none;border:0;box-shadow:none;gap:14px}
+.application-facts>div{--tint:#8a6a2f;--wash:#fbf3df;position:relative;padding:20px 22px 20px 74px;border:1px solid color-mix(in srgb,var(--tint) 28%,transparent);border-right:1px solid color-mix(in srgb,var(--tint) 28%,transparent);border-radius:16px;background:linear-gradient(140deg,var(--wash),#fff 120%)}
+.application-facts>div:last-child{border-right:1px solid color-mix(in srgb,var(--tint) 28%,transparent)}
+.application-facts>.is-deadline{--tint:#1d5fae;--wash:#e8f1fc}
+.application-facts>.is-reference{--tint:#6b3fa0;--wash:#f3ecfb}
+.application-fact-icon{position:absolute;left:20px;top:50%;transform:translateY(-50%);width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--tint);color:#fff;font-size:11px;font-weight:800;letter-spacing:.03em}
+.application-facts dt{color:var(--tint);font-weight:700;letter-spacing:.02em}
+.application-facts dd{font-size:15px;color:#2a1f17}
+.application-editor>.application-panel{border-top:4px solid #0b766d}
+.application-profile-link{margin-top:16px;padding:18px 20px;border:1px solid #9fd5cd;border-radius:16px;background:linear-gradient(140deg,#e4f4f1,#f4fbfa);justify-content:flex-start}
+.application-profile-link>div{flex:1;min-width:0}
+.application-profile-icon{width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:#0b766d;color:#fff}
+.application-profile-link strong{font-size:14px;color:#0b4f49}
+.application-profile-link p{font-size:13px;color:#3f6f69}
+.application-profile-link a{padding:9px 14px;border-radius:10px;background:#0b766d;color:#fff;font-size:13px}
+.application-profile-link a:hover{background:#095f58}
+@media(max-width:1199px){.application-facts>div{border-bottom:1px solid color-mix(in srgb,var(--tint) 28%,transparent)}}
+@media(max-width:700px){.application-detail-heading.application-hero{padding:22px 18px}.application-hero .application-company-mark{width:48px;height:48px}.application-profile-link{flex-direction:row;align-items:center;flex-wrap:wrap}}

@@ -11,6 +11,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.25.1 - 2026-11-23
+
+- Application page has more colour: a deep green banner with the recruiter's photo (or KBO logo) and name in gold, the job title in white and the status as a white pill; colour-coded tiles with icons for the fee (gold), deadline (blue) and reference (purple); a teal accent on the application form; and the "Keep your career toolkit ready" link as a teal card with a button.
+- Removed the "Make this application yours" banner from editable drafts. Other stages still show what happens next. Jobs posted by KBO show as Kenya Barista Organization here too.
+
 ## 2.25.0 - 2026-11-23
 
 - The job seeker **Payments** tab is merged into **Wallet**, so there is one place for money. Application fees paid straight from M-Pesa (receipt, status, recorded reversals, with the same filters) now appear as an **M-Pesa application payments** section under the wallet, once someone has made such a payment.

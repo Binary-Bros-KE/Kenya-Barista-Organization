@@ -5,7 +5,7 @@ import { formatFee, formatDeadline } from "@/lib/job-format";
 import { avatarSrc } from "@/lib/images";
 export type ApplicationListItem = { id: string; status: ApplicationStatus; applicationFeeMinor: number; updatedAt: Date; _count: { responses: number }; job: { title: string; recruiter: { id?: string; name: string | null; role?: string; avatarVersion?: number | null } } };
 // The recruiter's profile photo; the KBO logo for jobs KBO posted itself; otherwise their initials.
-function CompanyMark({ recruiter }: { recruiter: ApplicationListItem["job"]["recruiter"] }) {
+export function CompanyMark({ recruiter }: { recruiter: ApplicationListItem["job"]["recruiter"] }) {
   const photo = recruiter.id ? avatarSrc(recruiter.id, recruiter.avatarVersion, 48) : null, logo = photo || (recruiter.role === "ADMIN" ? "/brand-logo.png" : null);
   return <span className={"application-company-mark" + (logo ? " has-photo" : "")} aria-hidden="true">{logo ? <img src={logo} alt="" loading="lazy" /> : (recruiter.name || "KBO").slice(0, 2).toUpperCase()}</span>;
 }
