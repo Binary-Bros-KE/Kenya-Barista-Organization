@@ -6,10 +6,10 @@ export type Partner = { name: string; initials: string; role: string; descriptio
 export const partners: Partner[] = [
   { name: "Kenya Barista Organization", initials: "KBO", role: "Host organisation", logo: "/brand-logo.png",
     description: "Brings baristas, trainers and employers together through training, community events and coffee careers." },
-  { name: "Arobisca Group", initials: "AG", role: "Coffee industry partner",
+  { name: "Arobisca Group", initials: "AG", role: "Coffee industry partner", logo: "/partners/arobisca-group.png",
     description: "A Kenyan coffee company supporting the craft from bean to cup, and the people who serve it." },
-  { name: "Arobisca Training Centre", initials: "ATC", role: "Training partner",
+  { name: "Arobisca Training Centre", initials: "ATC", role: "Training partner", logo: "/partners/arobisca-training-centre.png",
     description: "Hands-on barista and coffee training that prepares learners for work behind the bar." },
-  { name: "Brookside Kenya", initials: "BK", role: "Dairy partner",
+  { name: "Brookside Kenya", initials: "BK", role: "Dairy partner", logo: "/partners/brookside-kenya.png",
     description: "Supporting the espresso bar with milk for everything from flat whites to latte art practice." },
 ];

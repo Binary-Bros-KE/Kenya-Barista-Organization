@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.23.1 - 2026-11-23
+
+- Partner cards show real logos for Arobisca Group, Arobisca Training Centre and Brookside Kenya (in `public/partners/`). Logo badges are a little larger (88px) and show the whole logo instead of cropping it to a circle.
+
 ## 2.23.0 - 2026-11-23
 
 - Home page ends with **Meet our partners**: four cards for Kenya Barista Organization, Arobisca Group, Arobisca Training Centre and Brookside Kenya, each with a logo or initials badge, role and short description. Four across on wide screens, two on tablets, one on phones.

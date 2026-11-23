@@ -36,5 +36,6 @@ test("the home page ends with the partners section", () => {
   assert.ok(html.includes(">Meet our partners</h2>"));
   assert.equal((html.match(/class="site-partner-card"/g) || []).length, 4);
   for (const name of ["Kenya Barista Organization", "Arobisca Group", "Arobisca Training Centre", "Brookside Kenya"]) assert.ok(html.includes(`<h3>${name}</h3>`), name);
-  assert.ok(html.includes(">ATC<"), "Partners without a logo show their initials"); assert.ok(!html.includes("site-partner-link"), "No website links until they're agreed");
+  for (const logo of ["/brand-logo.png", "/partners/arobisca-group.png", "/partners/arobisca-training-centre.png", "/partners/brookside-kenya.png"]) assert.ok(html.includes(`src="${logo}"`), logo);
+  assert.ok(html.includes('alt="Brookside Kenya logo"')); assert.ok(!html.includes("site-partner-link"), "No website links until they're agreed");
 });
