@@ -3,27 +3,27 @@
 .cv-view-button:hover { filter: brightness(1.06); }
 .cv-view-button.is-light { background: #e3f4f1; color: #0b5f58; }
 
-.cv-viewer { width: min(1100px, calc(100vw - 32px)); height: calc(100dvh - 32px); max-width: none; max-height: none; margin: auto; padding: 0; border: 0; border-radius: 16px; overflow: hidden; background: #2b2420; color: #f5efe6; box-shadow: 0 30px 70px -20px #000c; }
+.cv-viewer { width: min(1100px, calc(100vw - 32px)); height: calc(100dvh - 32px); max-width: none; max-height: none; margin: auto; padding: 0; border: 0; border-radius: 16px; overflow: hidden; background: #efe9df; color: #2a1f17; box-shadow: 0 30px 70px -24px #3a281b99; }
 .cv-viewer[open] { display: flex; flex-direction: column; }
-.cv-viewer::backdrop { background: #150e0acc; backdrop-filter: blur(3px); }
-.cv-viewer-bar { display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 18px; background: #1f1915; border-bottom: 1px solid #3a302a; }
+.cv-viewer::backdrop { background: #2a1f1766; backdrop-filter: blur(3px); }
+.cv-viewer-bar { display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 18px; background: #fffdfa; border-bottom: 1px solid #e3d6c4; }
 .cv-viewer-title { display: grid; min-width: 0; flex: 1; }
 .cv-viewer-title strong { overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
-.cv-viewer-title span { color: #b8a998; font-size: 12px; }
+.cv-viewer-title span { color: #8c7b67; font-size: 12px; }
 .cv-viewer-tools, .cv-viewer-actions { display: flex; align-items: center; gap: 4px; }
-.cv-viewer-bar button, .cv-viewer-download { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 36px; height: 36px; padding: 0 9px; border: 0; border-radius: 9px; background: transparent; color: #f5efe6; font: inherit; font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; }
-.cv-viewer-bar button:hover:not(:disabled), .cv-viewer-download:hover { background: #ffffff1a; }
+.cv-viewer-bar button, .cv-viewer-download { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 36px; height: 36px; padding: 0 9px; border: 0; border-radius: 9px; background: transparent; color: #3a2d22; font: inherit; font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; }
+.cv-viewer-bar button:hover:not(:disabled), .cv-viewer-download:hover { background: #f1e9dc; }
 .cv-viewer-bar button:disabled { opacity: .4; cursor: default; }
-.cv-viewer-zoom { min-width: 58px !important; background: #ffffff12 !important; }
-.cv-viewer-download { background: #0b766d; }
+.cv-viewer-zoom { min-width: 58px !important; background: #f3ede3 !important; }
+.cv-viewer-download { background: #0b766d; color: #fff !important; }
 .cv-viewer-download:hover { background: #0e8a80 !important; }
 .cv-viewer-close { margin-left: 4px; }
 .cv-viewer-pages { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px; overflow: auto; overscroll-behavior: contain; outline: none; }
-.cv-viewer-page { position: relative; flex-shrink: 0; background: #fff; box-shadow: 0 8px 24px -10px #000a; }
+.cv-viewer-page { position: relative; flex-shrink: 0; background: #fff; border: 1px solid #e3d6c4; box-shadow: 0 10px 26px -14px #3a281b66; }
 .cv-viewer-page canvas { display: block; }
-.cv-viewer-message { display: grid; place-items: center; gap: 10px; margin: auto; max-width: 360px; color: #e8ddd0; text-align: center; font-size: 14px; }
-.cv-viewer-message a { color: #7fd8cf; }
-.cv-viewer-spinner { width: 32px; height: 32px; border: 3px solid #ffffff33; border-top-color: #7fd8cf; border-radius: 50%; animation: cv-spin .8s linear infinite; }
+.cv-viewer-message { display: grid; place-items: center; gap: 10px; margin: auto; max-width: 360px; color: #5f5042; text-align: center; font-size: 14px; }
+.cv-viewer-message a { color: #0b766d; }
+.cv-viewer-spinner { width: 32px; height: 32px; border: 3px solid #e3d6c4; border-top-color: #0b766d; border-radius: 50%; animation: cv-spin .8s linear infinite; }
 @keyframes cv-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .cv-viewer-spinner { animation-duration: 2.4s; } }
 @media (max-width: 640px) {
@@ -35,7 +35,7 @@
 
 /* pdf.js text layer: transparent text over the page so it can be selected and copied (from pdfjs-dist web/pdf_viewer.css). */
 .textLayer { color-scheme: only light; position: absolute; text-align: initial; inset: 0; overflow: clip; opacity: 1; line-height: 1; letter-spacing: normal; word-spacing: normal; text-size-adjust: none; forced-color-adjust: none; transform-origin: 0 0; caret-color: CanvasText; z-index: 0; --min-font-size: 1; --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size)); --min-font-size-inv: calc(1 / var(--min-font-size)); }
-.textLayer :is(span, br) { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; user-select: text; }
+.textLayer :is(span, br) { color: transparent !important; -webkit-text-fill-color: transparent; text-shadow: none !important; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; user-select: text; }
 .textLayer > :not(.markedContent), .textLayer .markedContent span:not(.markedContent) { z-index: 1; --font-height: 0; font-size: calc(var(--text-scale-factor) * var(--font-height)); --scale-x: 1; --rotate: 0deg; transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv)); }
 .textLayer .markedContent { display: contents; }
 .textLayer span[role="img"] { user-select: none; cursor: default; }

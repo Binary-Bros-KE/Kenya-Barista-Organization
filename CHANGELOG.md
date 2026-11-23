@@ -11,6 +11,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.31.1 - 2026-11-23
+
+- CV viewer is light: a white top bar with dark text and icons, a soft cream background behind the pages, and a lighter backdrop. Download stays teal.
+- Fixed doubled, blurry text in the CV viewer on some pages (such as admin Job review): the invisible text layer used for selecting text was being tinted by other page styles and drawn over the real text. It is always transparent now; text can still be selected and copied.
+
 ## 2.31.0 - 2026-11-23
 
 - Recruiter **Applications** tab redesigned. Colour-coded status chips with counts (All, New, In review, Shortlisted, Hired, Not selected, Withdrawn) replace the status dropdown, beside a compact search with a gold **Search** button.
