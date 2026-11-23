@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.13.1 - 2026-11-23
+
+- Dashboard (My account): cards have firmer edges and a soft shadow so they stand out from the background. Account essentials shows completed steps as solid green ticks with a green progress bar; to-do steps, icons, dividers and labels are darker and easier to read.
+
 ## 2.13.0 - 2026-11-23
 
 - My profile: your CV now shows as a card with a preview of its first page, a PDF label, the file size, the upload date and its screening status. Click the preview (or View CV) to read it in the page.
