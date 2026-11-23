@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.17.1 - 2026-11-23
+
+- Manage posting popup: the decision bar is now a footer below the scrolling content instead of floating over it, so nothing hides behind the buttons. The recruiter card moved to the top of the right column, above the card preview, so it is always in view.
+
 ## 2.17.0 - 2026-11-23
 
 - Manage posting popup redesigned in two columns like Profile & CV. Left: numbered sections for review and status, role details, cover photo and history. Right: a live preview of the job card exactly as applicants see it (updates as you type, with the Verified ribbon), plus the recruiter at a glance (photo, email, verified and account status).

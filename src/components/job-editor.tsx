@@ -71,7 +71,7 @@ export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; a
   const saveDisabled = busy || Boolean(job && job.recruiter.status !== "ACTIVE") || (!id && admin && !draft.recruiterId);
   const step = (number: string, title: string, text: string) => <header><span className="studio-step">{number}</span><div><h2>{title}</h2><p>{text}</p></div></header>;
   const photo = job ? avatarSrc(job.recruiter.id, job.recruiter.avatarVersion, 96) : null;
-  return <div className="employer-job-editor jeditor">
+  return <div className="employer-job-editor jeditor"><div className="jeditor-content">
     {error && <p role="alert" className="notice error jeditor-wide">{error} <button className="underline" onClick={() => void load()}>Reload posting</button></p>}{message && <p role="status" className="notice success jeditor-wide">{message}</p>}
     {loading ? <p role="status" className="jeditor-wide">Loading posting…</p> : <>
     <div className="jeditor-main">
@@ -102,6 +102,11 @@ export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; a
       {job && <details className="studio-panel jeditor-history"><summary>Posting history <span>{job.history.length}</span></summary><ol>{job.history.map(item => <li key={item.id}><span className={"djobs-card-status status-" + item.toStatus.toLowerCase()}>{statusLabels[item.toStatus]}</span><div><strong>{item.fromStatus ? `From ${statusLabels[item.fromStatus]}` : "Created"}</strong><time>{formatDeadline(item.createdAt)}</time>{item.note && <p>{item.note}</p>}</div></li>)}</ol></details>}
     </div>
     <aside className="jeditor-side">
+      {job && <section className="studio-panel jeditor-recruiter">
+        <p className="studio-side-label">Recruiter</p>
+        <div className="jeditor-recruiter-head"><span className="jeditor-avatar">{photo ? <img src={photo} alt="" /> : initialsOf(job.recruiter.name || job.recruiter.email)}</span><div><strong>{job.recruiter.name || "KBO recruiter"}</strong><a href={`mailto:${job.recruiter.email}`}>{job.recruiter.email}</a></div></div>
+        <div className="jeditor-recruiter-tags">{verified ? <span className="jeditor-pill is-green">✓ Verified recruiter</span> : <span className="jeditor-pill is-grey">Not verified</span>}<span className={"jeditor-pill " + (job.recruiter.status === "ACTIVE" ? "is-teal" : "is-rose")}>{job.recruiter.status === "ACTIVE" ? "Active" : "Suspended"}</span></div>
+      </section>}
       <p className="studio-side-label">How applicants see it</p>
       <article className={`djobs-card jeditor-preview is-${draft.category.toLowerCase()}`}>
         {verified && <VerifiedRibbon />}
@@ -115,13 +120,10 @@ export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; a
         </span>
       </article>
       {dirty && <p className="jeditor-note is-warn">The preview shows your unsaved changes.</p>}
-      {job && <section className="studio-panel jeditor-recruiter">
-        <p className="studio-side-label">Recruiter</p>
-        <div className="jeditor-recruiter-head"><span className="jeditor-avatar">{photo ? <img src={photo} alt="" /> : initialsOf(job.recruiter.name || job.recruiter.email)}</span><div><strong>{job.recruiter.name || "KBO recruiter"}</strong><a href={`mailto:${job.recruiter.email}`}>{job.recruiter.email}</a></div></div>
-        <div className="jeditor-recruiter-tags">{verified ? <span className="jeditor-pill is-green">✓ Verified recruiter</span> : <span className="jeditor-pill is-grey">Not verified</span>}<span className={"jeditor-pill " + (job.recruiter.status === "ACTIVE" ? "is-teal" : "is-rose")}>{job.recruiter.status === "ACTIVE" ? "Active" : "Suspended"}</span></div>
-      </section>}
     </aside>
-    {/* Pinned to the bottom of the popup (or page) so the decisions are always in reach. */}
+    </>}</div>
+    {/* Below the scrolling content in the popup (pinned to the bottom on a page), so the decisions are always in reach. */}
+    {!loading && <>
     <div className="jeditor-bar">
       <p className="jeditor-bar-state">{dirty ? <strong>Unsaved changes. Save before taking an action.</strong> : job ? <>Status: <strong>{statusLabels[job.status]}</strong></> : "New posting"}</p>
       <div className="jeditor-bar-actions">
