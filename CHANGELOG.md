@@ -11,6 +11,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.28.0 - 2026-11-23
+
+- Recruiters get an **Applications** tab again: every confirmed applicant across all their jobs, with search and filters by job and status. Opening an applicant highlights this tab. **Jobs & applicants** is now **My jobs**; the applicants popup on each job card still works.
+- The dashboard shows separate **My jobs** and **Applications** cards for recruiters, and the website account menu links to both.
+
 ## 2.27.3 - 2026-11-23
 
 - New-applicant email subject starts with 📋: "📋 Nyongesa Evans applied for Head Barista Position".

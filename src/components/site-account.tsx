@@ -25,7 +25,7 @@ const roleLabel = { APPLICANT: "Member", RECRUITER: "Recruiter", ADMIN: "Adminis
 // The account pages worth a shortcut from the website, by role.
 export function accountLinks(user: SiteUser): [string, string][] {
   return [["Dashboard", "/dashboard"],
-    ...(user.role === "ADMIN" ? [["Job review", "/admin/jobs"]] as [string, string][] : user.role === "RECRUITER" ? [["Jobs & applicants", "/employer/jobs"]] as [string, string][] : []),
+    ...(user.role === "ADMIN" ? [["Job review", "/admin/jobs"]] as [string, string][] : user.role === "RECRUITER" ? [["My jobs", "/employer/jobs"], ["Applications received", "/employer/applications"]] as [string, string][] : []),
     ["My applications", "/dashboard/applications"], ["Profile & CV", "/dashboard/profile"],
     [user.unread ? `Notifications (${user.unread > 99 ? "99+" : user.unread})` : "Notifications", "/dashboard/notifications"]];
 }

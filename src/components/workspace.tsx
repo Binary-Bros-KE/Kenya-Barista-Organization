@@ -23,9 +23,10 @@ const memberAccountLinks: Item[] = [
   { label: "Settings", href: "/dashboard/security", icon: "settings" },
 ];
 const adminOverviewLinks: Item[] = [{ label: "Dashboard", href: "/dashboard", icon: "account" }];
-// Applicants are reviewed from each job's card, so recruiters have one tab for both.
+// Recruiters manage their postings in My jobs and review everyone who applied, across all their jobs, in Applications.
 const recruiterLinks: Item[] = [
-  { label: "Jobs & applicants", href: "/employer/jobs", icon: "jobs", also: ["/employer/applications"] },
+  { label: "My jobs", href: "/employer/jobs", icon: "jobs" },
+  { label: "Applications", href: "/employer/applications", icon: "review" },
 ];
 const jobSeekerLinks: Item[] = [
   { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
