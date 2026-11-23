@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.23.4 - 2026-11-23
+
+- Fixed the **Keep your curiosity brewing** numerals showing tiny: a 12px readability rule was overriding their size. They now show at 72px (50px on phones) like intended.
+
 ## 2.23.3 - 2026-11-23
 
 - Home **Keep your curiosity brewing** guides: back to 01, 02 and 03 instead of icons, now as big, faint serif numerals matching the course list.

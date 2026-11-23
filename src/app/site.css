@@ -74,8 +74,8 @@
 @media(max-width:699px){.site-partners-inner{padding:58px 20px 64px}.site-partners-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.site-partner-card{transition:none}.site-partner-card:hover{transform:none}}
 /* Home guides: big, faint serif numerals like the course list */
-.site-public .site-guide-list>a>span.site-guide-number{flex-shrink:0;min-width:84px;padding-top:0;font:400 72px/.85 Georgia,serif;letter-spacing:-.05em;color:#263d2d;opacity:.14}
-@media(max-width:700px){.site-public .site-guide-list>a>span.site-guide-number{min-width:58px;font-size:50px}}
+.site-public .site-guides .site-guide-list>a>span.site-guide-number{flex-shrink:0;min-width:84px;padding-top:0;font:400 72px/.85 Georgia,serif;letter-spacing:-.05em;color:#263d2d;opacity:.14}
+@media(max-width:700px){.site-public .site-guides .site-guide-list>a>span.site-guide-number{min-width:58px;font-size:50px}}
 /* Home course list: big, faint serif numerals that sit behind the text like a watermark */
 .site-public .site-learning .site-learning-copy li{align-items:center;gap:20px}
 .site-public .site-learning .site-learning-copy li>span{flex-shrink:0;min-width:74px;padding-top:0;font:400 64px/.9 Georgia,serif;letter-spacing:-.05em;color:#263d2d;opacity:.14}
