@@ -15,7 +15,7 @@ test("the home page previews the latest jobs between the pathway cards and the p
   const pathways = html.indexOf("site-pathways"), preview = html.indexOf("site-latest-jobs"), purpose = html.indexOf('id="our-purpose"');
   assert.ok(pathways < preview && preview < purpose, "The preview sits between the pathway cards and the purpose section");
   assert.equal((html.match(/class="career-job-card site-job-preview"/g) || []).length, 4);
-  assert.ok(html.includes("Latest coffee jobs")); assert.ok(html.includes("See all 9 postings")); assert.ok(html.includes('href="/jobs"'));
+  assert.ok(html.includes(">Now hiring</h2>")); assert.ok(!html.includes("NOW HIRING")); assert.ok(html.includes("Explore job openings posted by verified recruiters.")); assert.ok(html.includes("See all 9 postings")); assert.ok(html.includes('href="/jobs"'));
   assert.ok(html.includes('href="/jobs/role-1"')); assert.ok(html.includes("Head &lt;Barista&gt; 1")); assert.ok(!html.includes("<Barista>"));
   assert.ok(html.includes("Westlands, Nairobi")); assert.ok(html.includes("Closes ")); assert.ok(html.includes("Full time"));
   assert.equal((html.match(/verified-ribbon/g) || []).length, 1, "Only verified employers get the ribbon");

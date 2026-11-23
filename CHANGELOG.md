@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.21.1 - 2026-11-23
+
+- Home jobs preview: the heading is now **Now hiring** (one size smaller, no separate label above it), with the line "Explore job openings posted by verified recruiters."
+
 ## 2.22.0 - 2026-11-23
 
 - **Wallet** for every member and recruiter (new sidebar tab). A balance card with Top up and Find jobs, coloured totals (topped up, spent, waiting), top-ups waiting for confirmation, and a history of every top-up and application fee with the balance after each.
