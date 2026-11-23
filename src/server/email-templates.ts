@@ -223,7 +223,7 @@ export function applicationSubmittedEmail({ baseUrl, name, jobTitle, employer, l
 }
 
 export function newApplicantEmail({ baseUrl, name, jobTitle, applicant, applicants, href }: { baseUrl: string; name: string | null; jobTitle: string; applicant: string; applicants: number; href: string }): Email {
-  const subject = `New applicant for ${jobTitle}`;
+  const subject = `${applicant} applied for ${jobTitle}`;
   return {
     subject,
     html: layout({

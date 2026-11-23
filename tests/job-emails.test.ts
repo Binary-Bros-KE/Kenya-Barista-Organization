@@ -14,6 +14,6 @@ test("job and application emails are branded, link back to KBO and escape what p
   assert.equal(applied.subject, "Application received: Head Barista"); assert.ok(applied.html.includes("Java &lt;House&gt;"));
   assert.ok(applied.html.includes('href="https://kbo.example/dashboard/applications/app-1"')); assert.ok(applied.text.includes("Recruiter: Java <House>"));
   const applicant = newApplicantEmail({ baseUrl: base, name: null, jobTitle: "Head Barista", applicant: "Brian <Otieno>", applicants: 4, href: "/employer/applications/app-1" });
-  assert.ok(applicant.html.includes("Hi there,")); assert.ok(applicant.html.includes("Brian &lt;Otieno&gt;")); assert.ok(applicant.text.includes("Applicants so far: 4"));
+  assert.equal(applicant.subject, "Brian <Otieno> applied for Head Barista"); assert.ok(applicant.html.includes("Hi there,")); assert.ok(applicant.html.includes("Brian &lt;Otieno&gt;")); assert.ok(applicant.text.includes("Applicants so far: 4"));
   assert.ok(applicant.html.includes('href="https://kbo.example/employer/applications/app-1"'));
 });

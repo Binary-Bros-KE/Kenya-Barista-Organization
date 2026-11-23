@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.27.2 - 2026-11-23
+
+- The recruiter's new-applicant email subject names the applicant: "Nyongesa Evans applied for Head Barista Position" (was "New applicant for …").
+
 ## 2.27.1 - 2026-11-23
 
 - Fixed: applying by paying from the wallet didn't email the recruiter ("New applicant") or the applicant ("Application received") until the background worker ran. They are now sent straight away, like M-Pesa payments.
