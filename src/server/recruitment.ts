@@ -25,16 +25,20 @@ export async function listReviewApplications(db: PrismaClient, actor: Actor, inp
   const query = querySchema.parse(input);
   const where: Prisma.ApplicationWhereInput = { ...recruitmentScope(actor), ...(query.status ? { status: query.status } : {}),
     ...(query.jobId ? { jobId: query.jobId } : {}), ...(query.q ? { OR: [{ job: { title: { contains: query.q, mode: "insensitive" } } }, { user: { email: { contains: query.q, mode: "insensitive" } } }] } : {}) };
-  const [rows, total] = await Promise.all([
+  // Counts per status for the filter chips use every filter except the status itself.
+  const { status: _status, ...withoutStatus } = where;
+  const [rows, total, grouped] = await Promise.all([
     db.application.findMany({ where, select: { id: true, status: true, submittedAt: true, version: true, submissionSnapshot: true,
       job: { select: { id: true, title: true, recruiter: { select: { name: true } } } },
-      user: { select: { id: true, avatarVersion: true, profile: { select: { headline: true } } } } },
+      user: { select: { id: true, avatarVersion: true, profile: { select: { headline: true, accent: true, skills: true, experienceYears: true } } } } },
       orderBy: [{ submittedAt: "desc" }, { id: "asc" }], skip: (query.page - 1) * 20, take: 20 }),
     db.application.count({ where }),
+    db.application.groupBy({ by: ["status"], where: withoutStatus, _count: { _all: true } }),
   ]);
-  return { applications: rows.map(({ submissionSnapshot, user, ...row }) => {
+  return { counts: Object.fromEntries(grouped.map(group => [group.status, group._count._all])) as Partial<Record<string, number>>, applications: rows.map(({ submissionSnapshot, user, ...row }) => {
     const snapshot = profileSnapshot.safeParse(submissionSnapshot);
-    return { ...row, applicantName: snapshot.success ? snapshot.data.fullName : "Submitted applicant", applicant: { id: user.id, avatarVersion: user.avatarVersion, headline: user.profile?.headline ?? null } };
+    return { ...row, applicantName: snapshot.success ? snapshot.data.fullName : "Submitted applicant", location: snapshot.success ? snapshot.data.location : null,
+      applicant: { id: user.id, avatarVersion: user.avatarVersion, headline: user.profile?.headline ?? null, accent: user.profile?.accent ?? "espresso", skills: user.profile?.skills ?? [], experienceYears: user.profile?.experienceYears ?? null } };
   }), pagination: { page: query.page, total, pageCount: Math.ceil(total / 20) } };
 }
 export async function reviewJobOptions(db: PrismaClient, actor: Actor) {

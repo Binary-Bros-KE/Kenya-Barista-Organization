@@ -11,6 +11,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.31.0 - 2026-11-23
+
+- Recruiter **Applications** tab redesigned. Colour-coded status chips with counts (All, New, In review, Shortlisted, Hired, Not selected, Withdrawn) replace the status dropdown, beside a compact search with a gold **Search** button.
+- Applications are a grid of horizontal cards. Each card has a band in the applicant's own profile colour (espresso, teal, crema, berry or forest) with their photo or initials and a status ribbon; their name, headline, the job they applied for, location, years in coffee, when they applied and top skills; and a **Review application** button in their colour that opens the applicants popup.
+
 ## 2.30.0 - 2026-11-23
 
 - Recruiters: clicking an application in the **Applications** tab opens the same applicants popup as **My jobs** (for that job, with that applicant selected) instead of a separate page. Rows are still links, so opening one in a new tab works.
