@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.24.1 - 2026-11-23
+
+- Admin sidebar: **Payments and M-Pesa** moved out of Administration into a new **Settings** group at the very bottom.
+
 ## 2.24.0 - 2026-11-23
 
 - **Partner with us**: a call to action under the home page partner cards opens a new `/partner-with-us` page. Organisations fill in a short form (organisation, name, email, optional phone and website, what they would like to partner on, and a message). No account needed.

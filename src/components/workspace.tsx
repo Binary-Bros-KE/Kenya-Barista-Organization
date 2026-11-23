@@ -39,7 +39,6 @@ const adminLinks: Item[] = [
   { label: "Recruiters", href: "/admin", icon: "organisations" },
   { label: "Job review", href: "/admin/jobs", icon: "jobs" },
   { label: "Applicants", href: "/employer/applications", icon: "review" },
-  { label: "Payments and M-Pesa", href: "/admin/payments", icon: "payments" },
   { label: "Payment review", href: "/admin/payments/review", icon: "settings" },
   { label: "Wallet top-ups", href: "/admin/wallet", icon: "wallet" },
   { label: "Partner requests", href: "/admin/partners", icon: "organisations" },
@@ -50,6 +49,8 @@ const adminAccountLinks: Item[] = [
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
   { label: "Settings", href: "/dashboard/security", icon: "settings" },
 ];
+// Admin-only setup pages, kept at the very bottom of the sidebar.
+const adminSettingsLinks: Item[] = [{ label: "Payments and M-Pesa", href: "/admin/payments", icon: "payments" }];
 const exploreLinks: Item[] = [{ label: "Find jobs", href: "/dashboard/jobs", icon: "jobs" }];
 
 function Icon({ name }: { name: IconName }) {
@@ -93,7 +94,7 @@ export function Workspace({ name, admin, recruiter = false, badges = {}, photo =
   const mobileTrigger = useRef<HTMLButtonElement>(null);
   const mobileClose = useRef<HTMLButtonElement>(null);
   const groups: [string, Item[]][] = admin
-    ? [["Overview", adminOverviewLinks], ["Administration", adminLinks], ["Your account", adminAccountLinks], ["Explore", exploreLinks]]
+    ? [["Overview", adminOverviewLinks], ["Administration", adminLinks], ["Your account", adminAccountLinks], ["Explore", exploreLinks], ["Settings", adminSettingsLinks]]
     : recruiter
       ? [["Overview", adminOverviewLinks], ["Recruiting", recruiterLinks], ["Job seeking", jobSeekerLinks], ["Your account", adminAccountLinks.filter(link => link.href !== "/dashboard/profile")], ["Explore", exploreLinks]]
       : [["Overview", memberOverviewLinks], ["Your workspace", memberLinks], ["Account", memberAccountLinks]];
