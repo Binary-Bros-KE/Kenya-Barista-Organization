@@ -10,6 +10,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.17.3 - 2026-11-23
+
+- Job review opens on **All statuses**. With no filter, jobs are ordered by what needs attention: awaiting review first, then live, then drafts, then returned (changes requested), closed and archived, newest first within each. This applies to the recruiter list too.
+- The default application fee is now a small gold widget beside the status filter (amount and Save), instead of a separate panel.
+
 ## 2.17.2 - 2026-11-23
 
 - Admin Job review: removed the "Opportunities worth opening." heading and the row of shortcut cards; the page opens with the default fee setting and the job list.

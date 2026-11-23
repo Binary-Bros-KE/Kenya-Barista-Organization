@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import type { PrismaClient, Prisma } from "../generated/prisma/client";
+import type { PrismaClient, Prisma, JobStatus } from "../generated/prisma/client";
 import { assertAdmin, type Actor } from "./access";
 import { AccessError } from "./errors";
 import { paidSubmission } from "./submitted-application";
@@ -186,15 +186,25 @@ export async function getManagedJob(db: PrismaClient, actor: Actor, id: string) 
   return job;
 }
 
+const statusRank: Record<JobStatus, number> = { PENDING_REVIEW: 0, PUBLISHED: 1, DRAFT: 2, CHANGES_REQUESTED: 3, CLOSED: 4, ARCHIVED: 5 };
 export async function listManagedJobs(db: PrismaClient, actor: Actor, input: unknown) {
   const query = z.object({ page: z.coerce.number().int().min(1).max(100000).default(1), status: z.enum(["DRAFT", "PENDING_REVIEW", "CHANGES_REQUESTED", "PUBLISHED", "CLOSED", "ARCHIVED"]).optional(), recruiterId: z.string().max(100).optional() }).strict().parse(input);
   // Filters are ANDed with the ownership scope so a recruiter can never widen it (e.g. by passing another recruiterId).
   const where: Prisma.JobWhereInput = { AND: [managedScope(actor), query.status ? { status: query.status } : {}, query.recruiterId ? { recruiterId: query.recruiterId } : {}] };
-  const [total, jobs] = await db.$transaction([
-    db.job.count({ where }), db.job.findMany({ where, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], skip: (query.page - 1) * 20, take: 20, select: { id: true, title: true, slug: true, status: true, version: true, deadline: true, applicationFeeMinor: true, coverVersion: true, category: true, employmentType: true, location: true, description: true, recruiter: { select: { id: true, name: true, avatarVersion: true, recruiterVerifiedAt: true } }, _count: { select: { applications: { where: paidSubmission } } },
+  // With no status filter, jobs needing attention come first: awaiting review, then live, then drafts, and returned,
+  // closed and archived last (newest first within each). Job counts are small, so the order is worked out on ids.
+  let pageWhere: Prisma.JobWhereInput = where, skip = (query.page - 1) * 20, pageIds: string[] | null = null;
+  if (!query.status) {
+    const all = await db.job.findMany({ where, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], select: { id: true, status: true } });
+    pageIds = all.map((job, index) => ({ job, index })).sort((a, b) => statusRank[a.job.status] - statusRank[b.job.status] || a.index - b.index).slice(skip, skip + 20).map(({ job }) => job.id);
+    pageWhere = { AND: [where, { id: { in: pageIds } }] }; skip = 0;
+  }
+  const [total, rows] = await db.$transaction([
+    db.job.count({ where }), db.job.findMany({ where: pageWhere, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], skip, take: 20, select: { id: true, title: true, slug: true, status: true, version: true, deadline: true, applicationFeeMinor: true, coverVersion: true, category: true, employmentType: true, location: true, description: true, recruiter: { select: { id: true, name: true, avatarVersion: true, recruiterVerifiedAt: true } }, _count: { select: { applications: { where: paidSubmission } } },
       // The newest applicants' photos for the card; the applicants popup loads the full list.
       applications: { where: paidSubmission, select: { user: { select: { id: true, name: true, avatarVersion: true } } }, orderBy: [{ submittedAt: "desc" }, { id: "asc" }], take: 4 } } }),
   ]);
+  const jobs = pageIds ? [...rows].sort((a, b) => pageIds.indexOf(a.id) - pageIds.indexOf(b.id)) : rows;
   // Applications nobody has looked at yet ("new"), per job.
   const fresh = jobs.length ? await db.application.groupBy({ by: ["jobId"], where: { ...paidSubmission, status: "SUBMITTED", jobId: { in: jobs.map(job => job.id) } }, _count: { _all: true } }) : [];
   const newCount = new Map(fresh.map(row => [row.jobId, row._count._all]));

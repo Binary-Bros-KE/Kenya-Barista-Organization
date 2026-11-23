@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { CreateJobButton } from "./job-create-modal";
+import { FeeSettings } from "./fee-settings";
 import { JobManageModal } from "./job-manage-modal";
 import { JobApplicantsModal } from "./job-applicants";
 import { avatarSrc } from "@/lib/images";
@@ -32,7 +33,7 @@ export function ManagedJobCards({ jobs, admin = false, onManage, onApplicants }:
   </article></li>; })}</ul>;
 }
 export function JobList({ admin = false, imagesEnabled = false }: { admin?: boolean; imagesEnabled?: boolean }) {
- const [status, setStatus] = useState(admin ? "PENDING_REVIEW" : ""), [page, setPage] = useState(1);
+ const [status, setStatus] = useState(""), [page, setPage] = useState(1);
  const [data, setData] = useState<{ jobs: Row[]; pagination: { total: number; pageCount: number } } | null>(null), [error, setError] = useState(""), [loading, setLoading] = useState(true), [notice, setNotice] = useState(""), [managing, setManaging] = useState<string | null>(null), [reviewing, setReviewing] = useState<{ id: string; title: string } | null>(null);
  const load = useCallback(async (signal?: AbortSignal) => {
   setLoading(true); setError("");
@@ -40,10 +41,10 @@ export function JobList({ admin = false, imagesEnabled = false }: { admin?: bool
   catch (failure) { if (!signal?.aborted) setError(failure instanceof Error ? failure.message : "Unable to load jobs"); } finally { if (!signal?.aborted) setLoading(false); }
  }, [page, status, admin]);
  useEffect(() => { const controller = new AbortController(); void load(controller.signal); return () => controller.abort(); }, [load]);
- return <div className="employer-job-list"><div className="employer-toolbar"><label htmlFor="employer-job-status">Posting status<select id="employer-job-status" value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}><option value="">All statuses</option>{Object.entries(statusLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label><CreateJobButton admin={admin} onCreated={(message, openId) => { setNotice(message); setStatus(""); setPage(1); void load(); if (openId) setManaging(openId); }} /></div>
+ return <div className="employer-job-list"><div className="employer-toolbar"><label htmlFor="employer-job-status">Posting status<select id="employer-job-status" value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}><option value="">All statuses</option>{Object.entries(statusLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>{admin && <FeeSettings />}<CreateJobButton admin={admin} onCreated={(message, openId) => { setNotice(message); setStatus(""); setPage(1); void load(); if (openId) setManaging(openId); }} /></div>
  {notice && <div role="status" className="employer-feedback is-success">{notice}<button className="employer-text-button" onClick={() => setNotice("")}>Dismiss</button></div>}
  {error && <div role="alert" className="employer-feedback is-error">{error}<button className="employer-text-button" onClick={() => void load()}>Try again</button></div>}
- {loading ? <div className="employer-loading" role="status"><span aria-hidden="true"/>Loading job postings...</div> : !error && data && <><div className="employer-results-heading"><h2>{data.pagination.total} {data.pagination.total===1?"posting":"postings"}</h2><span>Recently updated first</span></div><ManagedJobCards jobs={data.jobs} admin={admin} onManage={setManaging} onApplicants={job => setReviewing({ id: job.id, title: job.title })}/>{!data.jobs.length && <div className="employer-empty"><h2>No postings in this view</h2><p>{page>1?"Return to the first page to find your postings.":"Choose another status or create a new opportunity for your team."}</p>{(status || page>1) && <button className="employer-secondary" onClick={()=>{setStatus("");setPage(1);}}>Show all postings</button>}</div>}<nav className="employer-pagination" aria-label="Job posting pages"><span>Page {page} of {Math.max(1,data.pagination.pageCount)}</span><div><button disabled={page<=1} onClick={()=>setPage(page-1)}>&larr; Previous</button><button disabled={page>=data.pagination.pageCount} onClick={()=>setPage(page+1)}>Next &#8594;</button></div></nav></>}
+ {loading ? <div className="employer-loading" role="status"><span aria-hidden="true"/>Loading job postings...</div> : !error && data && <><div className="employer-results-heading"><h2>{data.pagination.total} {data.pagination.total===1?"posting":"postings"}</h2><span>{status ? "Recently updated first" : "Needs review first, then live, then the rest"}</span></div><ManagedJobCards jobs={data.jobs} admin={admin} onManage={setManaging} onApplicants={job => setReviewing({ id: job.id, title: job.title })}/>{!data.jobs.length && <div className="employer-empty"><h2>No postings in this view</h2><p>{page>1?"Return to the first page to find your postings.":"Choose another status or create a new opportunity for your team."}</p>{(status || page>1) && <button className="employer-secondary" onClick={()=>{setStatus("");setPage(1);}}>Show all postings</button>}</div>}<nav className="employer-pagination" aria-label="Job posting pages"><span>Page {page} of {Math.max(1,data.pagination.pageCount)}</span><div><button disabled={page<=1} onClick={()=>setPage(page-1)}>&larr; Previous</button><button disabled={page>=data.pagination.pageCount} onClick={()=>setPage(page+1)}>Next &#8594;</button></div></nav></>}
  {reviewing && <JobApplicantsModal job={reviewing} onClose={() => { setReviewing(null); void load(); }} />}
  {managing && <JobManageModal id={managing} admin={admin} imagesEnabled={imagesEnabled} onClose={() => { setManaging(null); void load(); }} />}
  </div>;

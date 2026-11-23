@@ -240,3 +240,18 @@
 .jeditor-recruiter { padding: 12px 14px; }
 .jeditor-recruiter-head { margin: 8px 0 10px; }
 .jeditor-recruiter + .studio-side-label { margin-top: 4px; }
+
+/* Job review toolbar: the default fee sits beside the status filter as a small widget. */
+.employer-toolbar:has(.fee-widget) { justify-content: flex-start; flex-wrap: wrap; }
+.employer-toolbar:has(.fee-widget) > :last-child { margin-left: auto; }
+.fee-widget { display: grid; gap: 6px; padding: 8px 10px; border: 1px solid #e0b766; border-radius: 12px; background: linear-gradient(140deg, #fdf3dd, #fbe7bd); }
+.fee-widget label { font-size: 11px; font-weight: 700; color: #8a5d16; }
+.fee-widget > div { display: flex; gap: 6px; }
+.fee-widget input { width: 110px; height: 36px; padding: 0 10px; border: 1px solid #d9b56a; border-radius: 8px; background: #fff; color: #2f2219; font: inherit; font-size: 14px; font-weight: 700; }
+.fee-widget input:focus { outline: 2px solid #d7a44666; border-color: #a8761c; }
+.fee-widget-save { height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: linear-gradient(140deg, #ecc576, #d7a446); color: #3a2a10; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.fee-widget-save:disabled { opacity: .55; cursor: not-allowed; }
+.fee-widget-note { margin: 0; font-size: 11px; color: #8a6a32; }
+.fee-widget-note.is-ok { color: #24804f; font-weight: 700; }
+.fee-widget-note.is-error { color: #be1a41; font-weight: 700; }
+.admin-workspace > .employer-job-list:first-child { margin-top: 0; }
