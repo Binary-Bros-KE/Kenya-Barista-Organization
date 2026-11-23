@@ -99,6 +99,8 @@ model User {
   recruiterVerifiedAt   DateTime? @db.Timestamptz(3)
   recruiterVerifiedById String?
   recruiterVerification Json?
+  // Wallet balance in cents, kept in step with WalletEntry (always changed with the user row locked).
+  walletBalanceMinor Int @default(0)
   createdAt       DateTime      @default(now()) @db.Timestamptz(3)
   updatedAt       DateTime      @updatedAt @db.Timestamptz(3)
   profile         ApplicantProfile?
@@ -122,6 +124,9 @@ model User {
   requestedRefunds RefundRecord[] @relation("RefundRequester")
   reviewedRefunds RefundRecord[] @relation("RefundReviewer")
   completedRefunds RefundRecord[] @relation("RefundCompleter")
+  walletEntries   WalletEntry[]
+  topUps          TopUpRequest[] @relation("TopUpOwner")
+  reviewedTopUps  TopUpRequest[] @relation("TopUpReviewer")
 
   @@index([lastSignInAt])
 }
@@ -272,6 +277,9 @@ model JobStatusHistory {
 model PlatformSettings {
   id                         String   @id @default("platform")
   defaultApplicationFeeMinor Int?
+  // Where members send M-Pesa top-ups while payments are confirmed by hand.
+  topUpPhone                 String?
+  topUpName                  String?
   updatedAt                  DateTime @updatedAt @db.Timestamptz(3)
 }
 
@@ -347,6 +355,7 @@ model PaymentOrder {
   attempts      PaymentAttempt[]
   reviews       PaymentReview[]
   refunds       RefundRecord[]
+  walletEntry   WalletEntry?
 }
 
 model PaymentAttempt {
@@ -544,6 +553,57 @@ model RecruiterRequest {
   updatedAt    DateTime               @updatedAt @db.Timestamptz(3)
   user         User                   @relation("RecruiterRequests", fields: [userId], references: [id], onDelete: Restrict)
   reviewedBy   User?                  @relation("RecruiterRequestReviewer", fields: [reviewedById], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+}
+
+// Wallet: members top up by M-Pesa (confirmed by an administrator for now) and pay application fees from the balance.
+enum WalletEntryKind {
+  TOP_UP
+  APPLICATION_FEE
+}
+
+// Ledger of every balance change. Entries are never edited or deleted.
+model WalletEntry {
+  id                String          @id @default(cuid())
+  userId            String
+  kind              WalletEntryKind
+  amountMinor       Int             // positive credits, negative debits
+  balanceAfterMinor Int
+  description       String
+  topUpId           String?         @unique
+  paymentOrderId    String?         @unique
+  createdAt         DateTime        @default(now()) @db.Timestamptz(3)
+  user              User            @relation(fields: [userId], references: [id], onDelete: Restrict)
+  topUp             TopUpRequest?   @relation(fields: [topUpId], references: [id], onDelete: Restrict)
+  paymentOrder      PaymentOrder?   @relation(fields: [paymentOrderId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+}
+
+enum TopUpStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
+
+// A member's claim that they sent money by M-Pesa. Once confirmed or rejected it can't change.
+model TopUpRequest {
+  id                 String      @id @default(cuid())
+  userId             String
+  amountMinor        Int         // what the member says they sent
+  creditedMinor      Int?        // what the administrator confirmed from the M-Pesa statement
+  mpesaCode          String      @unique
+  paidAt             DateTime    @db.Timestamptz(3)
+  status             TopUpStatus @default(PENDING)
+  reviewNote         String?
+  reviewedById       String?
+  reviewedAt         DateTime?   @db.Timestamptz(3)
+  createdAt          DateTime    @default(now()) @db.Timestamptz(3)
+  user               User        @relation("TopUpOwner", fields: [userId], references: [id], onDelete: Restrict)
+  reviewedBy         User?       @relation("TopUpReviewer", fields: [reviewedById], references: [id], onDelete: Restrict)
+  walletEntry        WalletEntry?
 
   @@index([status, createdAt])
   @@index([userId, createdAt])

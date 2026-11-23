@@ -238,3 +238,53 @@ export function newApplicantEmail({ baseUrl, name, jobTitle, applicant, applican
       `Review the application: ${new URL(href, baseUrl)}`, "", "Kenya Barista Organization"]),
   };
 }
+
+// Wallet top-ups (manual M-Pesa): received, credited, or not confirmed.
+type TopUpFacts = { baseUrl: string; name: string | null; amount: string; code: string; paidAt: string };
+export function topUpReceivedEmail({ baseUrl, name, amount, code, paidAt }: TopUpFacts): Email {
+  const hello = escape(firstName(name));
+  return {
+    subject: `We've received your top-up of ${amount}`,
+    html: layout({
+      baseUrl, preheader: `M-Pesa code ${code} · KBO will confirm it and credit your wallet.`, eyebrow: "Top-up received", title: "We're checking your top-up",
+      intro: [`Hi ${hello},`, "Thanks for topping up your KBO wallet. We've received your M-Pesa details and will match them against our statement."],
+      rows: [["Amount", amount], ["M-Pesa code", code], ["Paid at", paidAt]],
+      steps: [["We confirm the payment", "Usually within a few hours on working days."], ["Your wallet is credited", "We'll email you as soon as the money is in your balance."], ["Apply for jobs", "Pay application fees straight from your wallet."]],
+      button: { label: "View your wallet", href: "/dashboard/wallet" },
+      footnote: "If any detail above is wrong, contact KBO from the website and quote your M-Pesa code.",
+    }),
+    text: plain([`Hi ${firstName(name)},`, "", "Thanks for topping up your KBO wallet. We've received your M-Pesa details and will confirm them shortly.", "", `Amount: ${amount}`, `M-Pesa code: ${code}`, `Paid at: ${paidAt}`, "", `View your wallet: ${new URL("/dashboard/wallet", baseUrl)}`, "", "Kenya Barista Organization"]),
+  };
+}
+export function topUpConfirmedEmail({ baseUrl, name, amount, code, paidAt, balance }: TopUpFacts & { balance: string }): Email {
+  const hello = escape(firstName(name));
+  return {
+    subject: `${amount} added to your KBO wallet`,
+    html: layout({
+      baseUrl, preheader: `Your top-up was confirmed. New balance: ${balance}.`, eyebrow: "Top-up confirmed", title: `${amount} is in your wallet`,
+      intro: [`Hi ${hello},`, "Good news: we've confirmed your M-Pesa payment and credited your wallet. You can use it to apply for jobs right away."],
+      rows: [["Credited", amount], ["New balance", balance], ["M-Pesa code", code], ["Paid at", paidAt]],
+      stepsTitle: "What you can do now",
+      steps: [["Find a job", "Browse open coffee jobs in your dashboard."], ["Apply from your wallet", "The application fee comes straight off your balance."]],
+      button: { label: "Find jobs", href: "/dashboard/jobs" },
+      footnote: "Keep this email as your receipt. Questions? Contact KBO from the website and quote your M-Pesa code.",
+    }),
+    text: plain([`Hi ${firstName(name)},`, "", "We've confirmed your M-Pesa payment and credited your wallet.", "", `Credited: ${amount}`, `New balance: ${balance}`, `M-Pesa code: ${code}`, `Paid at: ${paidAt}`, "", `Find jobs: ${new URL("/dashboard/jobs", baseUrl)}`, "", "Kenya Barista Organization"]),
+  };
+}
+export function topUpRejectedEmail({ baseUrl, name, amount, code, paidAt, reason }: TopUpFacts & { reason: string }): Email {
+  const hello = escape(firstName(name));
+  return {
+    subject: "We couldn't confirm your KBO top-up",
+    html: layout({
+      baseUrl, preheader: `M-Pesa code ${code} · Reason: ${reason.length > 100 ? `${reason.slice(0, 97)}...` : reason}`, eyebrow: "Top-up not confirmed", title: "We couldn't confirm your top-up",
+      intro: [`Hi ${hello},`, "We checked our M-Pesa statement and couldn't match the payment you told us about, so your wallet wasn't credited."],
+      rows: [["Reason", reason], ["Amount you entered", amount], ["M-Pesa code", code], ["Paid at", paidAt]],
+      stepsTitle: "What you can do",
+      steps: [["Check the details", "Compare the code and time with your M-Pesa message."], ["Send a new top-up claim", "If you made a typing mistake, submit the correct details from your wallet."]],
+      button: { label: "Open your wallet", href: "/dashboard/wallet" },
+      footnote: "If you're sure the payment went through, contact KBO from the website and quote your M-Pesa code.",
+    }),
+    text: plain([`Hi ${firstName(name)},`, "", "We couldn't match your M-Pesa payment, so your wallet wasn't credited.", "", `Reason: ${reason}`, `Amount you entered: ${amount}`, `M-Pesa code: ${code}`, `Paid at: ${paidAt}`, "", `Open your wallet: ${new URL("/dashboard/wallet", baseUrl)}`, "", "Kenya Barista Organization"]),
+  };
+}

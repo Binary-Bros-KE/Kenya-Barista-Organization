@@ -11,6 +11,13 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.22.0 - 2026-11-23
+
+- **Wallet** for every member and recruiter (new sidebar tab). A balance card with Top up and Find jobs, coloured totals (topped up, spent, waiting), top-ups waiting for confirmation, and a history of every top-up and application fee with the balance after each.
+- **Top up by M-Pesa**: a step-by-step popup (open M-Pesa, Send Money, the number to send to with a Copy button and the name to check, the amount, then the M-Pesa code and time paid). Members get an email when the top-up is received and again when it's confirmed or rejected.
+- **Admin → Wallet top-ups**: claims to check first, each with the member, amount, M-Pesa code, time paid and current balance. Confirm & credit (the amount can match the statement) or reject with a reason. Processed top-ups can't be changed. The M-Pesa number and name members send to are set on the same page.
+- **Pay from wallet** on applications: pays the fee and submits the application in one step, or offers a top-up for the difference. The M-Pesa prompt (STK) payment code is kept for later. See docs/wallet.md.
+
 ## 2.21.0 - 2026-11-23
 
 - Home page: a **Latest coffee jobs** section between the pathway cards and "More than what's in the cup". It shows the four newest open jobs (the same ones the jobs board lists first) as compact cards: cover photo, Verified ribbon for verified employers, category and type, title, employer, location and closing date. A **See all N postings** button opens the jobs board.

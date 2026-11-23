@@ -1,0 +1,194 @@
+/* Wallet (members), the M-Pesa top-up popup, paying from the wallet on an application, and Wallet top-ups (admins). */
+.wallet { max-width: 1100px; margin: auto; display: grid; gap: 18px; color: #2f2219; }
+
+/* Balance hero */
+.wallet-hero { position: relative; overflow: hidden; isolation: isolate; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 28px 30px; border-radius: 20px; color: #fff7ec; background: linear-gradient(125deg, #2f1f16 0%, #4b3020 45%, #0b5f58 120%); box-shadow: 0 24px 40px -26px #2f1f16; }
+.wallet-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(#ffffff24 1.2px, transparent 1.4px); background-size: 14px 14px; mask-image: linear-gradient(200deg, #000, transparent 60%); }
+.wallet-hero::after { content: ""; position: absolute; right: -80px; bottom: -120px; z-index: -1; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, #14a39766, transparent 65%); }
+.wallet-hero-label { display: inline-flex; align-items: center; gap: 8px; padding: 5px 11px; border-radius: 999px; background: #ffffff18; font-size: 12.5px; font-weight: 700; letter-spacing: .02em; }
+.wallet-balance { display: block; margin: 12px 0 6px; font-size: clamp(2.2rem, 5vw, 3.2rem); line-height: 1; letter-spacing: -.03em; font-weight: 800; }
+.wallet-hero p { margin: 0; color: #f3e2cc; font-size: 14px; }
+.wallet-hero-pending { display: inline-block; margin-left: 6px; padding: 2px 9px; border-radius: 999px; background: #e0b76633; color: #ffd98c; font-weight: 700; font-size: 12.5px; }
+.wallet-hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.wallet-topup-button { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border: 0; border-radius: 12px; background: linear-gradient(140deg, #f3d488, #d7a446); color: #3a2a10; font: inherit; font-size: 14.5px; font-weight: 800; text-decoration: none; cursor: pointer; box-shadow: 0 12px 22px -12px #d7a446; transition: transform .15s, filter .15s; }
+.wallet-topup-button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.05); }
+.wallet-topup-button:disabled { opacity: .5; cursor: not-allowed; }
+.wallet-ghost-button { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border: 1px solid #ffffff44; border-radius: 12px; color: #fff7ec; font-size: 14px; font-weight: 700; text-decoration: none; }
+.wallet-ghost-button:hover { background: #ffffff14; }
+.wallet-hero-card { position: relative; flex-shrink: 0; width: 230px; aspect-ratio: 1.6; padding: 18px; border-radius: 16px; background: linear-gradient(135deg, #14a397, #0b5f58 60%, #08443f); box-shadow: 0 20px 30px -16px #000a, inset 0 1px 0 #ffffff40; transform: rotate(-6deg); }
+.wallet-chip { display: block; width: 38px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, #f3d488, #c99a3b); }
+.wallet-hero-brand { position: absolute; right: 18px; top: 16px; font-weight: 900; letter-spacing: .12em; color: #ffffffcc; }
+.wallet-hero-mpesa { position: absolute; left: 18px; bottom: 16px; font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #c8f2ea; }
+
+/* Stats */
+.wallet-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0; }
+.wallet-stats > div { padding: 16px 18px; border-radius: 14px; border: 1px solid var(--edge); background: linear-gradient(160deg, var(--wash), #fffefa 80%); box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
+.wallet-stats dt { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 13px; font-weight: 700; }
+.wallet-stats dt svg { padding: 5px; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: #fff; }
+.wallet-stats dd { margin: 10px 0 0; font-size: 22px; font-weight: 800; color: #2a1d15; }
+.wallet-stats .is-teal { --ink: #0b766d; --wash: #e4f4f1; --edge: #9fd3cc; }
+.wallet-stats .is-rose { --ink: #be1a41; --wash: #fcebef; --edge: #eeb1c0; }
+.wallet-stats .is-gold { --ink: #a8761c; --wash: #fdf3dd; --edge: #e6c98c; }
+
+/* Waiting for confirmation */
+.wallet-pending { padding: 16px 18px; border: 1px solid #e6c98c; border-radius: 16px; background: linear-gradient(140deg, #fdf3dd, #fffaf0); }
+.wallet-pending h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: 15px; color: #6e5214; }
+.wallet-pulse { width: 10px; height: 10px; border-radius: 50%; background: #d7a446; box-shadow: 0 0 0 0 #d7a44699; animation: wallet-pulse 1.6s infinite; }
+@keyframes wallet-pulse { 70% { box-shadow: 0 0 0 9px #d7a44600; } 100% { box-shadow: 0 0 0 0 #d7a44600; } }
+.wallet-pending ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.wallet-pending li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 10px 12px; border-radius: 10px; background: #fffdf8; font-size: 13.5px; color: #5d4d3f; }
+.wallet-pending li strong { font-size: 16px; color: #2a1d15; }
+.wallet-pending li em { margin-left: auto; font-style: normal; font-size: 12px; color: #a8761c; }
+.wallet code, .topup-modal code, .topups code { padding: 2px 6px; border-radius: 6px; background: #f2ebe2; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; letter-spacing: .04em; color: #3d2d22; }
+
+/* History */
+.wallet-history { padding: 18px 20px; border: 1px solid #d6c7b5; border-radius: 16px; background: #fffefa; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
+.wallet-history > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.wallet-history h2 { margin: 0; font-size: 17px; }
+.wallet-filters { display: flex; gap: 6px; }
+.wallet-filters button { padding: 6px 13px; border: 1px solid #d6c7b5; border-radius: 999px; background: #fffdf8; color: #5d4d3f; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.wallet-filters button.is-on { background: #3d2a1e; border-color: #3d2a1e; color: #fff; }
+.wallet-history ol { display: grid; margin: 0; padding: 0; list-style: none; }
+.wallet-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 4px; border-top: 1px solid #ece2d6; }
+.wallet-row:first-child { border-top: 0; }
+.wallet-row-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--wash); color: var(--ink); }
+.wallet-row.is-in { --ink: #24804f; --wash: #e7f5ec; }
+.wallet-row.is-out { --ink: #be1a41; --wash: #fcebef; }
+.wallet-row.is-pending { --ink: #a8761c; --wash: #fdf3dd; }
+.wallet-row.is-rejected { --ink: #6b6560; --wash: #efebe6; }
+.wallet-row strong { display: block; font-size: 14px; color: #2a1d15; }
+.wallet-row span { color: #7d6b5b; font-size: 12.5px; }
+.wallet-row span a { color: #0b5f58; font-weight: 700; }
+.wallet-row p { margin: 4px 0 0; color: #6b6560; font-size: 12.5px; }
+.wallet-row-side { display: grid; justify-items: end; gap: 2px; }
+.wallet-row-amount { color: var(--ink); font-size: 15px; font-weight: 800; white-space: nowrap; }
+.wallet-row.is-rejected .wallet-row-amount { text-decoration: line-through; }
+.wallet-row-side small { color: #9a8877; font-size: 11.5px; }
+.wallet-empty { display: grid; justify-items: center; gap: 8px; padding: 30px 16px; text-align: center; color: #6f6052; }
+.wallet-empty > span { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(140deg, #f3d488, #d7a446); color: #3a2a10; }
+.wallet-empty strong { font-size: 16px; color: #2f2219; }
+.wallet-empty p { margin: 0 0 6px; }
+
+/* Top-up popup */
+.topup-modal { width: min(640px, calc(100vw - 32px)); }
+.topup-head { background: linear-gradient(140deg, #0b766d, #08443f); }
+.topup-body { gap: 14px; }
+.topup-steps { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.topup-steps > li { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; padding-bottom: 16px; }
+.topup-steps > li:not(:last-child)::before { content: ""; position: absolute; left: 16px; top: 34px; bottom: 0; width: 2px; background: linear-gradient(#8fd1c7, #d6efe9); }
+.topup-steps > li > span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(140deg, #14a397, #0b766d); color: #fff; font-weight: 800; box-shadow: 0 6px 12px -6px #0b766d; }
+.topup-steps > li > div > strong { display: block; margin-top: 6px; font-size: 15px; color: #2a1d15; }
+.topup-steps p strong { color: #08443f; }
+.topup-steps p { margin: 3px 0 0; color: #6f6052; font-size: 13px; line-height: 1.5; }
+.topup-number { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 6px 6px 14px; border: 2px dashed #14a397; border-radius: 12px; background: #e9f7f4; }
+.topup-number b { font-size: 20px; letter-spacing: .06em; color: #08443f; }
+.topup-number button { display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; border: 0; border-radius: 8px; background: #0b766d; color: #fff; font: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; }
+.topup-amount { display: inline-flex; align-items: center; margin-top: 8px; border: 2px solid #d7a446; border-radius: 12px; background: #fffaf0; overflow: hidden; }
+.topup-amount span { padding: 0 12px; color: #8a5d16; font-weight: 800; }
+.topup-amount input { width: 160px; height: 46px; padding: 0 12px 0 0; border: 0; background: transparent; color: #2a1d15; font: inherit; font-size: 22px; font-weight: 800; }
+.topup-amount input:focus { outline: none; }
+.topup-amount:focus-within { box-shadow: 0 0 0 3px #d7a44644; }
+.topup-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.topup-fields label { display: grid; gap: 6px; font-size: 12.5px; font-weight: 700; color: #3d2d22; }
+.topup-fields input { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #cdbba6; border-radius: 10px; background: #fff; color: #2f2219; font: inherit; font-size: 14px; }
+.topup-fields input:first-of-type { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; font-weight: 700; }
+.topup-fields input:focus { outline: 2px solid #0b766d55; border-color: #0b766d; }
+.topup-foot { position: sticky; bottom: -18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin: 0 -22px -18px; padding: 12px 22px; border-top: 1px solid #d6c7b5; background: #fffdf8; }
+.topup-foot p { margin: 0; color: #5d4d3f; font-size: 13px; }
+.topup-done { display: grid; justify-items: center; gap: 10px; padding: 36px 24px 30px; text-align: center; }
+.topup-done h3 { margin: 4px 0 0; font-size: 20px; }
+.topup-done p { margin: 0; max-width: 420px; color: #5d4d3f; line-height: 1.6; }
+.topup-done-mark { display: grid; place-items: center; width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(140deg, #2bb673, #17804f); color: #fff; box-shadow: 0 14px 28px -14px #17804f; animation: topup-pop .45s cubic-bezier(.2, 1.4, .4, 1); }
+.topup-done.is-off .topup-done-mark { background: linear-gradient(140deg, #ecc576, #d7a446); color: #3a2a10; }
+@keyframes topup-pop { from { transform: scale(.4); opacity: 0; } }
+
+/* Pay from wallet (application page) */
+.wallet-pay { margin-bottom: 14px; padding: 16px; border-radius: 16px; color: #fff7ec; background: linear-gradient(140deg, #3d2a1e, #0b5f58); box-shadow: 0 18px 30px -20px #0b5f58; }
+.wallet-pay-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.wallet-pay-head span { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; }
+.wallet-pay-head a { color: #c8f2ea; font-size: 12.5px; font-weight: 700; }
+.wallet-pay dl { display: grid; gap: 6px; margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: #ffffff14; }
+.wallet-pay dl div { display: flex; justify-content: space-between; font-size: 13.5px; }
+.wallet-pay dt { color: #e9d8c2; }
+.wallet-pay dd { margin: 0; font-weight: 800; }
+.wallet-pay dl .is-after { padding-top: 6px; border-top: 1px solid #ffffff22; }
+.wallet-pay-button { display: flex; width: 100%; align-items: center; justify-content: center; padding: 12px 14px; border: 0; border-radius: 12px; background: linear-gradient(140deg, #f3d488, #d7a446); color: #3a2a10; font: inherit; font-size: 14.5px; font-weight: 800; text-decoration: none; cursor: pointer; }
+.wallet-pay-button.is-sure { background: linear-gradient(140deg, #2bb673, #17804f); color: #fff; }
+.wallet-pay-button:disabled { opacity: .6; cursor: wait; }
+.wallet-pay-note, .wallet-pay-short { margin: 8px 0 0; color: #e9d8c2; font-size: 12.5px; text-align: center; }
+.wallet-pay-short { margin: 0 0 10px; color: #ffd98c; font-weight: 700; }
+
+/* Admin: Wallet top-ups */
+.topups { display: grid; gap: 14px; color: #2f2219; }
+.topups-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid #d6c7b5; border-radius: 15px; background: #fffefa; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
+.topups-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.topups-tabs button { --tint: #6b6560; --wash: #f1efed; display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 1px solid color-mix(in srgb, var(--tint) 30%, transparent); border-radius: 999px; background: var(--wash); color: var(--tint); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.topups-tabs button span { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: color-mix(in srgb, var(--tint) 16%, #fff); font-size: 11px; }
+.topups-tabs .is-pending { --tint: #a8761c; --wash: #fdf3dd; }
+.topups-tabs .is-confirmed { --tint: #24804f; --wash: #e8f5ec; }
+.topups-tabs .is-rejected { --tint: #be1a41; --wash: #fcebef; }
+.topups-tabs button.is-on { background: var(--tint); color: #fff; box-shadow: 0 8px 16px -10px var(--tint); }
+.topups-tabs button.is-on span { background: #ffffff33; color: #fff; }
+.topups-number { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 4px 4px 4px 10px; border: 1px solid #8fd1c7; border-radius: 11px; background: linear-gradient(140deg, #e4f4f1, #d2efe9); }
+.topups-number > span { color: #0b766d; font-size: 11.5px; font-weight: 900; letter-spacing: .08em; }
+.topups-number input { width: 150px; height: 34px; padding: 0 9px; border: 0; border-radius: 7px; background: #fff; color: #2f2219; font: inherit; font-size: 13.5px; font-weight: 700; }
+.topups-number input:focus { outline: 2px solid #0b766d55; }
+.topups-number button { height: 34px; padding: 0 14px; border: 0; border-radius: 7px; background: linear-gradient(140deg, #14a397, #0b5f58); color: #fff; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.topups-number button:disabled { opacity: .5; cursor: not-allowed; }
+.topups-number em { flex-basis: 100%; color: #be1a41; font-size: 12px; font-style: normal; font-weight: 700; }
+.topups-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.topups-stats > div { padding: 14px 16px; border-radius: 14px; color: #fff; background: linear-gradient(140deg, var(--from), var(--to)); box-shadow: 0 12px 22px -16px var(--to); }
+.topups-stats dt { font-size: 12.5px; font-weight: 700; opacity: .9; }
+.topups-stats dd { margin: 6px 0 0; font-size: 22px; font-weight: 800; }
+.topups-stats .is-gold { --from: #ecc576; --to: #d7a446; color: #3a2a10; }
+.topups-stats .is-green { --from: #3b9a66; --to: #24573a; }
+.topups-stats .is-blue { --from: #4a8ad0; --to: #24527f; }
+.topups-warning { margin: 0; padding: 10px 14px; border-radius: 12px; background: #fdeee2; color: #9a4a12; font-weight: 700; font-size: 13.5px; }
+.topups-empty { display: grid; justify-items: center; gap: 6px; padding: 40px 16px; border: 1px dashed #cbb69f; border-radius: 16px; background: #fffefa; text-align: center; color: #6f6052; }
+.topups-empty strong { font-size: 16px; color: #2f2219; }
+.topups-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+.topup-card { --tint: #a8761c; --wash: #fdf6e6; display: grid; gap: 12px; padding: 16px; border: 1px solid color-mix(in srgb, var(--tint) 40%, #d6c7b5); border-top: 4px solid var(--tint); border-radius: 16px; background: linear-gradient(180deg, var(--wash), #fffefa 55%); box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
+.topup-card.is-confirmed { --tint: #24804f; --wash: #eef8f1; }
+.topup-card.is-rejected { --tint: #be1a41; --wash: #fdf1f3; }
+.topup-card-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.topup-card-who > div { min-width: 0; }
+.topup-card-who strong { display: block; font-size: 14.5px; }
+.topup-card-who a { color: #0b5f58; font-size: 12.5px; overflow-wrap: anywhere; }
+.topup-avatar { display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; overflow: hidden; border-radius: 50%; background: linear-gradient(140deg, #5a3a26, #2f1f16); color: #fff; font-size: 14px; font-weight: 800; }
+.topup-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.topup-card-amount span { display: block; color: #7d6b5b; font-size: 12px; font-weight: 700; }
+.topup-card-amount strong { font-size: 28px; font-weight: 800; letter-spacing: -.02em; color: var(--tint); }
+.topup-card-amount small { display: block; color: #8a7867; font-size: 12px; }
+.topup-card-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 0; padding: 10px 12px; border-radius: 12px; background: #fffdf8; border: 1px solid #ece2d6; }
+.topup-card-facts dt { color: #8a7867; font-size: 11.5px; font-weight: 700; }
+.topup-card-facts dd { margin: 2px 0 0; font-size: 13px; font-weight: 700; color: #2f2219; }
+.topup-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.topup-credit { display: inline-flex; align-items: center; border: 1px solid #8cc7a3; border-radius: 10px; background: #fff; overflow: hidden; }
+.topup-credit span { padding: 0 8px; color: #24804f; font-size: 12px; font-weight: 800; }
+.topup-credit input { width: 90px; height: 38px; border: 0; font: inherit; font-size: 15px; font-weight: 800; color: #2a1d15; }
+.topup-credit input:focus { outline: none; }
+.topup-confirm { height: 40px; padding: 0 14px; border: 0; border-radius: 10px; background: linear-gradient(140deg, #2bb673, #17804f); color: #fff; font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; box-shadow: 0 10px 18px -12px #17804f; }
+.topup-confirm.is-sure { background: linear-gradient(140deg, #0b766d, #08443f); animation: topup-nudge .3s; }
+@keyframes topup-nudge { 50% { transform: scale(1.04); } }
+.topup-confirm:disabled { opacity: .5; cursor: not-allowed; }
+.topup-reject-open { height: 40px; padding: 0 12px; border: 1px solid #eeb1c0; border-radius: 10px; background: #fff; color: #be1a41; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.topup-reject { display: grid; gap: 8px; width: 100%; }
+.topup-reject textarea { width: 100%; padding: 10px 12px; border: 1px solid #eeb1c0; border-radius: 10px; font: inherit; font-size: 13.5px; resize: vertical; }
+.topup-reject > div { display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+.topup-reject-button { height: 38px; padding: 0 14px; border: 0; border-radius: 10px; background: linear-gradient(140deg, #ef3d62, #be1a41); color: #fff; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.topup-reject-button:disabled { opacity: .5; cursor: not-allowed; }
+.topup-card-hint { flex-basis: 100%; margin: 0; color: #8a7867; font-size: 11.5px; }
+.topup-card-outcome { display: grid; gap: 4px; margin: 0; padding: 9px 12px; border-radius: 10px; background: var(--wash); color: var(--tint); font-size: 13px; font-weight: 800; }
+.topup-card-outcome span { color: #5d4d3f; font-weight: 500; }
+
+@media (max-width: 760px) {
+  .wallet-hero { flex-direction: column; align-items: flex-start; padding: 22px 18px; }
+  .wallet-hero-card { display: none; }
+  .wallet-stats, .topups-stats { grid-template-columns: 1fr; }
+  .topup-fields { grid-template-columns: 1fr; }
+  .topup-foot { margin: 0 -14px -14px; padding: 10px 14px; }
+  .wallet-pending li em { margin-left: 0; }
+  .topups-number input { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .wallet-pulse, .topup-done-mark, .topup-confirm.is-sure { animation: none; } }
+.topups .topup-credit input { border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 0 8px 0 0; }

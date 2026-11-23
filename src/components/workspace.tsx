@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { SignOut } from "./sign-out";
 import { LinkPending } from "./navigation-progress";
 
-type IconName = "account" | "profile" | "applications" | "payments" | "notifications" | "security" | "organisations" | "jobs" | "review" | "settings" | "queue" | "admin" | "menu" | "close" | "collapse" | "expand" | "external";
+type IconName = "account" | "profile" | "applications" | "payments" | "wallet" | "notifications" | "security" | "organisations" | "jobs" | "review" | "settings" | "queue" | "admin" | "menu" | "close" | "collapse" | "expand" | "external";
 // "also" lists other routes that belong to the item (it highlights there too).
 type Item = { label: string; href: string; icon: IconName; also?: string[] };
 // Members: Dashboard on its own, then the everyday tabs, then account matters.
@@ -15,6 +15,7 @@ const memberLinks: Item[] = [
   { label: "Find jobs", href: "/dashboard/jobs", icon: "jobs" },
   { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
   { label: "Applications", href: "/dashboard/applications", icon: "applications" },
+  { label: "Wallet", href: "/dashboard/wallet", icon: "wallet" },
   { label: "Payments", href: "/dashboard/payments", icon: "payments" },
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
 ];
@@ -30,6 +31,7 @@ const recruiterLinks: Item[] = [
 const jobSeekerLinks: Item[] = [
   { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
   { label: "Applications", href: "/dashboard/applications", icon: "applications" },
+  { label: "Wallet", href: "/dashboard/wallet", icon: "wallet" },
   { label: "Payments", href: "/dashboard/payments", icon: "payments" },
 ];
 const adminLinks: Item[] = [
@@ -39,6 +41,7 @@ const adminLinks: Item[] = [
   { label: "Applicants", href: "/employer/applications", icon: "review" },
   { label: "Payments and M-Pesa", href: "/admin/payments", icon: "payments" },
   { label: "Payment review", href: "/admin/payments/review", icon: "settings" },
+  { label: "Wallet top-ups", href: "/admin/wallet", icon: "wallet" },
   { label: "Delivery queue", href: "/admin/notifications", icon: "queue" },
 ];
 const adminAccountLinks: Item[] = [
@@ -53,6 +56,7 @@ function Icon({ name }: { name: IconName }) {
     account: <><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></>,
     profile: <><circle cx="12" cy="8" r="3.5" /><path d="M5 21v-2a7 7 0 0 1 14 0v2" /></>,
     applications: <><path d="M8 3H5a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-3" /><rect x="8" y="2" width="8" height="4" rx="1" /><path d="m8 13 2 2 5-5M8 18h8" /></>,
+    wallet: <><path d="M3 7a2 2 0 0 1 2-2h12v4M3 7v10a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-3M3 7h16a1 1 0 0 1 1 1v3" /><path d="M20 15h-4a2 2 0 0 1 0-4h4v4z" /></>,
     payments: <><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="M3 10h18M7 15h3" /></>,
     notifications: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></>,
     security: <><path d="m12 2 8 3v6c0 5-4 8-8 11-4-3-8-6-8-11V5l8-3Z" /><path d="m8 11 3 3 5-5" /></>,
