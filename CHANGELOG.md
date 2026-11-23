@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.17.2 - 2026-11-23
+
+- Admin Job review: removed the "Opportunities worth opening." heading and the row of shortcut cards; the page opens with the default fee setting and the job list.
+
 ## 2.17.1 - 2026-11-23
 
 - Manage posting popup: the decision bar is now a footer below the scrolling content instead of floating over it, so nothing hides behind the buttons. The recruiter card moved to the top of the right column, above the card preview, so it is always in view.
