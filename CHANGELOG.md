@@ -11,6 +11,12 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.30.0 - 2026-11-23
+
+- Recruiters: clicking an application in the **Applications** tab opens the same applicants popup as **My jobs** (for that job, with that applicant selected) instead of a separate page. Rows are still links, so opening one in a new tab works.
+- Old links to an application page (emails, notifications, the dashboard) open the Applications tab with that applicant's popup.
+- Removed the "APPLICANT REVIEW · Find the people behind the potential." heading from the Applications tab.
+
 ## 2.29.0 - 2026-11-23
 
 - CV scanning no longer holds anything up. Recruiters can view and download a CV straight away, including one whose virus scan hasn't finished. A pill next to the CV shows **Scan pending** or **Scanned ✓**. Only a CV the scan flags as infected stays blocked.

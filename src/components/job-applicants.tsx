@@ -38,13 +38,14 @@ function Face({ id, version, name, size = 40 }: { id: string; version: number | 
   return <span className="applicant-face" style={{ width: size, height: size, fontSize: size * 0.36 }} aria-hidden="true">{src ? <img src={src} alt="" /> : initialsOf(name)}</span>;
 }
 
-export function JobApplicantsModal({ job, onClose }: { job: { id: string; title: string }; onClose: () => void }) {
+// initialId opens the popup with that applicant already selected (used by the Applications tab).
+export function JobApplicantsModal({ job, onClose, initialId = null }: { job: { id: string; title: string }; onClose: () => void; initialId?: string | null }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [filter, setFilter] = useState("");
   const [items, setItems] = useState<Item[] | null>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1), [pageCount, setPageCount] = useState(1);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(initialId);
   const [error, setError] = useState("");
 
   useEffect(() => { dialog.current?.showModal(); }, []);

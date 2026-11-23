@@ -8,7 +8,6 @@ import type { Actor } from "../src/server/access";
 import { applicationListQuery, applicationListHref, applicationGuidance } from "../src/lib/application-view";
 import { applicantApplicationList } from "../src/server/applicant-application-list";
 import { ApplicationList } from "../src/components/application-list";
-import { ApplicationResponses } from "../src/components/application-responses";
 import { DraftForm } from "../src/components/applicant-forms";
 import { WithdrawApplication } from "../src/components/recruitment-actions";
 import { applicationMissing, missingMessage } from "../src/lib/application-view";
@@ -54,12 +53,6 @@ test("locked application shows read-only saved details without a draft form or s
  assert.ok(!html.includes('<form')); assert.ok(!html.includes('Save draft'));
  assert.ok(applicationGuidance("DRAFT", false).includes('locked'));
  assert.ok(applicationGuidance("WITHDRAWN", false).includes('does not automatically refund'));
-});
-test("responses escape message HTML, display Nairobi dates and preserve response pagination", () => {
- const html = render(createElement(ApplicationResponses, { result: { responses: [{ id: "r", source: "EMPLOYER", senderLabel: "Coffee team", body: "<img onerror=alert(1)>", status: "SHORTLISTED", createdAt: new Date("2026-10-29T10:00:00Z") }], pagination: { page: 2, total: 50, pageCount: 3 } } }));
- assert.ok(html.includes('&lt;img onerror=alert(1)&gt;')); assert.ok(!html.includes('<img onerror'));
- assert.ok(html.includes('dateTime="2026-10-29T10:00:00.000Z"')); assert.ok(html.includes('Nairobi time'));
- assert.ok(html.includes('?responsePage=1')); assert.ok(html.includes('?responsePage=3'));
 });
 test("withdrawal stays an explicit confirmed action with optional reason and manual refund expectations", () => {
  const html = render(createElement(WithdrawApplication, { id: "a", version: 2 }));
