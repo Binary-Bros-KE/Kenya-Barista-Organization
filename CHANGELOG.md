@@ -11,6 +11,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.23.0 - 2026-11-23
+
+- Home page ends with **Meet our partners**: four cards for Kenya Barista Organization, Arobisca Group, Arobisca Training Centre and Brookside Kenya, each with a logo or initials badge, role and short description. Four across on wide screens, two on tablets, one on phones.
+- Partner details live in `src/content/partners.ts`. The descriptions are placeholder copy to confirm with each partner; add a logo (with permission) and website there and the card picks them up.
+
 ## 2.22.1 - 2026-11-23
 
 - Home jobs preview: the heading is now **Now hiring** (one size smaller, no separate label above it), with the line "Explore job openings posted by verified recruiters."

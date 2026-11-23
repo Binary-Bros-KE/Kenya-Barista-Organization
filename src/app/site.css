@@ -53,3 +53,23 @@
 .site-public .site-job-preview>.career-job-link{margin-top:auto;padding-top:14px;font-size:14px;font-weight:600}
 @media(max-width:1180px){.site-latest-jobs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:699px){.site-latest-jobs-heading{flex-direction:column;align-items:stretch}.site-latest-jobs-heading .site-button{justify-content:center}.site-latest-jobs-grid{grid-template-columns:1fr}}
+/* Home: partners, the last section before the footer */
+.site-partners{background:#efe8da;border-top:1px solid #e1d6c3}
+.site-partners-inner{max-width:1280px;margin:auto;padding:80px 32px 90px}
+.site-partners-heading{text-align:center;max-width:620px;margin:0 auto 44px}
+.site-partners-heading h2{font:400 clamp(1.7rem,2.8vw,2.3rem)/1.1 Georgia,serif;letter-spacing:-.03em;color:#263d2d}
+.site-partners-heading p{margin-top:10px;font-size:16px;line-height:1.75;color:#75654f}
+.site-partners-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.site-partner-card{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:34px 24px 28px;background:#fffcf5;border:1px solid #ded3bc;border-radius:12px;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}
+.site-partner-card::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#263d2d,#e0b766)}
+.site-partner-card:hover{transform:translateY(-3px);border-color:#c9b98f;box-shadow:0 14px 30px #33281714}
+.site-partner-mark{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:#263d2d;color:#e0b766;font:700 20px/1 Georgia,serif;letter-spacing:.04em;box-shadow:0 0 0 5px #f3ecdd,0 0 0 6px #e1d4bf}
+.site-partner-mark.has-logo{background:#fff}.site-partner-mark img{width:72px;height:72px;border-radius:50%;object-fit:contain}
+.site-partner-role{margin-top:22px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8a6a2f}
+.site-partner-card h3{margin-top:8px;font:400 22px/1.22 Georgia,serif;letter-spacing:-.02em;color:#263d2d}
+.site-partner-card p{margin-top:10px;font-size:14px;line-height:1.7;color:#75654f}
+.site-partner-link{margin-top:auto;padding-top:18px;font-size:14px;font-weight:600;color:#516c3c}
+.site-partner-link:hover{text-decoration:underline;text-underline-offset:4px}
+@media(max-width:1180px){.site-partners-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:699px){.site-partners-inner{padding:58px 20px 64px}.site-partners-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.site-partner-card{transition:none}.site-partner-card:hover{transform:none}}

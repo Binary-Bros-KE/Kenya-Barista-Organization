@@ -29,3 +29,12 @@ test("the home page leaves the preview out when there are no open jobs or the jo
     assert.ok(!html.includes("site-latest-jobs")); assert.ok(html.includes('id="our-purpose"'));
   }
 });
+
+test("the home page ends with the partners section", () => {
+  const html = render(null), partners = html.indexOf("site-partners"), guides = html.indexOf("site-guides");
+  assert.ok(guides > 0 && partners > guides, "Partners come after the guides, last before the footer");
+  assert.ok(html.includes(">Meet our partners</h2>"));
+  assert.equal((html.match(/class="site-partner-card"/g) || []).length, 4);
+  for (const name of ["Kenya Barista Organization", "Arobisca Group", "Arobisca Training Centre", "Brookside Kenya"]) assert.ok(html.includes(`<h3>${name}</h3>`), name);
+  assert.ok(html.includes(">ATC<"), "Partners without a logo show their initials"); assert.ok(!html.includes("site-partner-link"), "No website links until they're agreed");
+});
