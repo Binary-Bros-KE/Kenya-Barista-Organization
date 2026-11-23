@@ -58,3 +58,8 @@
 @keyframes pdf-thumb-pulse { to { opacity: .45; } }
 .pdf-thumb em { position: absolute; left: 0; bottom: 10px; padding: 3px 8px 3px 7px; border-radius: 0 5px 5px 0; background: #c8412f; color: #fff; font-style: normal; font-size: 10px; font-weight: 800; letter-spacing: .06em; box-shadow: 0 2px 6px #c8412f55; }
 @media (prefers-reduced-motion: reduce) { .pdf-thumb.is-loading .pdf-thumb-sketch i { animation: none; } }
+
+/* The viewer can open inside other components (e.g. the applicants popup, whose ".applicants-cv span" styles would
+   otherwise grey out its labels), so its own text styles are scoped one level deeper to always win. */
+.cv-viewer .cv-viewer-download, .cv-viewer .cv-viewer-download span { color: #fff; overflow: visible; white-space: nowrap; font-size: 13px; }
+.cv-viewer .cv-viewer-title span { color: #8c7b67; font-size: 12px; overflow: visible; white-space: normal; }

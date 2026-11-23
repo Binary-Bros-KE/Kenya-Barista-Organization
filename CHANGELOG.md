@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.31.2 - 2026-11-23
+
+- Fixed the CV viewer's **Download** label showing faded grey on teal when opened from the applicants popup (the popup's CV styles were leaking into the viewer). It is white now, wherever the viewer opens.
+
 ## 2.31.1 - 2026-11-23
 
 - CV viewer is light: a white top bar with dark text and icons, a soft cream background behind the pages, and a lighter backdrop. Download stays teal.
