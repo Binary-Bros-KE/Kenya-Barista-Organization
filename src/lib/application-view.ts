@@ -20,10 +20,9 @@ export function applicationGuidance(status: string, editable: boolean) {
 }
 
 // What a saved draft still needs before its fee can be paid: a cover letter and a CV that hasn't failed the virus scan.
-export const MIN_COVER_LETTER = 30;
 export function applicationMissing(coverLetter: string, cv: { scanStatus: string } | null | undefined) {
   const missing: string[] = [];
-  if (coverLetter.trim().length < MIN_COVER_LETTER) missing.push("write a cover letter");
+  if (!coverLetter.trim()) missing.push("write a cover letter");
   if (!cv || !["PENDING", "CLEAN"].includes(cv.scanStatus)) missing.push("attach your CV");
   return missing;
 }

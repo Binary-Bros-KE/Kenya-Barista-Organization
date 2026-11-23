@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.26.3 - 2026-11-23
+
+- Removed the 30-character minimum for cover letters. A cover letter just needs to be filled in; the field is labelled **Required**.
+
 ## 2.26.2 - 2026-11-23
 
 - Pay panels no longer show the "To apply, write a cover letter and attach your CV…" note. The pay buttons simply stay greyed out until the draft has both.

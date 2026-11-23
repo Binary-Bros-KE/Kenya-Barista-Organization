@@ -46,7 +46,7 @@ test("drafts can use a CV still being scanned, explain the recruiter wait and ex
  const html = render(createElement(DraftForm, { id: "a", version: 1, coverLetter: "", selected: "", editable: true, documents: [{ id: "pending", filename: "pending.pdf", scanStatus: "PENDING" }, { id: "blocked", filename: "blocked.pdf", scanStatus: "REJECTED" }] }));
  assert.ok(html.includes('value="pending"')); assert.ok(!html.includes('value="blocked"'));
  assert.ok(html.includes('You can apply with a CV that is still going through its quick security check.')); assert.ok(!html.includes('must pass screening')); assert.ok(html.includes('maxLength="6000"'));
- assert.ok(html.includes('Add your cover letter and CV, then save your draft to apply.')); assert.ok(html.includes('Required · at least 30 characters'));
+ assert.ok(html.includes('Add your cover letter and CV, then save your draft to apply.')); assert.ok(!html.includes('at least'), 'No minimum length');
 });
 test("locked application shows read-only saved details without a draft form or save control", () => {
  const html = render(createElement(DraftForm, { id: "a", version: 2, coverLetter: "Saved letter", selected: "cv", editable: false, documents: [{ id: "cv", filename: "attached.pdf", scanStatus: "CLEAN" }] }));
@@ -79,7 +79,8 @@ test("applications show the recruiter's photo, the KBO logo for KBO's own jobs, 
 test("paying waits for a saved cover letter and a usable CV", () => {
  const letter = "I have three years behind a busy espresso bar.";
  assert.deepEqual(applicationMissing("", null), ["write a cover letter", "attach your CV"]);
- assert.deepEqual(applicationMissing("Too short", { scanStatus: "CLEAN" }), ["write a cover letter"]);
+ assert.deepEqual(applicationMissing("   ", { scanStatus: "CLEAN" }), ["write a cover letter"]);
+ assert.deepEqual(applicationMissing("Hi", { scanStatus: "CLEAN" }), [], "Any cover letter counts, however short");
  assert.deepEqual(applicationMissing(letter, null), ["attach your CV"]);
  assert.deepEqual(applicationMissing(letter, { scanStatus: "REJECTED" }), ["attach your CV"]);
  assert.deepEqual(applicationMissing(letter, { scanStatus: "PENDING" }), [], "A CV still being scanned is fine");
