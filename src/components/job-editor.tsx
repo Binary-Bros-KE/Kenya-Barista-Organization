@@ -1,10 +1,17 @@
 "use client";
+// The job editor (manage popup and job pages): edits on the left; on the right a live preview of the card applicants
+// see and the recruiter at a glance, like Profile & CV. Decisions sit in a bar pinned to the bottom.
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { JobCoverEditor } from "./job-cover-editor";
+import { JobCover } from "./job-cover";
+import { EmployerLogo } from "./job-card";
+import { VerifiedBadge, VerifiedRibbon } from "./verified-badge";
+import { initialsOf } from "./profile-card";
+import { avatarSrc } from "@/lib/images";
 import { categories, employmentTypes, statusLabels, formatDeadline, formatFee, nairobiInput, nairobiToIso } from "@/lib/job-format";
-type Job = { id: string; title: string; description: string; location: string; category: string; employmentType: string; deadline: string; slug: string; applicationFeeMinor: number; version: number; status: keyof typeof statusLabels; reviewNote: string | null; recruiterId: string; coverVersion: number | null; recruiter: { name: string | null; email: string; status: string }; history: { id: string; fromStatus: keyof typeof statusLabels | null; toStatus: keyof typeof statusLabels; note: string | null; createdAt: string }[] };
+type Job = { id: string; title: string; description: string; location: string; category: string; employmentType: string; deadline: string; slug: string; applicationFeeMinor: number; version: number; status: keyof typeof statusLabels; reviewNote: string | null; recruiterId: string; coverVersion: number | null; recruiter: { id: string; name: string | null; email: string; status: string; avatarVersion: number | null; recruiterVerifiedAt: string | null }; history: { id: string; fromStatus: keyof typeof statusLabels | null; toStatus: keyof typeof statusLabels; note: string | null; createdAt: string }[] };
 type Draft = { title: string; description: string; location: string; category: string; employmentType: string; deadline: string; applicationFeeKes: string; recruiterId: string };
 const empty: Draft = { title: "", description: "", location: "", category: "BARISTA", employmentType: "FULL_TIME", deadline: "", applicationFeeKes: "", recruiterId: "" };
 
@@ -56,33 +63,78 @@ export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; a
     finally { setBusy(false); }
   }
   const editable = !job || ["DRAFT", "CHANGES_REQUESTED", "PENDING_REVIEW", "PUBLISHED"].includes(job.status);
-  const actionButton = (action: string, label: string, disabled = false) => <button key={action} className="button secondary" disabled={busy || dirty || disabled} onClick={() => void transition(action)}>{label}</button>;
+  const tone: Record<string, string> = { submit: "teal", publish: "green", withdraw: "amber", close: "rose", reopen: "teal", archive: "grey", request_changes: "orange" };
+  const actionButton = (action: string, label: string, disabled = false) => <button key={action} type="button" className={`jeditor-action is-${tone[action] ?? "grey"}`} disabled={busy || dirty || disabled} onClick={() => void transition(action)}>{label}</button>;
   if (!loading && id && !job) return <p role="alert" className="notice error">{error || "Unable to load this posting."} <button className="underline" onClick={() => void load()}>Retry</button></p>;
-  return <div className="employer-job-editor form-stack">
-    {error && <p role="alert" className="notice error">{error} <button className="underline" onClick={() => void load()}>Reload posting</button></p>}{message && <p role="status" className="notice success">{message}</p>}
-    {loading ? <p role="status">Loading posting…</p> : <>
-      {job && <div className="card form-stack employer-job-workflow"><span className="employer-eyebrow">POSTING WORKFLOW</span><div className="flex flex-wrap items-center justify-between gap-4"><p className="font-semibold">{statusLabels[job.status]} · {job.recruiter.name || job.recruiter.email}</p>{["PUBLISHED", "CLOSED"].includes(job.status) && <Link className="underline" href={`/jobs/${job.slug}`}>View public page</Link>}</div>{job.reviewNote && <p className="notice error">Review feedback: {job.reviewNote}</p>}{dirty && <p className="hint">Save your changes before taking a workflow action.</p>}<div className="flex flex-wrap gap-3">
-        {["DRAFT", "CHANGES_REQUESTED"].includes(job.status) && actionButton("submit", "Submit for review")}
-        {job.status === "PENDING_REVIEW" && <>{actionButton("withdraw", "Withdraw to draft")}{admin && actionButton("publish", "Approve and publish")}</>}
-        {job.status === "PUBLISHED" && actionButton("close", "Close applications")}
-        {job.status === "CLOSED" && actionButton("reopen", "Reopen as draft")}
-        {["DRAFT", "CHANGES_REQUESTED", "CLOSED"].includes(job.status) && actionButton("archive", "Archive posting")}
-      </div>{admin && job.status === "PENDING_REVIEW" && <div className="form-stack"><div className="employer-fee-adjust"><label>Application fee in KES<input type="number" min={1} max={250000} step={1} value={feeOverride ?? String(job.applicationFeeMinor / 100)} onChange={event => setFeeOverride(event.target.value)} /></label><button type="button" className="button secondary" disabled={busy || feeOverride === null || Number(feeOverride) * 100 === job.applicationFeeMinor || !(Number(feeOverride) >= 1)} onClick={() => void adjustFee()}>Adjust fee</button><span className="hint">The recruiter set {formatFee(job.applicationFeeMinor)}. Changing it keeps the job in review and is shown in its history.</span></div><label>Changes required<textarea maxLength={2000} value={reviewNote} onChange={event => setReviewNote(event.target.value)} rows={3} /></label><div>{actionButton("request_changes", "Return with feedback", !reviewNote.trim())}</div></div>}</div>}
-      
-      {job?.status === "PENDING_REVIEW" && <p className="notice success">This job is awaiting review. You can still edit it below; saving keeps it in review with your latest changes.</p>}{job?.status === "PUBLISHED" && <p className="notice error">Saving edits will remove this posting from public view and return it to draft. It must be reviewed again before publication.</p>}
-      {job && job.recruiter.status !== "ACTIVE" && <p className="notice error">This recruiter's account is suspended. Reactivate it before editing or publishing jobs.</p>}
-      {job && <JobCoverEditor job={job} imagesEnabled={imagesEnabled} blocked={job.recruiter.status !== "ACTIVE" ? "Reactivate the recruiter first." : dirty ? "Save your text changes first, then change the cover." : ""} onChanged={() => load(true)} />}
-      {!job && imagesEnabled && <p className="hint">Save the draft first, then add a cover photo.</p>}
-      {editable && <form onSubmit={save} className="card form-stack employer-editor-form"><div className="employer-section-heading"><div><span className="employer-eyebrow">ROLE DETAILS</span><h2>{job ? "Edit your opportunity" : "Create a draft"}</h2></div><span className="employer-save-state">{dirty ? "Unsaved changes" : job ? "Saved" : "New posting"}</span></div>
-        {!id && admin && <label>Recruiter<select required value={draft.recruiterId} onChange={event => field("recruiterId", event.target.value)}><option value="" disabled>Choose the recruiter this job belongs to</option>{recruiters.map(recruiter => <option key={recruiter.id} value={recruiter.id}>{recruiter.name || recruiter.email}</option>)}</select>{!recruiters.length && <span className="hint">No recruiter accounts yet. Make an account a recruiter from Accounts first.</span>}</label>}
+  const verified = !!job?.recruiter.recruiterVerifiedAt;
+  const reviewing = !!(admin && job?.status === "PENDING_REVIEW");
+  const saveDisabled = busy || Boolean(job && job.recruiter.status !== "ACTIVE") || (!id && admin && !draft.recruiterId);
+  const step = (number: string, title: string, text: string) => <header><span className="studio-step">{number}</span><div><h2>{title}</h2><p>{text}</p></div></header>;
+  const photo = job ? avatarSrc(job.recruiter.id, job.recruiter.avatarVersion, 96) : null;
+  return <div className="employer-job-editor jeditor">
+    {error && <p role="alert" className="notice error jeditor-wide">{error} <button className="underline" onClick={() => void load()}>Reload posting</button></p>}{message && <p role="status" className="notice success jeditor-wide">{message}</p>}
+    {loading ? <p role="status" className="jeditor-wide">Loading posting…</p> : <>
+    <div className="jeditor-main">
+      {job && <section className="studio-panel jeditor-workflow">
+        {step("01", "Review and status", reviewing ? "Approve it, send it back with feedback, or adjust the fee. The buttons are at the bottom." : "Where this posting is. The actions are at the bottom.")}
+        <div className="jeditor-status-row"><span className={"djobs-card-status status-" + job.status.toLowerCase()}>{statusLabels[job.status]}</span>{["PUBLISHED", "CLOSED"].includes(job.status) && <Link className="jeditor-link" href={`/jobs/${job.slug}`}>View public page &#8599;</Link>}</div>
+        {job.reviewNote && <p className="notice error">Review feedback: {job.reviewNote}</p>}
+        {job.status === "PENDING_REVIEW" && <p className="jeditor-note is-info">Awaiting review. Edits are still allowed; saving keeps it in review with the latest version.</p>}
+        {job.status === "PUBLISHED" && <p className="jeditor-note is-warn">Saving edits takes this posting off the public site and returns it to draft until it&apos;s reviewed again.</p>}
+        {job.recruiter.status !== "ACTIVE" && <p className="notice error">This recruiter&apos;s account is suspended. Reactivate it before editing or publishing jobs.</p>}
+        {reviewing && <div className="jeditor-admin">
+          <div className="jeditor-fee"><label>Application fee (KES)<input type="number" min={1} max={250000} step={1} value={feeOverride ?? String(job.applicationFeeMinor / 100)} onChange={event => setFeeOverride(event.target.value)} /></label><button type="button" className="jeditor-action is-gold" disabled={busy || feeOverride === null || Number(feeOverride) * 100 === job.applicationFeeMinor || !(Number(feeOverride) >= 1)} onClick={() => void adjustFee()}>Adjust fee</button><span>The recruiter set {formatFee(job.applicationFeeMinor)}. Changing it keeps the job in review and is recorded in its history.</span></div>
+          <label className="jeditor-feedback">Feedback for the recruiter<textarea maxLength={2000} value={reviewNote} onChange={event => setReviewNote(event.target.value)} rows={3} placeholder="What should they fix before this can be published? Needed for Return with feedback." /></label>
+        </div>}
+      </section>}
+      {editable && <form id="jeditor-form" onSubmit={save} className="studio-panel jeditor-form">
+        {step(job ? "02" : "01", job ? "Role details" : "Create a draft", "What applicants read before they apply.")}
+        <span className={"jeditor-save-state" + (dirty ? " is-dirty" : "")}>{dirty ? "Unsaved changes" : job ? "Saved" : "New posting"}</span>
+        {!id && admin && <label>Recruiter<select required value={draft.recruiterId} onChange={event => field("recruiterId", event.target.value)}><option value="" disabled>Choose the recruiter this job belongs to</option>{recruiters.map(recruiter => <option key={recruiter.id} value={recruiter.id}>{recruiter.name || recruiter.email}</option>)}</select>{!recruiters.length && <span className="jeditor-hint">No recruiter accounts yet. Make an account a recruiter from Accounts first.</span>}</label>}
         <label>Job title<input required minLength={5} maxLength={160} value={draft.title} onChange={event => field("title", event.target.value)} /></label>
-        <label>Job description<textarea required minLength={50} maxLength={12000} rows={10} value={draft.description} onChange={event => field("description", event.target.value)} /><span className="hint">Include responsibilities, requirements, and working conditions. Plain text only. {draft.description.length.toLocaleString()} / 12,000 characters.</span></label>
-        <div className="grid gap-5 sm:grid-cols-2"><label>Location<input required minLength={2} maxLength={120} value={draft.location} onChange={event => field("location", event.target.value)} placeholder="Nairobi" /></label><label>Employment type<select value={draft.employmentType} onChange={event => field("employmentType", event.target.value)}>{Object.entries(employmentTypes).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label></div>
-        <div className="grid gap-5 sm:grid-cols-2"><label>Category<select value={draft.category} onChange={event => field("category", event.target.value)}>{Object.entries(categories).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label><label>Application deadline (Nairobi time)<input type="datetime-local" required value={draft.deadline} onChange={event => field("deadline", event.target.value)} /><span className="hint">All deadlines use Africa/Nairobi time.</span></label></div>
-        <label>Application fee in KES<input type="number" min={1} max={250000} step={1} required value={draft.applicationFeeKes} onChange={event => field("applicationFeeKes", event.target.value)} /><span className="hint">What applicants pay to apply.{admin ? "" : " KBO may adjust it before approving the job."} The fee locks once someone starts an application.</span></label>
-        <button className="button" disabled={busy || Boolean(job && job.recruiter.status !== "ACTIVE") || (!id && admin && !draft.recruiterId)}>{busy ? "Saving…" : "Save draft"}</button>
+        <div className="jeditor-pair"><label>Location<input required minLength={2} maxLength={120} value={draft.location} onChange={event => field("location", event.target.value)} placeholder="Nairobi" /></label><label>Employment type<select value={draft.employmentType} onChange={event => field("employmentType", event.target.value)}>{Object.entries(employmentTypes).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label></div>
+        <div className="jeditor-pair"><label>Category<select value={draft.category} onChange={event => field("category", event.target.value)}>{Object.entries(categories).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label><label>Deadline (Nairobi time)<input type="datetime-local" required value={draft.deadline} onChange={event => field("deadline", event.target.value)} /></label></div>
+        <label>Application fee (KES)<input type="number" min={1} max={250000} step={1} required value={draft.applicationFeeKes} onChange={event => field("applicationFeeKes", event.target.value)} /><span className="jeditor-hint">What applicants pay to apply.{admin ? "" : " KBO may adjust it before approving the job."} The fee locks once someone starts an application.</span></label>
+        <label>Job description<textarea required minLength={50} maxLength={12000} rows={9} value={draft.description} onChange={event => field("description", event.target.value)} /><span className="jeditor-hint">Responsibilities, requirements and working conditions. Plain text. {draft.description.length.toLocaleString()} / 12,000</span></label>
       </form>}
-      {job && <><section className="card employer-job-preview"><p className="mb-4 text-xs font-bold uppercase tracking-widest text-stone-500">Saved posting preview</p><h2 className="text-2xl">{job.title}</h2><p className="my-4 text-sm text-stone-600">{job.location} · {employmentTypes[job.employmentType as keyof typeof employmentTypes] || job.employmentType} · Deadline {formatDeadline(job.deadline)}</p><p className="whitespace-pre-wrap leading-8">{job.description}</p><p className="mt-5 font-semibold">Application fee: {formatFee(job.applicationFeeMinor)}</p></section><details className="card employer-job-history"><summary className="cursor-pointer font-semibold">Posting history</summary><ol className="mt-5 space-y-4">{job.history.map(item => <li key={item.id} className="text-sm"><span className="font-semibold">{item.fromStatus ? `${statusLabels[item.fromStatus]} → ` : ""}{statusLabels[item.toStatus]}</span><span className="ml-3 text-stone-500">{formatDeadline(item.createdAt)}</span>{item.note && <p className="mt-1 whitespace-pre-wrap text-stone-600">{item.note}</p>}</li>)}</ol></details></>}
+      {job && <JobCoverEditor job={job} imagesEnabled={imagesEnabled} step={editable ? "03" : "02"} blocked={job.recruiter.status !== "ACTIVE" ? "Reactivate the recruiter first." : dirty ? "Save your text changes first, then change the cover." : ""} onChanged={() => load(true)} />}
+      {!job && imagesEnabled && <p className="jeditor-note is-info">Save the draft first, then add a cover photo.</p>}
+      {job && <details className="studio-panel jeditor-history"><summary>Posting history <span>{job.history.length}</span></summary><ol>{job.history.map(item => <li key={item.id}><span className={"djobs-card-status status-" + item.toStatus.toLowerCase()}>{statusLabels[item.toStatus]}</span><div><strong>{item.fromStatus ? `From ${statusLabels[item.fromStatus]}` : "Created"}</strong><time>{formatDeadline(item.createdAt)}</time>{item.note && <p>{item.note}</p>}</div></li>)}</ol></details>}
+    </div>
+    <aside className="jeditor-side">
+      <p className="studio-side-label">How applicants see it</p>
+      <article className={`djobs-card jeditor-preview is-${draft.category.toLowerCase()}`}>
+        {verified && <VerifiedRibbon />}
+        <span className="djobs-card-media"><JobCover id={job?.id ?? "new"} coverVersion={job?.coverVersion ?? null} category={draft.category} /><span className="djobs-card-fee">{draft.applicationFeeKes ? formatFee(Number(draft.applicationFeeKes) * 100) : "Fee"}</span>{job && <span className={"djobs-card-status status-" + job.status.toLowerCase()}>{statusLabels[job.status]}</span>}</span>
+        <span className="djobs-card-body">
+          {job && <span className="djobs-card-employer"><EmployerLogo employer={{ id: job.recruiter.id, avatarVersion: job.recruiter.avatarVersion }} />{job.recruiter.name || "KBO recruiter"}{verified && <VerifiedBadge />}</span>}
+          <strong>{draft.title || "Job title"}</strong>
+          <span className="djobs-card-tags"><em className="is-category">{categories[draft.category as keyof typeof categories] || draft.category}</em><em>{employmentTypes[draft.employmentType as keyof typeof employmentTypes] || draft.employmentType}</em>{draft.location && <em>{draft.location}</em>}</span>
+          <span className="djobs-card-summary">{draft.description ? draft.description.slice(0, 160) + (draft.description.length > 160 ? "…" : "") : "The first lines of the description show here."}</span>
+          <span className="djobs-card-foot"><span>{draft.deadline ? "Closes " + formatDeadline(nairobiToIso(draft.deadline)).split(",")[0] : "Set a deadline"}</span><span className="djobs-card-cta">View &amp; apply &rarr;</span></span>
+        </span>
+      </article>
+      {dirty && <p className="jeditor-note is-warn">The preview shows your unsaved changes.</p>}
+      {job && <section className="studio-panel jeditor-recruiter">
+        <p className="studio-side-label">Recruiter</p>
+        <div className="jeditor-recruiter-head"><span className="jeditor-avatar">{photo ? <img src={photo} alt="" /> : initialsOf(job.recruiter.name || job.recruiter.email)}</span><div><strong>{job.recruiter.name || "KBO recruiter"}</strong><a href={`mailto:${job.recruiter.email}`}>{job.recruiter.email}</a></div></div>
+        <div className="jeditor-recruiter-tags">{verified ? <span className="jeditor-pill is-green">✓ Verified recruiter</span> : <span className="jeditor-pill is-grey">Not verified</span>}<span className={"jeditor-pill " + (job.recruiter.status === "ACTIVE" ? "is-teal" : "is-rose")}>{job.recruiter.status === "ACTIVE" ? "Active" : "Suspended"}</span></div>
+      </section>}
+    </aside>
+    {/* Pinned to the bottom of the popup (or page) so the decisions are always in reach. */}
+    <div className="jeditor-bar">
+      <p className="jeditor-bar-state">{dirty ? <strong>Unsaved changes. Save before taking an action.</strong> : job ? <>Status: <strong>{statusLabels[job.status]}</strong></> : "New posting"}</p>
+      <div className="jeditor-bar-actions">
+        {job && ["DRAFT", "CHANGES_REQUESTED", "CLOSED"].includes(job.status) && actionButton("archive", "Archive")}
+        {job?.status === "CLOSED" && actionButton("reopen", "Reopen as draft")}
+        {job?.status === "PUBLISHED" && actionButton("close", "Close applications")}
+        {job?.status === "PENDING_REVIEW" && actionButton("withdraw", "Withdraw to draft")}
+        {reviewing && actionButton("request_changes", "Return with feedback", !reviewNote.trim())}
+        {editable && <button form="jeditor-form" className={"jeditor-action " + (dirty || !job ? "is-brown" : "is-ghost")} disabled={saveDisabled}>{busy ? "Saving…" : job ? "Save changes" : "Save draft"}</button>}
+        {job && ["DRAFT", "CHANGES_REQUESTED"].includes(job.status) && actionButton("submit", "Submit for review")}
+        {reviewing && actionButton("publish", "✓ Approve and publish")}
+      </div>
+    </div>
     </>}
   </div>;
 }

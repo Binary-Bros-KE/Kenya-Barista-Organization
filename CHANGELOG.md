@@ -10,6 +10,12 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.17.0 - 2026-11-23
+
+- Manage posting popup redesigned in two columns like Profile & CV. Left: numbered sections for review and status, role details, cover photo and history. Right: a live preview of the job card exactly as applicants see it (updates as you type, with the Verified ribbon), plus the recruiter at a glance (photo, email, verified and account status).
+- The cover now shows at card size beside its buttons instead of a stretched full-width image.
+- Decision buttons sit in a bar pinned to the bottom of the popup, always visible: Approve and publish (green), Return with feedback (orange), Withdraw to draft, Close applications, Reopen, Archive, Save changes and Submit for review. The admin fee adjustment has its own gold button.
+
 ## 2.16.1 - 2026-11-23
 
 - Member sidebar reorganised: **Overview** (Dashboard, formerly My account), **Your workspace** (Find jobs, Profile & CV, Applications, Payments, Notifications) and **Account** (Become a recruiter, Settings). The separate Explore section is gone for members; Find jobs leads Your workspace.

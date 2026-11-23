@@ -181,7 +181,7 @@ export async function transitionJob(db: PrismaClient, actor: Actor, id: string, 
 }
 
 export async function getManagedJob(db: PrismaClient, actor: Actor, id: string) {
-  const job = await db.job.findFirst({ where: { id, ...managedScope(actor) }, include: { recruiter: { select: { id: true, name: true, email: true, status: true } }, history: { orderBy: { createdAt: "desc" }, take: 30, select: { id: true, fromStatus: true, toStatus: true, note: true, createdAt: true } } } });
+  const job = await db.job.findFirst({ where: { id, ...managedScope(actor) }, include: { recruiter: { select: { id: true, name: true, email: true, status: true, avatarVersion: true, recruiterVerifiedAt: true } }, history: { orderBy: { createdAt: "desc" }, take: 30, select: { id: true, fromStatus: true, toStatus: true, note: true, createdAt: true } } } });
   if (!job) throw new AccessError(404, "NOT_FOUND", "Job not found");
   return job;
 }

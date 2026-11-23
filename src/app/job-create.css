@@ -133,3 +133,100 @@
   .applicants-contact { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) { .applicants-modal .job-create-panel { height: 100dvh; } }
+
+/* Job editor: two columns like Profile & CV (edits left, live card preview and recruiter right) and a decision bar pinned to the bottom. */
+.job-manage { width: min(1180px, calc(100vw - 32px)); }
+.job-manage-body { padding-bottom: 0; }
+.jeditor { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; align-items: start; color: #2f2219; }
+.jeditor-wide, .jeditor-bar { grid-column: 1 / -1; }
+.jeditor-main { display: grid; gap: 16px; min-width: 0; }
+.jeditor-side { position: sticky; top: 0; display: grid; gap: 12px; min-width: 0; }
+.jeditor .studio-panel { position: relative; }
+.jeditor-status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.jeditor-status-row .djobs-card-status { position: static; font-size: 12.5px; padding: 6px 12px; }
+.jeditor-link { color: #0b5f58; font-weight: 700; font-size: 13px; }
+.jeditor-note { margin: 0 0 10px; padding: 10px 12px; border-radius: 10px; font-size: 12.5px; line-height: 1.55; }
+.jeditor-note.is-info { background: #e9f1fb; color: #24527f; }
+.jeditor-note.is-warn { background: #fdf3dd; color: #6e5214; }
+.jeditor-admin { display: grid; gap: 14px; margin-top: 6px; }
+.jeditor-fee { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 12px; padding: 14px; border-radius: 12px; background: linear-gradient(140deg, #fdf3dd, #fbe7bd); }
+.jeditor-fee label { display: grid; gap: 6px; font-size: 13px; font-weight: 700; color: #5a4210; }
+.jeditor-fee input { width: 150px; }
+.jeditor-fee > span { flex-basis: 100%; color: #6e5214; font-size: 12px; }
+
+/* Fields */
+.jeditor-form, .jeditor-admin { display: grid; gap: 14px; }
+.jeditor-form > header { margin-bottom: 2px !important; }
+.jeditor label { display: grid; gap: 6px; font-size: 13px; font-weight: 700; color: #3d2d22; }
+.jeditor input:not([type=file]), .jeditor select, .jeditor textarea { width: 100%; padding: 10px 12px; border: 1px solid #cdbba6; border-radius: 10px; background: #fff; color: #2f2219; font: inherit; font-size: 14px; font-weight: 400; }
+.jeditor input:focus, .jeditor select:focus, .jeditor textarea:focus { outline: 2px solid #0b766d55; border-color: #0b766d; }
+.jeditor textarea { resize: vertical; line-height: 1.6; }
+.jeditor-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.jeditor-hint { color: #7d6b5b; font-size: 12px; font-weight: 400; line-height: 1.5; }
+.jeditor-save-state { position: absolute; top: 20px; right: 22px; padding: 4px 10px; border-radius: 999px; background: #e7f4ec; color: #24804f; font-size: 11.5px; font-weight: 800; }
+.jeditor-save-state.is-dirty { background: #fdf3dd; color: #a8761c; }
+
+/* Cover: a card-sized thumbnail beside its buttons, so it looks as it will in the list */
+.jeditor-cover-row { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 18px; align-items: center; }
+.jeditor-cover .employer-cover-frame { margin: 0; border-radius: 12px; box-shadow: 0 8px 20px -14px #0009; }
+.jeditor-cover-side { display: grid; gap: 10px; }
+.jeditor-cover .employer-cover-actions { margin: 0; }
+.jeditor-remove { padding: 0; border: 0; background: none; color: #be1a41; font-weight: 700; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* History */
+.jeditor-history summary { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; cursor: pointer; }
+.jeditor-history summary span { padding: 2px 8px; border-radius: 999px; background: #ece2d4; font-size: 11.5px; }
+.jeditor-history ol { display: grid; gap: 12px; margin: 14px 0 0; padding: 0; list-style: none; }
+.jeditor-history li { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px; align-items: start; }
+.jeditor-history li .djobs-card-status { position: static; justify-self: start; }
+.jeditor-history li strong { display: block; font-size: 13px; }
+.jeditor-history li time { color: #8a7867; font-size: 12px; }
+.jeditor-history li p { margin: 4px 0 0; color: #5d4d3f; font-size: 13px; white-space: pre-wrap; }
+
+/* Right column */
+.jeditor-preview { cursor: default; }
+.jeditor-preview:hover { transform: none; }
+.jeditor-recruiter { padding: 16px; }
+.jeditor-recruiter-head { display: flex; align-items: center; gap: 12px; margin: 10px 0 12px; }
+.jeditor-avatar { display: grid; place-items: center; flex-shrink: 0; width: 52px; height: 52px; overflow: hidden; border-radius: 50%; background: linear-gradient(140deg, #5a3a26, #2f1f16); color: #fff; font-weight: 800; box-shadow: 0 0 0 3px #fff, 0 0 0 4px #d6c7b5; }
+.jeditor-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.jeditor-recruiter-head strong { display: block; font-size: 15px; }
+.jeditor-recruiter-head a { color: #0b5f58; font-size: 12.5px; overflow-wrap: anywhere; }
+.jeditor-recruiter-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.jeditor-pill { padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; }
+.jeditor-pill.is-green { background: #24804f; color: #fff; }
+.jeditor-pill.is-teal { background: #e4f4f1; color: #0b766d; }
+.jeditor-pill.is-rose { background: #fcebef; color: #be1a41; }
+.jeditor-pill.is-grey { background: #efebe6; color: #6b6560; }
+
+/* Buttons */
+.jeditor-action { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 16px; border: 1px solid transparent; border-radius: 10px; font: inherit; font-size: 13.5px; font-weight: 800; color: #fff; cursor: pointer; white-space: nowrap; transition: filter .15s, transform .15s; }
+.jeditor-action:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+.jeditor-action:disabled { opacity: .45; cursor: not-allowed; }
+.jeditor-action.is-green { background: linear-gradient(140deg, #2bb673, #17804f); box-shadow: 0 10px 20px -12px #17804f; }
+.jeditor-action.is-teal { background: linear-gradient(140deg, #14a397, #0b5f58); box-shadow: 0 10px 20px -12px #0b5f58; }
+.jeditor-action.is-orange { background: linear-gradient(140deg, #f08a3c, #c9631c); box-shadow: 0 10px 20px -12px #c9631c; }
+.jeditor-action.is-rose { background: linear-gradient(140deg, #ef3d62, #be1a41); }
+.jeditor-action.is-gold { background: linear-gradient(140deg, #ecc576, #d7a446); color: #3a2a10; }
+.jeditor-action.is-brown { background: linear-gradient(140deg, #6b4329, #3d2a1e); }
+.jeditor-action.is-amber, .jeditor-action.is-grey, .jeditor-action.is-ghost { background: #fffdf8; border-color: #cdbba6; color: #5d3f2a; }
+.jeditor-action.is-amber { border-color: #e0b766; color: #8a5d16; }
+
+/* The decision bar */
+.jeditor-bar { position: sticky; bottom: 0; z-index: 4; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 4px -22px 0; padding: 12px 22px; border-top: 1px solid #d6c7b5; background: #fffdf8f2; backdrop-filter: blur(6px); box-shadow: 0 -10px 24px -18px #3a281b80; }
+.jeditor-bar-state { margin: 0; color: #6f5a48; font-size: 13px; }
+.jeditor-bar-state strong { color: #2f2219; }
+.jeditor-bar-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+
+@media (max-width: 960px) {
+  .jeditor { grid-template-columns: 1fr; }
+  .jeditor-side { position: static; order: -1; }
+  .jeditor-cover-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .jeditor-pair { grid-template-columns: 1fr; }
+  .jeditor-bar { margin-inline: -14px; padding: 10px 14px; }
+  .jeditor-bar-actions { width: 100%; }
+  .jeditor-bar-actions .jeditor-action { flex: 1; }
+  .jeditor-history li { grid-template-columns: 1fr; }
+}
