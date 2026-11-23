@@ -42,6 +42,7 @@ const adminLinks: Item[] = [
   { label: "Payments and M-Pesa", href: "/admin/payments", icon: "payments" },
   { label: "Payment review", href: "/admin/payments/review", icon: "settings" },
   { label: "Wallet top-ups", href: "/admin/wallet", icon: "wallet" },
+  { label: "Partner requests", href: "/admin/partners", icon: "organisations" },
   { label: "Delivery queue", href: "/admin/notifications", icon: "queue" },
 ];
 const adminAccountLinks: Item[] = [

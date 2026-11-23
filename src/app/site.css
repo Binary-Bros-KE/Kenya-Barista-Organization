@@ -80,3 +80,24 @@
 .site-public .site-learning .site-learning-copy li{align-items:center;gap:20px}
 .site-public .site-learning .site-learning-copy li>span{flex-shrink:0;min-width:74px;padding-top:0;font:400 64px/.9 Georgia,serif;letter-spacing:-.05em;color:#263d2d;opacity:.14}
 @media(max-width:700px){.site-public .site-learning .site-learning-copy li>span{min-width:56px;font-size:48px}}
+/* Home partners: "Partner with us" call to action under the cards */
+.site-partners-cta{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:36px;padding:26px 30px;background:#263d2d;border-radius:12px;color:#fff8ec}
+.site-partners-cta h3{font:400 24px/1.2 Georgia,serif;letter-spacing:-.02em;color:#fff}
+.site-partners-cta p{margin-top:6px;font-size:15px;line-height:1.6;color:#d8d2bd}
+.site-public .site-partners-cta .site-button{flex-shrink:0;background:#e0b766;border-color:#e0b766;color:#1d3122;font-size:15px;min-height:52px;padding:14px 24px;gap:18px}
+.site-public .site-partners-cta .site-button:hover{background:#efcb84;border-color:#efcb84}
+@media(max-width:699px){.site-partners-cta{flex-direction:column;align-items:stretch;text-align:center;padding:24px 20px}.site-public .site-partners-cta .site-button{justify-content:center}}
+/* Partner with us page */
+.partner-form-trap{position:absolute!important;left:-10000px;width:1px;height:1px;overflow:hidden}
+.partner-form{position:relative}
+.partner-form-error{display:block;margin-top:6px;font-style:normal;font-size:13px;font-weight:500;color:#9f3a22}
+.partner-form [aria-invalid=true]{border-color:#c0583a!important}
+.site-public .partner-form>.site-button{font-size:15px;min-height:52px}
+.partner-form-done{align-items:flex-start;text-align:left}
+.partner-form-done h2{font:400 30px/1.2 Georgia,serif;color:#263d2d}
+.partner-form-done p{font-size:15px;line-height:1.75;color:#75654f}
+.partner-form-check{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:#e3f0e0;color:#2f6b3a;font-size:26px;font-weight:700}
+.partner-reasons{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.partner-reasons li{display:flex;flex-direction:column;gap:4px;padding:18px 0;border-top:1px solid #d4c8ae}
+.partner-reasons strong{font-size:16px;color:#263d2d}.partner-reasons span{font-size:14px;line-height:1.7;color:#75654f}
+.partner-aside-note{margin-top:20px;font-size:14px;color:#75654f}.partner-aside-note a{color:#516c3c;font-weight:600;text-decoration:underline;text-underline-offset:3px}

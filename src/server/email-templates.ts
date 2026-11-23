@@ -288,3 +288,21 @@ export function topUpRejectedEmail({ baseUrl, name, amount, code, paidAt, reason
     text: plain([`Hi ${firstName(name)},`, "", "We couldn't match your M-Pesa payment, so your wallet wasn't credited.", "", `Reason: ${reason}`, `Amount you entered: ${amount}`, `M-Pesa code: ${code}`, `Paid at: ${paidAt}`, "", `Open your wallet: ${new URL("/dashboard/wallet", baseUrl)}`, "", "Kenya Barista Organization"]),
   };
 }
+
+// Sent to KBO when an organisation asks to partner. Everything shown was typed by the sender, so it's all escaped.
+export function partnerRequestEmail({ baseUrl, organisation, contactName, email, phone, website, kind, message }: { baseUrl: string; organisation: string; contactName: string; email: string; phone: string | null; website: string | null; kind: string; message: string }): Email {
+  const subject = `New partner request: ${organisation}`;
+  const rows: Row[] = [["Organisation", organisation], ["Contact", contactName], ["Email", email], ...(phone ? [["Phone", phone] as Row] : []), ...(website ? [["Website", website] as Row] : []), ["Interested in", kind]];
+  return {
+    subject,
+    html: layout({
+      baseUrl, preheader: `${organisation} would like to partner with KBO.`, eyebrow: "Partner request", title: "Someone wants to partner with KBO",
+      intro: [`<strong>${escape(organisation)}</strong> sent a partnership request through the website. Here's what they told us:`],
+      rows, steps: [["Their message", escape(message).replace(/\n/g, "<br>")]], stepsTitle: "In their words",
+      button: { label: "Open partner requests", href: "/admin/partners" },
+      footnote: `Reply straight to ${escape(contactName)} at <a href="mailto:${escape(email)}" style="color:${colors.teal}">${escape(email)}</a>, then mark the request as contacted in the dashboard.`,
+    }),
+    text: plain([`${organisation} would like to partner with KBO.`, "", ...rows.map(([label, value]) => `${label}: ${value}`), "", "Their message:", message, "",
+      `Open partner requests: ${new URL("/admin/partners", baseUrl)}`, "", "Kenya Barista Organization"]),
+  };
+}

@@ -11,6 +11,14 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.24.0 - 2026-11-23
+
+- **Partner with us**: a call to action under the home page partner cards opens a new `/partner-with-us` page. Organisations fill in a short form (organisation, name, email, optional phone and website, what they would like to partner on, and a message). No account needed.
+- Each request is emailed to KBO straight away, as a branded email with their details and message. It goes to the admin notification email, or to every active administrator if none is set.
+- New admin tab **Partner requests**: requests listed as New, Contacted or Archived with counts, email and phone links, the website and message. Mark contacted, archive or restore, and set the notification email from the same page.
+- Spam protection: a hidden field that only bots fill in, and at most 3 requests an hour from the same connection (stored as a one-way hash, not the IP).
+- Database: new `PartnerRequest` table and `PlatformSettings.adminNotificationEmail`. Run `npm run db:deploy` on other environments.
+
 ## 2.23.4 - 2026-11-23
 
 - Fixed the **Keep your curiosity brewing** numerals showing tiny: a 12px readability rule was overriding their size. They now show at 72px (50px on phones) like intended.
