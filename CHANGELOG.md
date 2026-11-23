@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.20.5 - 2026-11-23
+
+- The website header **My account** link has a profile icon before the text, and turns KBO green on hover.
+
 ## 2.20.4 - 2026-11-23
 
 - The website header **Sign in** button is solid KBO green with white text (darker green on hover) instead of an outline.

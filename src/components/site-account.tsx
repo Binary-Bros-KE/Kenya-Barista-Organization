@@ -44,7 +44,7 @@ export function SiteAvatar({ user }: { user: SiteUser }) {
 export function SiteAccount({ onNavigate }: { onNavigate: () => void }) { return <SiteAccountView user={useSiteUser()} onNavigate={onNavigate} />; }
 export function SiteAccountView({ user, onNavigate }: { user: SiteUser | null | undefined; onNavigate: () => void }) {
   if (!user) return <div className={`site-desktop-account${user === undefined ? " is-checking" : ""}`} aria-hidden={user === undefined || undefined}>
-    <Link href="/dashboard" className="site-account-link">My account</Link><Link href="/sign-in" className="site-sign-in">Sign in <span aria-hidden="true">&#8599;</span></Link>
+    <Link href="/dashboard" className="site-account-link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3.2"/><path d="M6.2 18.6a6.5 6.5 0 0 1 11.6 0"/></svg>My account</Link><Link href="/sign-in" className="site-sign-in">Sign in <span aria-hidden="true">&#8599;</span></Link>
   </div>;
   const name = user.name || user.email;
   return <div className="site-desktop-account">
