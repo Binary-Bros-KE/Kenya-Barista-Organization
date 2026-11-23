@@ -10,6 +10,13 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+
+## 2.20.1 - 2026-11-23
+
+- The website header knows when you're signed in. Instead of **My account** and **Sign in**, it shows your photo (or initials), first name and role (Member, Recruiter or Administrator). Clicking it opens a menu with your name and email, Dashboard, Jobs & applicants (recruiters) or Job review (administrators), My applications, Profile & CV, Notifications with your unread count, and Sign out. A small dot on the photo means you have unread notifications.
+- The phone menu shows the same account links in place of My account and Sign in.
+- Visitors who aren't signed in still see My account and Sign in. The header checks once per tab, so moving between pages doesn't flash the sign-in buttons.
+
 ## 2.19.0 - 2026-11-23
 
 - Job and application emails now go out within seconds, instead of only when the background notification worker runs (which `npm run dev` doesn't start). After a job is submitted or published, or a payment is confirmed, the app sends the queued emails straight after replying; the worker still retries anything that fails.

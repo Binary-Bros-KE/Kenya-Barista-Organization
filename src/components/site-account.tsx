@@ -41,8 +41,8 @@ export function SiteAvatar({ user }: { user: SiteUser }) {
 }
 
 // Desktop header: "My account" and "Sign in" for visitors; an account menu once signed in.
-export function SiteAccount({ onNavigate }: { onNavigate: () => void }) {
-  const user = useSiteUser();
+export function SiteAccount({ onNavigate }: { onNavigate: () => void }) { return <SiteAccountView user={useSiteUser()} onNavigate={onNavigate} />; }
+export function SiteAccountView({ user, onNavigate }: { user: SiteUser | null | undefined; onNavigate: () => void }) {
   if (!user) return <div className={`site-desktop-account${user === undefined ? " is-checking" : ""}`} aria-hidden={user === undefined || undefined}>
     <Link href="/dashboard" className="site-account-link">My account</Link><Link href="/sign-in" className="site-sign-in">Sign in <span aria-hidden="true">&#8599;</span></Link>
   </div>;
@@ -64,8 +64,8 @@ export function SiteAccount({ onNavigate }: { onNavigate: () => void }) {
 }
 
 // Mobile menu footer: the same choices as the desktop header.
-export function SiteMobileAccount({ onNavigate }: { onNavigate: () => void }) {
-  const user = useSiteUser();
+export function SiteMobileAccount({ onNavigate }: { onNavigate: () => void }) { return <SiteMobileAccountView user={useSiteUser()} onNavigate={onNavigate} />; }
+export function SiteMobileAccountView({ user, onNavigate }: { user: SiteUser | null | undefined; onNavigate: () => void }) {
   if (!user) return <div className="site-mobile-account"><Link href="/dashboard" onClick={onNavigate}>My account</Link><Link href="/sign-in" onClick={onNavigate}>Sign in</Link></div>;
   return <div className="site-mobile-account site-mobile-user">
     <p className="site-user-heading"><SiteAvatar user={user} /><span><strong>{user.name || user.email}</strong><span>{roleLabel[user.role]}</span></span></p>
