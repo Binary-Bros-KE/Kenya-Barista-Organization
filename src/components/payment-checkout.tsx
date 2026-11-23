@@ -6,7 +6,7 @@ import Link from "next/link";
 import { paymentLabel } from "@/lib/payment-view";
 import { formatFee } from "@/lib/job-format";
 type Option={id:string;label:string;kind:"PAYBILL"|"TILL";environment:"SANDBOX"|"LIVE";businessShortCode:string;tillNumber:string|null};
-export function PaymentCheckout({applicationId,version,amountMinor,phone,options,status,reviewHold=false,applicationStatus,receipt,reviewReason}:{applicationId:string;version:number;amountMinor:number;phone:string;options:Option[];status:string|null;reviewHold?:boolean;applicationStatus:string;receipt:string|null;reviewReason:string|null}){
+export function PaymentCheckout({applicationId,version,amountMinor,phone,options,status,reviewHold=false,applicationStatus,receipt,reviewReason,missing=""}:{missing?:string;applicationId:string;version:number;amountMinor:number;phone:string;options:Option[];status:string|null;reviewHold?:boolean;applicationStatus:string;receipt:string|null;reviewReason:string|null}){
  const [busy,setBusy]=useState(false),[message,setMessage]=useState(""),[error,setError]=useState(false);const key=useRef<string|null>(null);const router=useRouter();
  useEffect(()=>{
   if(applicationStatus!=="DRAFT"||!status||!["PENDING","NEEDS_REVIEW"].includes(status))return;
@@ -30,7 +30,7 @@ export function PaymentCheckout({applicationId,version,amountMinor,phone,options
  {!options.length&&<p className="notice">Payments are not available yet. Your draft is saved.</p>}
  <label>M-Pesa mobile number<input name="phone" type="tel" pattern={"\\+?254[17][0-9]{8}"} required placeholder="+254712345678" defaultValue={phone} autoComplete="tel" /></label>
  <label className="flex items-start gap-3"><input type="checkbox" required /><span>I agree to pay {formatFee(amountMinor)} for this application. Payment does not guarantee employment.</span></label>
- <button className="button" disabled={busy||!options.length}>{busy?"Requesting...":"Pay and submit application"}</button></form>}
+ {missing&&<p className="notice">{missing}</p>}<button className="button" disabled={busy||!options.length||!!missing}>{busy?"Requesting...":"Pay and submit application"}</button></form>}
  {status&&!terminal&&status!=="SUCCEEDED"&&<button className="button secondary" disabled={busy} onClick={async()=>{setBusy(true);setMessage("");setError(false);try{await postJson("/api/applications/"+applicationId+"/payments/refresh",{});setMessage("Payment status checked. If it is still pending, wait at least 30 seconds before checking again.");key.current=null;router.refresh();}catch(e){setError(true);setMessage((e as Error).message);}finally{setBusy(false);}}}>Check payment status</button>}
  <Link className="checkout-history-link" href="/dashboard/wallet#mpesa-payments">View payment history &#8594;</Link><p role={error?"alert":"status"} className={message?"activity-feedback "+(error?"is-error":"is-success"):""}>{message}</p></section>;
 }

@@ -11,6 +11,12 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.26.1 - 2026-11-23
+
+- Applying needs a cover letter (at least 30 characters) and a CV. Until the saved draft has both, **Pay from wallet** and **M-Pesa checkout** are disabled and say what is missing ("To apply, write a cover letter and attach your CV, then save your draft."). The server enforces the same rule.
+- Fixed the wrong error when no CV is attached: it said the CV failed the security check. That message now only shows for a CV that really failed the scan.
+- The cover letter is marked **Required** (no longer "Optional"), and the CV field is marked Required.
+
 ## 2.26.0 - 2026-11-23
 
 - Job seekers can apply (wallet or M-Pesa) with a CV that is still going through its automatic virus scan. Only a CV that failed the scan is blocked. CV "screening" is the automatic ClamAV check run by the `cvs:scan` job, not a manual admin review.

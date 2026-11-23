@@ -11,6 +11,9 @@ import { ApplicationList } from "../src/components/application-list";
 import { ApplicationResponses } from "../src/components/application-responses";
 import { DraftForm } from "../src/components/applicant-forms";
 import { WithdrawApplication } from "../src/components/recruitment-actions";
+import { applicationMissing, missingMessage } from "../src/lib/application-view";
+import { WalletPay } from "../src/components/wallet";
+import { PaymentCheckout } from "../src/components/payment-checkout";
 function render(component: ReactNode) { return renderToStaticMarkup(createElement(AppRouterContext.Provider, { value: { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} } as never }, component)); }
 test("status filters accept only known statuses and clamp invalid page input", () => {
  assert.deepEqual(applicationListQuery({ page: "-3", status: "DRAFT" }), { page: 1, status: "DRAFT" });
@@ -43,7 +46,7 @@ test("drafts can use a CV still being scanned, explain the recruiter wait and ex
  const html = render(createElement(DraftForm, { id: "a", version: 1, coverLetter: "", selected: "", editable: true, documents: [{ id: "pending", filename: "pending.pdf", scanStatus: "PENDING" }, { id: "blocked", filename: "blocked.pdf", scanStatus: "REJECTED" }] }));
  assert.ok(html.includes('value="pending"')); assert.ok(!html.includes('value="blocked"'));
  assert.ok(html.includes('You can apply with a CV that is still going through its quick security check.')); assert.ok(!html.includes('must pass screening')); assert.ok(html.includes('maxLength="6000"'));
- assert.ok(html.includes('Save your changes before requesting payment.'));
+ assert.ok(html.includes('Add your cover letter and CV, then save your draft to apply.')); assert.ok(html.includes('Required · at least 30 characters'));
 });
 test("locked application shows read-only saved details without a draft form or save control", () => {
  const html = render(createElement(DraftForm, { id: "a", version: 2, coverLetter: "Saved letter", selected: "cv", editable: false, documents: [{ id: "cv", filename: "attached.pdf", scanStatus: "CLEAN" }] }));
@@ -72,4 +75,19 @@ test("applications show the recruiter's photo, the KBO logo for KBO's own jobs, 
   assert.ok(html.includes("res.cloudinary.com/demo/") && html.includes("/avatars/rec_1"), "Recruiter photo");
   assert.ok(html.includes('src="/brand-logo.png"'), "KBO logo for KBO's own jobs"); assert.ok(html.includes(">BE<"), "Initials when there's no photo");
  } finally { if (previous === undefined) delete process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; else process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME = previous; }
+});
+test("paying waits for a saved cover letter and a usable CV", () => {
+ const letter = "I have three years behind a busy espresso bar.";
+ assert.deepEqual(applicationMissing("", null), ["write a cover letter", "attach your CV"]);
+ assert.deepEqual(applicationMissing("Too short", { scanStatus: "CLEAN" }), ["write a cover letter"]);
+ assert.deepEqual(applicationMissing(letter, null), ["attach your CV"]);
+ assert.deepEqual(applicationMissing(letter, { scanStatus: "REJECTED" }), ["attach your CV"]);
+ assert.deepEqual(applicationMissing(letter, { scanStatus: "PENDING" }), [], "A CV still being scanned is fine");
+ assert.equal(missingMessage(["write a cover letter", "attach your CV"]), "To apply, write a cover letter and attach your CV, then save your draft.");
+ const message = missingMessage(["attach your CV"]);
+ const wallet = render(createElement(WalletPay, { applicationId: "a", version: 1, feeMinor: 50000, balanceMinor: 500000, missing: message }));
+ assert.ok(/<button[^>]*disabled=""[^>]*>Pay Ksh/.test(wallet) || /<button[^>]*class="wallet-pay-button"[^>]*disabled/.test(wallet), "Wallet pay is disabled"); assert.ok(wallet.includes(message));
+ assert.ok(!/disabled=""[^>]*>Pay Ksh/.test(render(createElement(WalletPay, { applicationId: "a", version: 1, feeMinor: 50000, balanceMinor: 500000 }))), "Enabled once complete");
+ const checkout = render(createElement(PaymentCheckout, { applicationId: "a", version: 1, amountMinor: 50000, phone: "", options: [{ id: "o", label: "KBO", kind: "TILL", tillNumber: "123", businessShortCode: null, environment: "SANDBOX" }] as never, status: null, applicationStatus: "DRAFT", receipt: null, reviewReason: null, missing: message }));
+ assert.ok(/<button class="button" disabled="">Pay and submit application/.test(checkout), "M-Pesa pay is disabled"); assert.ok(checkout.includes(message));
 });

@@ -143,7 +143,8 @@ function TopUpModal({ settings, limits, suggestedKes, onClose }: { settings: Wal
 }
 
 // On an application: pay the fee from the wallet and submit, or top up the difference.
-export function WalletPay({ applicationId, version, feeMinor, balanceMinor }: { applicationId: string; version: number; feeMinor: number; balanceMinor: number }) {
+// missing: what the saved draft still needs (cover letter, CV); paying stays disabled until it's empty.
+export function WalletPay({ applicationId, version, feeMinor, balanceMinor, missing = "" }: { applicationId: string; version: number; feeMinor: number; balanceMinor: number; missing?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [sure, setSure] = useState(false);
   const enough = balanceMinor >= feeMinor, shortKes = Math.ceil((feeMinor - balanceMinor) / 100), topUpKes = Math.max(shortKes, 10);
@@ -161,8 +162,8 @@ export function WalletPay({ applicationId, version, feeMinor, balanceMinor }: { 
     <div className="wallet-pay-head"><span><Icon d={icons.wallet} /> Pay from wallet</span><Link href="/dashboard/wallet">Wallet</Link></div>
     <dl><div><dt>Balance</dt><dd>{formatFee(balanceMinor)}</dd></div><div><dt>Application fee</dt><dd>−{formatFee(feeMinor)}</dd></div><div className="is-after"><dt>After applying</dt><dd>{enough ? formatFee(balanceMinor - feeMinor) : "—"}</dd></div></dl>
     {enough ? <>
-      <button type="button" className={"wallet-pay-button" + (sure ? " is-sure" : "")} disabled={busy} onClick={() => void pay()}>{busy ? "Submitting…" : sure ? `Tap again to pay ${formatFee(feeMinor)} and submit` : `Pay ${formatFee(feeMinor)} and submit`}</button>
-      <p className="wallet-pay-note">Your application is sent to the recruiter straight away.</p>
+      <button type="button" className={"wallet-pay-button" + (sure ? " is-sure" : "")} disabled={busy || !!missing} onClick={() => void pay()}>{busy ? "Submitting…" : sure ? `Tap again to pay ${formatFee(feeMinor)} and submit` : `Pay ${formatFee(feeMinor)} and submit`}</button>
+      {missing ? <p className="wallet-pay-missing" role="status">{missing}</p> : <p className="wallet-pay-note">Your application is sent to the recruiter straight away.</p>}
     </> : <>
       <p className="wallet-pay-short">You need {formatFee(shortKes * 100)} more to apply.</p>
       <Link className="wallet-pay-button is-topup" href={`/dashboard/wallet?topup=${topUpKes}`}>Top up {formatFee(topUpKes * 100)}</Link>

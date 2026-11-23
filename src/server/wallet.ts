@@ -7,6 +7,7 @@ import { profileInput } from "./applications";
 import { defaultMail, emailNow, notify, type MailSettings } from "./instant-email";
 import { topUpConfirmedEmail, topUpReceivedEmail, topUpRejectedEmail } from "./email-templates";
 import { formatDeadline, formatFee } from "../lib/job-format";
+import { applicationMissing, missingMessage } from "../lib/application-view";
 
 // The wallet. Members send money to KBO by M-Pesa and claim it here; an administrator checks the statement and
 // confirms (crediting the wallet) or rejects the claim. Processed claims never change. Application fees can then be
@@ -172,6 +173,8 @@ export async function payFromWallet(db: PrismaClient, actor: Actor, applicationI
     const profile = profileInput.safeParse(application.user.profile ? { fullName: application.user.profile.fullName, phone: application.user.profile.phone, location: application.user.profile.location, summary: application.user.profile.summary || "" } : {});
     if (!profile.success) throw new AccessError(409, "PROFILE_INCOMPLETE", "Complete your profile before paying");
     const document = application.documents.length === 1 ? application.documents[0].document : null;
+    const missing = applicationMissing(application.coverLetter, document);
+    if (missing.length) throw new AccessError(409, missing.includes("attach your CV") && document ? "CV_NOT_READY" : "APPLICATION_INCOMPLETE", document && missing.includes("attach your CV") ? "This CV didn't pass the security check. Attach another PDF and save your draft" : missingMessage(missing));
     // A CV still being virus-scanned can be sent; recruiters can open it once the scan passes.
     if (!document || document.userId !== actor.user.id || !["PENDING", "CLEAN"].includes(document.scanStatus) || !document.sha256) throw new AccessError(409, "CV_NOT_READY", "This CV didn't pass the security check. Attach another PDF before paying");
     const fee = application.applicationFeeMinor;

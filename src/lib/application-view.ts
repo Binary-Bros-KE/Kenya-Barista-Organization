@@ -18,3 +18,13 @@ export function applicationGuidance(status: string, editable: boolean) {
   if (status === "UNDER_REVIEW") return "The recruitment team is reviewing your application. Any messages or status updates will appear below.";
   return "Your application has been submitted. Check the responses below for recruitment updates.";
 }
+
+// What a saved draft still needs before its fee can be paid: a cover letter and a CV that hasn't failed the virus scan.
+export const MIN_COVER_LETTER = 30;
+export function applicationMissing(coverLetter: string, cv: { scanStatus: string } | null | undefined) {
+  const missing: string[] = [];
+  if (coverLetter.trim().length < MIN_COVER_LETTER) missing.push("write a cover letter");
+  if (!cv || !["PENDING", "CLEAN"].includes(cv.scanStatus)) missing.push("attach your CV");
+  return missing;
+}
+export const missingMessage = (missing: string[]) => missing.length ? `To apply, ${missing.join(" and ")}, then save your draft.` : "";

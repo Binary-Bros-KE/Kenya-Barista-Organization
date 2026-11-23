@@ -220,3 +220,4 @@
 .admin-workspace .topups .topups-date input { height: 36px; padding: 0 6px; border: 0; background: transparent; color: #2f2219; font: inherit; font-size: 13.5px; }
 .admin-workspace .topups :is(.topups-search input, .topups-date input):focus { outline: 2px solid #0b766d55; border-radius: 8px; }
 .topups-clear { height: 42px; padding: 0 14px; border: 1px solid #eeb1c0; border-radius: 11px; background: #fff; color: #be1a41; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.wallet-pay-missing { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: #fff3d6; color: #7a4f00; font-size: 13px; font-weight: 700; text-align: center; }
