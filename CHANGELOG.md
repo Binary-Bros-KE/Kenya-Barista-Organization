@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.20.3 - 2026-11-23
+
+- Home page: the three cards under the hero show large, softened line icons instead of 01, 02 and 03: a briefcase for **Find your next role**, a graduation cap for **Learn the craft** and a steaming cup for **Stay curious**. The icon brightens and lifts slightly on hover.
+
 ## 2.20.2 - 2026-11-23
 
 - Website header dropdowns (Education, About us, Barista hub and the account menu) open one at a time: opening one closes the others, so they no longer stack on top of each other.
