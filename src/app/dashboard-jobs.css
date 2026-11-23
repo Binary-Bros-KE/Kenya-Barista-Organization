@@ -115,3 +115,19 @@
 .managed-job-cta { border: 0; text-decoration: none; cursor: pointer; font-family: inherit; }
 .managed-job-cta:hover { filter: brightness(1.1); }
 .verified-ribbon svg { flex-shrink: 0; width: 14px !important; height: 14px !important; margin: 0 !important; position: static !important; max-width: none !important; }
+
+/* Recruiter and admin cards are themed by status, so pending and live jobs are told apart at a glance. */
+.managed-job-card { --edge: #d6c7b5; border-color: var(--edge); }
+.managed-job-card .djobs-card-body { background: linear-gradient(180deg, var(--status-wash, #fffefa), #fffefa 70%); }
+.djobs-card.managed-job-card.status-pending_review { --tint: #2f6fb0; --wash: #e9f1fb; --edge: #7fa9d8; --status-wash: #eaf2fc; border-top-color: #2f6fb0; box-shadow: 0 0 0 3px #2f6fb022, 0 14px 30px -18px #2f6fb0; }
+.djobs-card.managed-job-card.status-published { --tint: #24804f; --wash: #e8f5ec; --edge: #8cc7a3; --status-wash: #eaf6ee; border-top-color: #24804f; }
+.djobs-card.managed-job-card.status-draft { --tint: #a8761c; --wash: #fdf3dd; --edge: #dfc07e; --status-wash: #fdf6e6; border-style: dashed; border-top-style: solid; border-top-color: #d7a446; }
+.djobs-card.managed-job-card.status-changes_requested { --tint: #c9631c; --wash: #fdeee2; --edge: #e9a877; --status-wash: #fdf0e6; border-top-color: #d9822b; }
+.djobs-card.managed-job-card.status-closed, .djobs-card.managed-job-card.status-archived { --tint: #6b6560; --wash: #efebe6; --edge: #cfc6bc; --status-wash: #f3f0ec; border-top-color: #8f877f; }
+.managed-job-card.status-closed .job-cover, .managed-job-card.status-archived .job-cover { filter: grayscale(.85) brightness(.95); }
+.managed-job-card.status-closed .managed-job-title :is(a, button), .managed-job-card.status-archived .managed-job-title :is(a, button) { color: #6b6560; }
+.managed-job-flag { display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; padding: 4px 10px; border-radius: 999px; background: var(--tint); color: #fff; font-size: 11.5px; font-weight: 800; letter-spacing: .01em; }
+.managed-job-flag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+.managed-job-card.status-pending_review .managed-job-flag::before { animation: managed-pulse 1.4s ease-in-out infinite; }
+@keyframes managed-pulse { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .managed-job-card.status-pending_review .managed-job-flag::before { animation: none; } }

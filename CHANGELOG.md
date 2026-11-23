@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.18.0 - 2026-11-23
+
+- Recruiter and admin job cards are themed by status, so they are easy to tell apart at a glance: **Awaiting review** blue with a soft glow and a pulsing "Needs your review" tag (recruiters see "Waiting for KBO review"), **Published** green, **Draft** gold with a dashed edge, **Changes requested** orange with a "Sent back" tag, and **Closed / Archived** grey with a faded photo. The card edge, background tint, tags and button follow the status colour.
+
 ## 2.17.4 - 2026-11-23
 
 - Job review: the default fee widget is a single line (input with a "Default fee (KES)" placeholder and Save), so the toolbar stays slim. A short "Saved" or error note appears on the same line.

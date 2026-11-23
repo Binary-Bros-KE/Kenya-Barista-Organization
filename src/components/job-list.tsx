@@ -19,10 +19,10 @@ export function ManagedJobCards({ jobs, admin = false, onManage, onApplicants }:
  const open = (id: string, className: string | undefined, children: React.ReactNode) => onManage ? <button type="button" className={className ? className + " is-button" : "employer-job-title-button"} onClick={() => onManage(id)}>{children}</button> : <Link className={className} href={href(id)}>{children}</Link>;
  // Same design as the Find jobs cards: cover, fee, status, category colour, and the Verified ribbon for verified recruiters.
  return <ul className="djobs-grid managed-job-grid">{jobs.map(job => { const passed = job.status === "PUBLISHED" && new Date(job.deadline) <= new Date(), verified = !!job.recruiter.recruiterVerifiedAt;
-  return <li key={job.id}><article className={`djobs-card managed-job-card is-${job.category.toLowerCase()}`}>
+  return <li key={job.id}><article className={`djobs-card managed-job-card is-${job.category.toLowerCase()} status-${job.status.toLowerCase()}`}>
    {verified && <VerifiedRibbon />}
    <span className="djobs-card-media"><JobCover id={job.id} coverVersion={job.coverVersion} category={job.category} /><span className="djobs-card-fee">{formatFee(job.applicationFeeMinor)}</span><span className={"djobs-card-status status-" + job.status.toLowerCase()}>{statusLabels[job.status]}</span></span>
-   <div className="djobs-card-body">
+   <div className="djobs-card-body">{job.status === "PENDING_REVIEW" && <span className="managed-job-flag">{admin ? "Needs your review" : "Waiting for KBO review"}</span>}{job.status === "CHANGES_REQUESTED" && <span className="managed-job-flag">{admin ? "Sent back to the recruiter" : "KBO asked for changes"}</span>}
     <span className="djobs-card-employer"><EmployerLogo employer={{ id: job.recruiter.id, avatarVersion: job.recruiter.avatarVersion }} />{job.recruiter.name || "KBO recruiter"}{verified && <VerifiedBadge />}</span>
     <h3 className="managed-job-title">{open(job.id, undefined, job.title)}</h3>
     <span className="djobs-card-tags"><em className="is-category">{categories[job.category as keyof typeof categories] || job.category}</em><em>{employmentTypes[job.employmentType as keyof typeof employmentTypes] || job.employmentType}</em><em>{job.location}</em></span>
