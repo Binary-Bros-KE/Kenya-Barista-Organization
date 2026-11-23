@@ -73,12 +73,9 @@
 @media(max-width:1180px){.site-partners-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:699px){.site-partners-inner{padding:58px 20px 64px}.site-partners-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.site-partner-card{transition:none}.site-partner-card:hover{transform:none}}
-/* Home guides: large softened icons in place of the 01/02/03 numbers, like the pathway cards */
-.site-guide-list>a>span.site-guide-icon{display:inline-flex;flex-shrink:0;width:44px;height:44px;padding-top:0;color:#263d2d;opacity:.4;transition:opacity .2s,transform .2s}
-.site-guide-icon svg{width:100%;height:100%}
-.site-guide-list>a:hover>span.site-guide-icon{opacity:.85;transform:translateY(-2px)}
-@media(max-width:700px){.site-guide-list>a>span.site-guide-icon{width:38px;height:38px}}
-@media(prefers-reduced-motion:reduce){.site-guide-list>a>span.site-guide-icon{transition:none}}
+/* Home guides: big, faint serif numerals like the course list */
+.site-public .site-guide-list>a>span.site-guide-number{flex-shrink:0;min-width:84px;padding-top:0;font:400 72px/.85 Georgia,serif;letter-spacing:-.05em;color:#263d2d;opacity:.14}
+@media(max-width:700px){.site-public .site-guide-list>a>span.site-guide-number{min-width:58px;font-size:50px}}
 /* Home course list: big, faint serif numerals that sit behind the text like a watermark */
 .site-public .site-learning .site-learning-copy li{align-items:center;gap:20px}
 .site-public .site-learning .site-learning-copy li>span{flex-shrink:0;min-width:74px;padding-top:0;font:400 64px/.9 Georgia,serif;letter-spacing:-.05em;color:#263d2d;opacity:.14}

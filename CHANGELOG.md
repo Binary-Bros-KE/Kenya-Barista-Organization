@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.23.3 - 2026-11-23
+
+- Home **Keep your curiosity brewing** guides: back to 01, 02 and 03 instead of icons, now as big, faint serif numerals matching the course list.
+
 ## 2.23.2 - 2026-11-23
 
 - Home barista hub guides: icons replace 01, 02 and 03 (a coffee bean for **From bean to cup**, a coffee plant on a hillside for **Origin and processes**, a portafilter for **The barista's toolkit**), large and softened like the pathway cards.
