@@ -95,17 +95,26 @@ const reviewInput = z.discriminatedUnion("decision", [
   z.object({ decision: z.literal("reject"), note: z.string().trim().min(5, "Tell the member why, e.g. the code isn't on the statement").max(500) }).strict(),
 ]);
 
-export async function listTopUps(db: PrismaClient, actor: Actor, input: { status?: string; page?: string } = {}) {
+// Search matches the M-Pesa code or the member's name or email; from/to (YYYY-MM-DD, Nairobi) filter by when they
+// paid. Tab counts and totals follow the search, so each tab shows how many matches it holds.
+export async function listTopUps(db: PrismaClient, actor: Actor, input: { status?: string; page?: string; q?: string; from?: string; to?: string } = {}) {
   assertAdmin(actor);
   const status = z.enum(["PENDING", "CONFIRMED", "REJECTED"]).catch("PENDING").parse(input.status);
   const page = Math.max(1, Math.min(100000, Number.parseInt(input.page || "1", 10) || 1));
-  const where: Prisma.TopUpRequestWhereInput = { status };
+  const q = (input.q || "").trim().slice(0, 100);
+  const day = (value: string | undefined) => value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null;
+  const from = day(input.from), to = day(input.to);
+  const filters: Prisma.TopUpRequestWhereInput = {
+    ...(q ? { OR: [{ mpesaCode: { contains: q.toUpperCase().replace(/\s+/g, "") } }, { user: { name: { contains: q, mode: "insensitive" } } }, { user: { email: { contains: q, mode: "insensitive" } } }] } : {}),
+    ...(from || to ? { paidAt: { ...(from ? { gte: new Date(`${from}T00:00:00+03:00`) } : {}), ...(to ? { lte: new Date(`${to}T23:59:59.999+03:00`) } : {}) } } : {}),
+  };
+  const where: Prisma.TopUpRequestWhereInput = { ...filters, status };
   const [total, claims, counts, settings, credited] = await Promise.all([
     db.topUpRequest.count({ where }),
     db.topUpRequest.findMany({ where, orderBy: status === "PENDING" ? [{ createdAt: "asc" }, { id: "asc" }] : [{ reviewedAt: "desc" }, { id: "desc" }], skip: (page - 1) * 30, take: 30,
       select: { id: true, amountMinor: true, creditedMinor: true, mpesaCode: true, paidAt: true, status: true, reviewNote: true, reviewedAt: true, createdAt: true,
         user: { select: { id: true, name: true, email: true, avatarVersion: true, walletBalanceMinor: true, role: true } }, reviewedBy: { select: { name: true, email: true } } } }),
-    db.topUpRequest.groupBy({ by: ["status"], _count: { _all: true }, _sum: { amountMinor: true } }),
+    db.topUpRequest.groupBy({ by: ["status"], where: filters, _count: { _all: true }, _sum: { amountMinor: true } }),
     topUpSettings(db),
     db.walletEntry.aggregate({ where: { kind: "TOP_UP" }, _sum: { amountMinor: true } }),
   ]);

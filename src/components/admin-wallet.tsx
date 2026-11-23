@@ -23,9 +23,14 @@ async function send(url: string, init?: RequestInit) {
 export function AdminWallet() {
   const [status, setStatus] = useState<Status>("PENDING"), [page, setPage] = useState(1);
   const [data, setData] = useState<Data | null>(null), [error, setError] = useState(""), [notice, setNotice] = useState("");
+  // Search by M-Pesa code, name or email (applied shortly after typing stops) and by the date paid.
+  const [search, setSearch] = useState(""), [q, setQ] = useState(""), [from, setFrom] = useState(""), [to, setTo] = useState("");
+  useEffect(() => { const timer = setTimeout(() => { setQ(search.trim()); setPage(1); }, 300); return () => clearTimeout(timer); }, [search]);
+  const filtered = !!(q || from || to);
   const load = useCallback(async () => {
-    try { setData(await send(`/api/admin/wallet?status=${status}&page=${page}`)); setError(""); } catch (problem) { setError((problem as Error).message); }
-  }, [status, page]);
+    const params = new URLSearchParams({ status, page: String(page), ...(q ? { q } : {}), ...(from ? { from } : {}), ...(to ? { to } : {}) });
+    try { setData(await send(`/api/admin/wallet?${params}`)); setError(""); } catch (problem) { setError((problem as Error).message); }
+  }, [status, page, q, from, to]);
   useEffect(() => { void load(); }, [load]);
 
   return <div className="topups">
@@ -33,12 +38,18 @@ export function AdminWallet() {
       <div className="topups-tabs" role="tablist" aria-label="Top-ups by status">{tabs.map(([value, label]) => <button key={value} type="button" role="tab" aria-selected={status === value} className={"is-" + value.toLowerCase() + (status === value ? " is-on" : "")} onClick={() => { setStatus(value); setPage(1); }}>{label}<span>{data?.counts[value] ?? "·"}</span></button>)}</div>
       {data && <NumberWidget settings={data.settings} onSaved={() => { setNotice("Top-up number saved."); void load(); }} />}
     </div>
+    <div className="topups-filters" role="search">
+      <label className="topups-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search M-Pesa code, name or email" aria-label="Search top-ups" maxLength={100} /></label>
+      <label className="topups-date"><span>Paid from</span><input type="date" value={from} max={to || undefined} onChange={event => { setFrom(event.target.value); setPage(1); }} /></label>
+      <label className="topups-date"><span>to</span><input type="date" value={to} min={from || undefined} onChange={event => { setTo(event.target.value); setPage(1); }} /></label>
+      {filtered && <button type="button" className="topups-clear" onClick={() => { setSearch(""); setQ(""); setFrom(""); setTo(""); setPage(1); }}>Clear</button>}
+    </div>
     {data && <dl className="topups-stats"><div className="is-gold"><dt>Waiting to confirm</dt><dd>{formatFee(data.pendingMinor)}</dd></div><div className="is-green"><dt>Credited to wallets</dt><dd>{formatFee(data.creditedMinor)}</dd></div><div className="is-blue"><dt>Claims to check</dt><dd>{data.counts.PENDING}</dd></div></dl>}
     {data && !data.settings.phone && <p className="topups-warning">Members can&apos;t top up until you set the M-Pesa number above.</p>}
     {notice && <p className="notice success" role="status">{notice}</p>}
     {error && <p className="notice error" role="alert">{error} <button className="underline" onClick={() => void load()}>Retry</button></p>}
     {!data ? <div className="employer-loading" role="status"><span aria-hidden="true" />Loading top-ups…</div>
-      : !data.claims.length ? <div className="topups-empty"><strong>{status === "PENDING" ? "All caught up" : "Nothing here yet"}</strong><span>{status === "PENDING" ? "New top-up claims appear here for you to check against the M-Pesa statement." : "Processed top-ups will be listed here."}</span></div>
+      : !data.claims.length ? <div className="topups-empty">{filtered ? <><strong>No top-ups match</strong><span>Try another code, name or date range, or check the other tabs.</span></> : <><strong>{status === "PENDING" ? "All caught up" : "Nothing here yet"}</strong><span>{status === "PENDING" ? "New top-up claims appear here for you to check against the M-Pesa statement." : "Processed top-ups will be listed here."}</span></>}</div>
       : <section className={"topups-table is-" + status.toLowerCase()} aria-label="Top-ups">
         <div className="topups-head" aria-hidden="true"><span>Member</span><span>M-Pesa code</span><span>Paid at</span><span>{status === "CONFIRMED" ? "Credited" : "Amount"}</span><span>Wallet now</span><span>{status === "PENDING" ? "Credit and decide" : "Outcome"}</span></div>
         <ul>{data.claims.map(claim => <TopUpCard key={claim.id} claim={claim} onDone={message => { setNotice(message); void load(); }} />)}</ul>

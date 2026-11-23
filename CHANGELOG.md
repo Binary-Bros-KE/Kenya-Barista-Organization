@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.24.4 - 2026-11-23
+
+- Admin Wallet top-ups: search by M-Pesa code, member name or email, and filter by the date paid (from / to, Nairobi time). Tab counts and totals follow the search, and Clear resets it.
+
 ## 2.24.3 - 2026-11-23
 
 - Admin sidebar: removed **Delivery queue** and **Payment review**. Wallet top-ups is where payments are checked now. The payment review queue (for automatic M-Pesa prompt payments that need a look) is still reachable from Settings → Payments and M-Pesa, and the delivery queue page still works by its address.
