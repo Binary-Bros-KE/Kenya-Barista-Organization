@@ -34,10 +34,10 @@ test("course form retains required contact fields and optional demographic field
  assert.ok(!input(html,"Age").includes('required=""')); assert.ok(!input(html,"Nationality").includes('required=""'));
  assert.ok(html.includes('name="Gender"')); assert.ok(html.includes('Roasting Course')); assert.ok(html.includes('This form does not send a message directly.'));
 });
-test("courses retain both brochures, venue and separate job-account entry", () => {
+test("courses keep the venue and separate job-account entry, without the old brochures", () => {
  const html=render(createElement(Courses));
- for(const key of ["https://ik.imagekit.io/qxekjpfx0b/KBO/courses_xfs8iQ-5p.jpg","https://ik.imagekit.io/qxekjpfx0b/KBO/jowam_iDzN1TSEvYNC.jpeg"])assert.ok(html.includes(content.assets[key as keyof typeof content.assets]));
- assert.ok(html.includes('confirm current course availability, fees and training dates')); assert.ok(html.includes('Caxton Hse.')); assert.ok(html.includes('href="/register"')); assert.ok(html.includes('id="course-enquiry"'));
+ for(const key of ["https://ik.imagekit.io/qxekjpfx0b/KBO/courses_xfs8iQ-5p.jpg","https://ik.imagekit.io/qxekjpfx0b/KBO/jowam_iDzN1TSEvYNC.jpeg"])assert.ok(!html.includes(content.assets[key as keyof typeof content.assets]),"Brochure images were removed");
+ assert.ok(!html.includes("View course brochures")); assert.ok(!html.includes("brochure")); assert.ok(html.includes('Caxton Hse.')); assert.ok(html.includes('href="/register"')); assert.ok(html.includes('id="course-enquiry"'));
 });
 test("team and philosophy preserve every supplied member, role and core value", () => {
  const team=render(createElement(Team),"/team"),philosophy=render(createElement(Philosophy),"/philosophy");
