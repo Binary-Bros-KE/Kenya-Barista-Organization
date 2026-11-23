@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.31.5 - 2026-11-23
+
+- Home hero on phones: each gold corner line is half as tall as it is wide, the same on both sides.
+
 ## 2.31.4 - 2026-11-23
 
 - Home hero: the gold corner lines are shorter on phones.
