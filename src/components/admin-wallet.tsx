@@ -39,7 +39,11 @@ export function AdminWallet() {
     {error && <p className="notice error" role="alert">{error} <button className="underline" onClick={() => void load()}>Retry</button></p>}
     {!data ? <div className="employer-loading" role="status"><span aria-hidden="true" />Loading top-ups…</div>
       : !data.claims.length ? <div className="topups-empty"><strong>{status === "PENDING" ? "All caught up" : "Nothing here yet"}</strong><span>{status === "PENDING" ? "New top-up claims appear here for you to check against the M-Pesa statement." : "Processed top-ups will be listed here."}</span></div>
-      : <ul className={"topups-list is-" + status.toLowerCase()}>{data.claims.map(claim => <TopUpCard key={claim.id} claim={claim} onDone={message => { setNotice(message); void load(); }} />)}</ul>}
+      : <section className={"topups-table is-" + status.toLowerCase()} aria-label="Top-ups">
+        <div className="topups-head" aria-hidden="true"><span>Member</span><span>M-Pesa code</span><span>Paid at</span><span>{status === "CONFIRMED" ? "Credited" : "Amount"}</span><span>Wallet now</span><span>{status === "PENDING" ? "Credit and decide" : "Outcome"}</span></div>
+        <ul>{data.claims.map(claim => <TopUpCard key={claim.id} claim={claim} onDone={message => { setNotice(message); void load(); }} />)}</ul>
+        {status === "PENDING" && <p className="topups-foot">Check each code and amount on the M-Pesa statement before confirming. Confirmed and rejected top-ups can&apos;t be changed.</p>}
+      </section>}
     {data && data.pagination.pageCount > 1 && <nav className="djobs-pages" aria-label="Top-up pages"><span>Page {page} of {data.pagination.pageCount}</span><div>{page > 1 && <button type="button" className="underline" onClick={() => setPage(page - 1)}>&larr; Previous</button>}{page < data.pagination.pageCount && <button type="button" className="underline" onClick={() => setPage(page + 1)}>Next &rarr;</button>}</div></nav>}
   </div>;
 }
@@ -57,27 +61,24 @@ function TopUpCard({ claim, onDone }: { claim: Claim; onDone: (message: string) 
       onDone(decision === "confirm" ? `${formatFee(creditKes * 100)} credited to ${who}'s wallet. They've been emailed.` : `Top-up from ${who} rejected. They've been emailed the reason.`);
     } catch (problem) { setError((problem as Error).message); setSure(false); } finally { setBusy(false); }
   }
-  return <li className={"topup-card is-" + claim.status.toLowerCase()}>
-    <div className="topup-card-who"><span className="topup-avatar">{photo ? <img src={photo} alt="" /> : initialsOf(who)}</span><div><strong>{who}</strong><a href={`mailto:${claim.user.email}`}>{claim.user.email}</a></div></div>
-    <div className="topup-card-amount"><span>{claim.status === "CONFIRMED" ? "Credited" : "Says they sent"}</span><strong>{formatFee(claim.creditedMinor ?? claim.amountMinor)}</strong>{claim.status === "CONFIRMED" && claim.creditedMinor !== claim.amountMinor && <small>Claimed {formatFee(claim.amountMinor)}</small>}</div>
-    <dl className="topup-card-facts">
-      <div><dt>M-Pesa code</dt><dd><code>{claim.mpesaCode}</code></dd></div>
-      <div><dt>Paid at</dt><dd>{formatDeadline(claim.paidAt)}</dd></div>
-      <div><dt>Submitted</dt><dd>{ago(claim.createdAt)}</dd></div>
-      <div><dt>Wallet now</dt><dd>{formatFee(claim.user.walletBalanceMinor)}</dd></div>
-    </dl>
-    {claim.status === "PENDING" ? <div className="topup-card-actions">
-      {!rejecting ? <>
-        <label className="topup-credit"><span>Credit KES</span><input inputMode="numeric" value={credit} onChange={event => { setCredit(event.target.value.replace(/\D/g, "")); setSure(false); }} aria-label="Amount to credit in KES" /></label>
-        <button type="button" className={"topup-confirm" + (sure ? " is-sure" : "")} disabled={busy || !creditOk} onClick={() => void decide("confirm")}>{busy ? "Crediting…" : sure ? "Tap again to confirm" : "✓ Confirm & credit"}</button>
-        <button type="button" className="topup-reject-open" disabled={busy} onClick={() => setRejecting(true)}>Reject</button>
-      </> : <form className="topup-reject" onSubmit={(event: FormEvent) => { event.preventDefault(); void decide("reject"); }}>
-        <textarea value={note} onChange={event => setNote(event.target.value)} rows={2} maxLength={500} placeholder="Why? e.g. This code isn't on the M-Pesa statement." autoFocus />
-        <div><button type="button" className="underline" onClick={() => setRejecting(false)}>Cancel</button><button className="topup-reject-button" disabled={busy || note.trim().length < 5}>{busy ? "Rejecting…" : "Reject top-up"}</button></div>
-      </form>}
-      <p className="topup-card-hint">Check the code and amount on the M-Pesa statement first. This can&apos;t be undone.</p>
-    </div> : <p className={"topup-card-outcome is-" + claim.status.toLowerCase()}>{claim.status === "CONFIRMED" ? "✓ Confirmed" : "✕ Rejected"} by {claim.reviewedBy?.name || claim.reviewedBy?.email || "KBO"}{claim.reviewedAt ? ` · ${formatDeadline(claim.reviewedAt)}` : ""}{claim.reviewNote && <span>{claim.reviewNote}</span>}</p>}
-    {error && <p className="notice error" role="alert">{error}</p>}
+  // One row: member, M-Pesa code, when they paid, the amount, their wallet, then the decision.
+  return <li className={"topup-row is-" + claim.status.toLowerCase() + (rejecting ? " is-rejecting" : "")}>
+    <div className="topup-row-who"><span className="topup-avatar">{photo ? <img src={photo} alt="" /> : initialsOf(who)}</span><div><strong>{who}</strong><a href={`mailto:${claim.user.email}`}>{claim.user.email}</a></div></div>
+    <div className="topup-row-code" data-label="M-Pesa code"><code>{claim.mpesaCode}</code></div>
+    <div className="topup-row-time" data-label="Paid at"><strong>{formatDeadline(claim.paidAt)}</strong><span>Sent {ago(claim.createdAt)}</span></div>
+    <div className="topup-row-amount" data-label={claim.status === "CONFIRMED" ? "Credited" : "Amount"}><strong>{formatFee(claim.creditedMinor ?? claim.amountMinor)}</strong>{claim.status === "CONFIRMED" && claim.creditedMinor !== claim.amountMinor && <span>Claimed {formatFee(claim.amountMinor)}</span>}</div>
+    <div className="topup-row-wallet" data-label="Wallet now">{formatFee(claim.user.walletBalanceMinor)}</div>
+    {claim.status === "PENDING" ? <div className="topup-row-actions">
+      <label className="topup-credit" title="Enter the amount shown on the M-Pesa statement"><span>KES</span><input inputMode="numeric" value={credit} onChange={event => { setCredit(event.target.value.replace(/\D/g, "")); setSure(false); }} aria-label={`Amount to credit ${who} in KES`} /></label>
+      <button type="button" className={"topup-confirm" + (sure ? " is-sure" : "")} disabled={busy || !creditOk || rejecting} onClick={() => void decide("confirm")}>{busy && !rejecting ? "Crediting…" : sure ? "Tap again" : "✓ Confirm"}</button>
+      <button type="button" className="topup-reject-open" disabled={busy} aria-expanded={rejecting} onClick={() => setRejecting(!rejecting)}>{rejecting ? "Cancel" : "Reject"}</button>
+    </div> : <div className={"topup-row-outcome is-" + claim.status.toLowerCase()}><strong>{claim.status === "CONFIRMED" ? "✓ Confirmed" : "✕ Rejected"}</strong><span>{claim.reviewedBy?.name || claim.reviewedBy?.email || "KBO"}{claim.reviewedAt ? ` · ${formatDeadline(claim.reviewedAt)}` : ""}</span></div>}
+    {rejecting && <form className="topup-reject" onSubmit={(event: FormEvent) => { event.preventDefault(); void decide("reject"); }}>
+      <input value={note} onChange={event => setNote(event.target.value)} maxLength={500} placeholder={`Why are you rejecting ${who}'s top-up? e.g. This code isn't on the M-Pesa statement.`} aria-label="Reason for rejecting" autoFocus />
+      <button className="topup-reject-button" disabled={busy || note.trim().length < 5}>{busy ? "Rejecting…" : "Reject top-up"}</button>
+    </form>}
+    {claim.reviewNote && claim.status !== "PENDING" && <p className="topup-row-note">{claim.reviewNote}</p>}
+    {error && <p className="notice error topup-row-error" role="alert">{error}</p>}
   </li>;
 }
 

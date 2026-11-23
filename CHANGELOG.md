@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.24.2 - 2026-11-23
+
+- Admin Wallet top-ups is now a list instead of cards: one row per top-up with the member, M-Pesa code, time paid, amount and current wallet, and Confirm / Reject on the right (Reject opens a reason box under the row). Confirmed and rejected tabs show who processed each one, when, and any note. On narrow screens rows stack with labels.
+
 ## 2.24.1 - 2026-11-23
 
 - Admin sidebar: **Payments and M-Pesa** moved out of Administration into a new **Settings** group at the very bottom.

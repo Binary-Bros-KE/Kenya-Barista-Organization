@@ -146,40 +146,58 @@
 .topups-warning { margin: 0; padding: 10px 14px; border-radius: 12px; background: #fdeee2; color: #9a4a12; font-weight: 700; font-size: 13.5px; }
 .topups-empty { display: grid; justify-items: center; gap: 6px; padding: 40px 16px; border: 1px dashed #cbb69f; border-radius: 16px; background: #fffefa; text-align: center; color: #6f6052; }
 .topups-empty strong { font-size: 16px; color: #2f2219; }
-.topups-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
-.topup-card { --tint: #a8761c; --wash: #fdf6e6; display: grid; gap: 12px; padding: 16px; border: 1px solid color-mix(in srgb, var(--tint) 40%, #d6c7b5); border-top: 4px solid var(--tint); border-radius: 16px; background: linear-gradient(180deg, var(--wash), #fffefa 55%); box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
-.topup-card.is-confirmed { --tint: #24804f; --wash: #eef8f1; }
-.topup-card.is-rejected { --tint: #be1a41; --wash: #fdf1f3; }
-.topup-card-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.topup-card-who > div { min-width: 0; }
-.topup-card-who strong { display: block; font-size: 14.5px; }
-.topup-card-who a { color: #0b5f58; font-size: 12.5px; overflow-wrap: anywhere; }
-.topup-avatar { display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; overflow: hidden; border-radius: 50%; background: linear-gradient(140deg, #5a3a26, #2f1f16); color: #fff; font-size: 14px; font-weight: 800; }
+.topups-table { overflow: hidden; border: 1px solid #d6c7b5; border-radius: 16px; background: #fffefa; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
+.topups-head, .topup-row { display: grid; grid-template-columns: minmax(150px, 1.4fr) 118px minmax(120px, 1fr) 96px 92px 280px; gap: 12px; align-items: center; padding: 12px 18px; }
+.topups-table:not(.is-pending) :is(.topups-head, .topup-row) { grid-template-columns: minmax(150px, 1.4fr) 118px minmax(120px, 1fr) 96px 86px minmax(170px, 1fr); }
+.topups-head { white-space: nowrap; border-bottom: 1px solid #d6c7b5; background: #f6efe5; color: #7d6b5b; font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.topups-table ul { margin: 0; padding: 0; list-style: none; }
+.topup-row { --tint: #a8761c; position: relative; border-top: 1px solid #ece2d6; transition: background .15s; }
+.topup-row:first-child { border-top: 0; }
+.topup-row::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px; border-radius: 0 4px 4px 0; background: var(--tint); }
+.topup-row:hover { background: #fdf8f0; }
+.topup-row.is-confirmed { --tint: #24804f; }
+.topup-row.is-rejected { --tint: #be1a41; }
+.topup-row.is-rejecting { background: #fdf1f3; }
+.topup-row-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.topup-row-who > div { min-width: 0; }
+.topup-row-who strong { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topup-row-who a { display: block; color: #0b5f58; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topup-avatar { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; overflow: hidden; border-radius: 50%; background: linear-gradient(140deg, #5a3a26, #2f1f16); color: #fff; font-size: 13px; font-weight: 800; }
 .topup-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.topup-card-amount span { display: block; color: #7d6b5b; font-size: 12px; font-weight: 700; }
-.topup-card-amount strong { font-size: 28px; font-weight: 800; letter-spacing: -.02em; color: var(--tint); }
-.topup-card-amount small { display: block; color: #8a7867; font-size: 12px; }
-.topup-card-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 0; padding: 10px 12px; border-radius: 12px; background: #fffdf8; border: 1px solid #ece2d6; }
-.topup-card-facts dt { color: #8a7867; font-size: 11.5px; font-weight: 700; }
-.topup-card-facts dd { margin: 2px 0 0; font-size: 13px; font-weight: 700; color: #2f2219; }
-.topup-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.topup-credit { display: inline-flex; align-items: center; border: 1px solid #8cc7a3; border-radius: 10px; background: #fff; overflow: hidden; }
-.topup-credit span { padding: 0 8px; color: #24804f; font-size: 12px; font-weight: 800; }
-.topup-credit input { width: 90px; height: 38px; border: 0; font: inherit; font-size: 15px; font-weight: 800; color: #2a1d15; }
-.topup-credit input:focus { outline: none; }
-.topup-confirm { height: 40px; padding: 0 14px; border: 0; border-radius: 10px; background: linear-gradient(140deg, #2bb673, #17804f); color: #fff; font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; box-shadow: 0 10px 18px -12px #17804f; }
+.topup-row-time strong { display: block; font-size: 13px; }
+.topup-row-time span, .topup-row-amount span { display: block; color: #8a7867; font-size: 11.5px; }
+.topup-row-amount strong { font-size: 16px; font-weight: 800; color: var(--tint); }
+.topup-row-wallet { font-size: 13px; font-weight: 700; color: #5d4d3f; }
+.topup-row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.topup-credit { display: inline-flex; align-items: center; height: 36px; border: 1px solid #8cc7a3; border-radius: 9px; background: #fff; overflow: hidden; }
+.topup-credit span { padding: 0 6px 0 9px; color: #24804f; font-size: 11.5px; font-weight: 800; }
+.admin-workspace .topups .topup-credit input { width: 64px; height: 34px; padding: 0 8px 0 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; color: #2a1d15; font: inherit; font-size: 14px; font-weight: 800; }
+.admin-workspace .topups .topup-credit input:focus { outline: none; }
+.topup-credit:focus-within { box-shadow: 0 0 0 3px #24804f33; }
+.topup-confirm { height: 36px; padding: 0 13px; border: 0; border-radius: 9px; background: linear-gradient(140deg, #2bb673, #17804f); color: #fff; font: inherit; font-size: 13px; font-weight: 800; white-space: nowrap; cursor: pointer; box-shadow: 0 8px 16px -12px #17804f; }
 .topup-confirm.is-sure { background: linear-gradient(140deg, #0b766d, #08443f); animation: topup-nudge .3s; }
-@keyframes topup-nudge { 50% { transform: scale(1.04); } }
-.topup-confirm:disabled { opacity: .5; cursor: not-allowed; }
-.topup-reject-open { height: 40px; padding: 0 12px; border: 1px solid #eeb1c0; border-radius: 10px; background: #fff; color: #be1a41; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
-.topup-reject { display: grid; gap: 8px; width: 100%; }
-.topup-reject textarea { width: 100%; padding: 10px 12px; border: 1px solid #eeb1c0; border-radius: 10px; font: inherit; font-size: 13.5px; resize: vertical; }
-.topup-reject > div { display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
-.topup-reject-button { height: 38px; padding: 0 14px; border: 0; border-radius: 10px; background: linear-gradient(140deg, #ef3d62, #be1a41); color: #fff; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+@keyframes topup-nudge { 50% { transform: scale(1.05); } }
+.topup-confirm:disabled { opacity: .45; cursor: not-allowed; }
+.topup-reject-open { height: 36px; padding: 0 11px; border: 1px solid #eeb1c0; border-radius: 9px; background: #fff; color: #be1a41; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.topup-reject-open[aria-expanded="true"] { border-color: #d6c7b5; color: #5d4d3f; }
+.topup-reject { grid-column: 1 / -1; display: flex; gap: 8px; }
+.admin-workspace .topups .topup-reject input { flex: 1; height: 38px; padding: 0 12px; border: 1px solid #eeb1c0; border-radius: 9px; background: #fff; font: inherit; font-size: 13.5px; }
+.topup-reject-button { height: 38px; padding: 0 14px; border: 0; border-radius: 9px; background: linear-gradient(140deg, #ef3d62, #be1a41); color: #fff; font: inherit; font-size: 13px; font-weight: 800; white-space: nowrap; cursor: pointer; }
 .topup-reject-button:disabled { opacity: .5; cursor: not-allowed; }
-.topup-card-hint { flex-basis: 100%; margin: 0; color: #8a7867; font-size: 11.5px; }
-.topup-card-outcome { display: grid; gap: 4px; margin: 0; padding: 9px 12px; border-radius: 10px; background: var(--wash); color: var(--tint); font-size: 13px; font-weight: 800; }
-.topup-card-outcome span { color: #5d4d3f; font-weight: 500; }
+.topup-row-outcome strong { display: block; color: var(--tint); font-size: 13px; }
+.topup-row-outcome span { color: #8a7867; font-size: 11.5px; }
+.topup-row-note { grid-column: 1 / -1; margin: -4px 0 0; padding: 7px 10px; border-radius: 8px; background: #fdf1f3; color: #7a2e3f; font-size: 12.5px; }
+.topup-row.is-confirmed .topup-row-note { background: #eef8f1; color: #24573a; }
+.topup-row-error { grid-column: 1 / -1; margin: 0; }
+.topups-foot { margin: 0; padding: 10px 18px; border-top: 1px solid #ece2d6; background: #fdf8f0; color: #8a6a32; font-size: 12px; }
+
+@media (max-width: 1100px) {
+  .topups-head { display: none; }
+  .topup-row, .topups-table:not(.is-pending) .topup-row { grid-template-columns: 1fr 1fr; gap: 10px 14px; padding: 14px 16px 14px 20px; }
+  .topup-row-who, .topup-row-actions, .topup-row-outcome { grid-column: 1 / -1; }
+  .topup-row-actions { justify-content: flex-start; flex-wrap: wrap; }
+  .topup-row [data-label]::before { content: attr(data-label); display: block; color: #8a7867; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+}
 
 @media (max-width: 760px) {
   .wallet-hero { flex-direction: column; align-items: flex-start; padding: 22px 18px; }
@@ -191,4 +209,3 @@
   .topups-number input { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .wallet-pulse, .topup-done-mark, .topup-confirm.is-sure { animation: none; } }
-.topups .topup-credit input { border: 0; border-radius: 0; box-shadow: none; background: transparent; padding: 0 8px 0 0; }
