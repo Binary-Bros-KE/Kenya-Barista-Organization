@@ -11,6 +11,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.21.0 - 2026-11-23
+
+- Home page: a **Latest coffee jobs** section between the pathway cards and "More than what's in the cup". It shows the four newest open jobs (the same ones the jobs board lists first) as compact cards: cover photo, Verified ribbon for verified employers, category and type, title, employer, location and closing date. A **See all N postings** button opens the jobs board.
+- Four cards across on wide screens, two on tablets, one on phones. The section is left out when there are no open jobs, or if jobs can't be loaded, so the home page always works.
+
 ## 2.20.6 - 2026-11-23
 
 - Home hero: **Find a coffee job** and **Explore our courses** are now the same height, width and text size (17px bold, 64px tall, at least 272px wide; 16px and 58px tall on phones). Only the colour differs: gold fill and white outline.

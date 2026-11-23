@@ -36,3 +36,20 @@
 .site-public .site-hero .site-hero-actions .site-button{min-width:272px;min-height:64px;padding:18px 30px;font-size:17px;font-weight:700;gap:22px;justify-content:center;border-width:1px}
 .site-public .site-hero .site-hero-actions .site-button>span{font-size:22px;line-height:1}
 @media(max-width:699px){.site-public .site-hero .site-hero-actions .site-button{min-width:0;min-height:58px;padding:16px 24px;font-size:16px}}
+/* Home: latest jobs preview between the pathway cards and the purpose section */
+.site-latest-jobs{padding-bottom:30px}
+.site-latest-jobs-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:28px;margin-bottom:34px}
+.site-latest-jobs-heading h2{margin-top:14px;font:400 clamp(2rem,3.4vw,2.8rem)/1.1 Georgia,serif;letter-spacing:-.03em;color:#263d2d}
+.site-latest-jobs-heading p{margin-top:12px;max-width:560px;font-size:16px;line-height:1.75;color:#75654f}
+.site-latest-jobs-heading .site-button{flex-shrink:0;font-size:15px;min-height:52px;padding:14px 24px;gap:18px}
+.site-latest-jobs-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.site-public .site-job-preview{padding:20px}
+.site-public .site-job-preview>.job-cover{margin:-20px -20px 16px}
+.site-job-preview h3{margin-top:12px;font:400 22px/1.22 Georgia,serif;letter-spacing:-.02em;color:#3e5132;overflow-wrap:anywhere}
+.site-job-preview h3 a:hover{text-decoration:underline;text-underline-offset:4px}
+.site-public .site-job-preview .career-employer{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;font-size:13px}
+.site-job-preview-meta{display:flex;flex-direction:column;gap:2px;margin:10px 0 0;font-size:13px;line-height:1.6;color:#89775a}
+.site-public .site-job-preview>.site-job-preview-meta{margin-bottom:18px}
+.site-public .site-job-preview>.career-job-link{margin-top:auto;padding-top:14px;font-size:14px;font-weight:600}
+@media(max-width:1180px){.site-latest-jobs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:699px){.site-latest-jobs-heading{flex-direction:column;align-items:stretch}.site-latest-jobs-heading .site-button{justify-content:center}.site-latest-jobs-grid{grid-template-columns:1fr}}
