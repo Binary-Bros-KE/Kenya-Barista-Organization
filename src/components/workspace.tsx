@@ -42,7 +42,7 @@ const adminAccountLinks: Item[] = [
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
   { label: "Security", href: "/dashboard/security", icon: "security" },
 ];
-const exploreLinks: Item[] = [{ label: "Find jobs", href: "/jobs", icon: "jobs" }];
+const exploreLinks: Item[] = [{ label: "Find jobs", href: "/dashboard/jobs", icon: "jobs" }];
 
 function Icon({ name }: { name: IconName }) {
   const shapes: Record<IconName, ReactNode> = {

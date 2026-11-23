@@ -17,7 +17,7 @@ function activeLinks(html: string) {
 
 test("normal account navigation preserves applicant routes and hides admin controls", () => {
   const html = render("/dashboard", false);
-  for (const route of ["/dashboard/profile", "/dashboard/applications", "/dashboard/payments", "/dashboard/notifications", "/dashboard/security", "/jobs"])
+  for (const route of ["/dashboard/profile", "/dashboard/applications", "/dashboard/payments", "/dashboard/notifications", "/dashboard/security", "/dashboard/jobs"])
     assert.ok(html.includes(`href="${route}"`), route);
   assert.ok(!html.includes('href="/admin'));
   assert.ok(!html.includes('href="/employer'), "Job seekers without recruiter access see no employer tabs");

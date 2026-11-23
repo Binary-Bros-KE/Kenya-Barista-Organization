@@ -1,0 +1,90 @@
+/* Find jobs inside the workspace: search, colourful category chips, job cards and the job popup. */
+.djobs { max-width: 1440px; margin: auto; color: #2f2219; }
+.djobs .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.djobs-card, .djobs-chips a, .djobs-popup { --tint: #6b4329; --wash: #f6ede4; }
+.djobs .is-barista { --tint: #7a4a2b; --wash: #f6ece3; }
+.djobs .is-roasting { --tint: #b2432a; --wash: #fcebe5; }
+.djobs .is-hospitality { --tint: #0b766d; --wash: #e4f4f1; }
+.djobs .is-training { --tint: #a8761c; --wash: #fdf3dd; }
+.djobs .is-management { --tint: #2f7a4d; --wash: #e7f4ec; }
+.djobs .is-other { --tint: #4f5d6a; --wash: #edf0f3; }
+
+.djobs-search { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto; gap: 10px; padding: 14px; border: 1px solid #d6c7b5; border-radius: 16px; background: #fffefa; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
+.djobs-search label { display: block; min-width: 0; }
+.djobs-search input, .djobs-search select { width: 100%; height: 44px; padding: 0 12px; border: 1px solid #cdbba6; border-radius: 10px; background: #fff; color: #2f2219; font: inherit; font-size: 14px; }
+.djobs-search input:focus, .djobs-search select:focus { outline: 2px solid #0b766d55; border-color: #0b766d; }
+.djobs-search-main { position: relative; }
+.djobs-search-main svg { position: absolute; left: 13px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); fill: none; stroke: #8a7360; stroke-width: 2; stroke-linecap: round; }
+.djobs-search-main input { padding-left: 40px; }
+.djobs-search-button { height: 44px; padding: 0 22px; border: 0; border-radius: 10px; background: linear-gradient(140deg, #14a397, #0b5f58); color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 20px -12px #0b5f58; }
+.djobs-search-button:hover { filter: brightness(1.08); }
+
+.djobs-chips { display: flex; gap: 8px; margin: 16px 0 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.djobs-chips a { flex-shrink: 0; padding: 8px 14px; border: 1px solid color-mix(in srgb, var(--tint) 30%, transparent); border-radius: 999px; background: var(--wash); color: var(--tint); font-size: 13px; font-weight: 700; text-decoration: none; }
+.djobs-chips a:first-child { --tint: #3d2a1e; --wash: #f2e9de; }
+.djobs-chips a:hover { background: color-mix(in srgb, var(--tint) 14%, #fff); }
+.djobs-chips a.is-on { background: var(--tint); border-color: var(--tint); color: #fff; box-shadow: 0 8px 16px -10px var(--tint); }
+
+.djobs-count { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 14px 2px 12px; font-size: 14px; color: #5d4d3f; }
+.djobs-count strong { color: #2f2219; }
+.djobs-count a { color: #0b5f58; font-weight: 700; font-size: 13px; }
+
+.djobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; }
+.djobs-grid > li { display: flex; min-width: 0; }
+.djobs-card { position: relative; display: flex; flex-direction: column; width: 100%; padding: 0; overflow: hidden; border: 1px solid #d6c7b5; border-top: 4px solid var(--tint); border-radius: 16px; background: #fffefa; color: inherit; font: inherit; text-align: left; cursor: pointer; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; transition: transform .15s, box-shadow .15s; }
+.djobs-card:hover { transform: translateY(-3px); box-shadow: 0 2px 4px #3a281b14, 0 20px 32px -18px color-mix(in srgb, var(--tint) 70%, #000); }
+.djobs-card:focus-visible { outline: 3px solid var(--tint); outline-offset: 3px; }
+.djobs-card > .job-cover { border-radius: 0; }
+.djobs-card-fee { position: absolute; top: 14px; right: 12px; padding: 5px 11px; border-radius: 999px; background: linear-gradient(140deg, #f3d488, #d7a446); color: #3a2a10; font-size: 12.5px; font-weight: 800; box-shadow: 0 6px 14px -6px #0007; }
+.djobs-card-soon, .djobs-card-mine { position: absolute; top: 14px; left: 12px; padding: 5px 10px; border-radius: 999px; background: #ef3d62; color: #fff; font-size: 11.5px; font-weight: 800; box-shadow: 0 6px 14px -6px #0007; }
+.djobs-card-mine { background: #0b766d; }
+.djobs-card-mine.is-draft { background: #a8761c; }
+.djobs-card-mine.is-hired { background: #24804f; }
+.djobs-card-mine.is-rejected, .djobs-card-mine.is-withdrawn { background: #6b6560; }
+.djobs-card-body { display: flex; flex: 1; flex-direction: column; gap: 8px; padding: 14px 16px 16px; }
+.djobs-card-employer { display: flex; align-items: center; gap: 6px; color: #6f5a48; font-size: 12.5px; font-weight: 600; }
+.djobs-card-employer .career-employer-logo { margin: 0; }
+.djobs-card-body > strong { color: #2a1d15; font-size: 17px; line-height: 1.3; letter-spacing: -.01em; }
+.djobs-card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.djobs-card-tags em { padding: 3px 9px; border-radius: 999px; background: #f2ebe2; color: #5d4d3f; font-size: 11.5px; font-style: normal; font-weight: 700; }
+.djobs-card-tags em.is-category { background: var(--wash); color: var(--tint); }
+.djobs-card-summary { color: #6f6052; font-size: 13px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.djobs-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e3d7c8; color: #7d6b5b; font-size: 12px; }
+.djobs-card-cta { padding: 6px 12px; border-radius: 999px; background: var(--tint); color: #fff; font-weight: 700; font-size: 12.5px; white-space: nowrap; }
+
+.djobs-empty { display: grid; justify-items: center; gap: 6px; padding: 46px 20px; border: 1px dashed #cbb69f; border-radius: 16px; background: #fffefa; text-align: center; color: #6f6052; }
+.djobs-empty strong { color: #2f2219; font-size: 16px; }
+.djobs-ghost { margin-top: 8px; color: #0b5f58; font-weight: 700; }
+.djobs-pages { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; color: #6f5a48; font-size: 13px; }
+.djobs-pages div { display: flex; gap: 16px; }
+.djobs-pages a { color: #0b5f58; font-weight: 700; }
+
+/* The popup */
+.djobs-popup { width: min(760px, calc(100vw - 32px)); }
+.djobs-popup-cover { position: relative; flex-shrink: 0; }
+.djobs-popup-cover .job-cover { aspect-ratio: 16 / 5; border-radius: 0; }
+.djobs-popup-cover .job-create-close { position: absolute; top: 12px; right: 12px; background: #0008; }
+.djobs-popup-body header { display: grid; gap: 8px; }
+.djobs-popup-body h2 { margin: 0; color: #2a1d15; font-size: 22px; line-height: 1.25; }
+.djobs-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.djobs-facts > div { padding: 12px 14px; border-radius: 12px; }
+.djobs-facts dt { font-size: 11.5px; font-weight: 700; opacity: .85; }
+.djobs-facts dd { margin: 4px 0 0; font-size: 15px; font-weight: 800; }
+.djobs-facts .is-fee { background: linear-gradient(140deg, #f3d488, #d7a446); color: #3a2a10; }
+.djobs-facts .is-deadline { background: linear-gradient(140deg, #ef3d62, #be1a41); color: #fff; }
+.djobs-facts .is-type { background: linear-gradient(140deg, #14a397, #0b766d); color: #fff; }
+.djobs-description h3 { margin: 0 0 6px; font-size: 14px; color: #2f2219; }
+.djobs-description p { margin: 0; color: #4a3a2c; font-size: 14px; line-height: 1.7; white-space: pre-line; }
+.djobs-muted { color: #8a7867; font-size: 13px; }
+.djobs-note { margin: 0; padding: 10px 12px; border-radius: 10px; background: #fdf4e0; color: #6e5214; font-size: 12.5px; line-height: 1.55; }
+.djobs-apply { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border: 0; border-radius: 10px; background: linear-gradient(140deg, #14a397, #0b5f58); color: #fff; font-size: 14px; font-weight: 800; text-decoration: none; cursor: pointer; box-shadow: 0 10px 20px -12px #0b5f58; }
+.djobs-apply:hover { filter: brightness(1.08); }
+.djobs-apply:disabled { opacity: .6; cursor: wait; }
+
+@media (max-width: 1100px) { .djobs-search { grid-template-columns: 1fr 1fr; } .djobs-search-main { grid-column: 1 / -1; } }
+@media (max-width: 560px) {
+  .djobs-search { grid-template-columns: 1fr; padding: 12px; }
+  .djobs-search-button { width: 100%; }
+  .djobs-facts { grid-template-columns: 1fr; }
+  .djobs-popup-body h2 { font-size: 19px; }
+}

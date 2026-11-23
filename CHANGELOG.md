@@ -10,6 +10,13 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.15.0 - 2026-11-23
+
+- New **Find jobs** tab inside the workspace (the sidebar's Find jobs now opens it). Search by keyword, location, category and job type, or tap a coloured category chip. Each job card shows its cover, fee, employer, tags and deadline, plus "Draft saved" or your application status if you've already applied, or "N days left" when it closes soon.
+- Clicking a job opens it in a popup with the full description, fee, deadline and job type. **Apply now** starts your application and opens it in the dashboard; no trip back to the website. Jobs you've applied to offer "Continue your application" or "View your application" instead.
+- Applications: removed the big page heading and the Explore jobs button. The four summary cards are now coloured (like the dashboard) and filter the list when clicked; the status filters each have their own colour; the empty state's button leads to Find jobs.
+- The dashboard's "Explore opportunities" and "Browse jobs" links now open Find jobs.
+
 ## 2.14.0 - 2026-11-23
 
 - "My profile" is now **Profile & CV** in the sidebar, the page title, the avatar link and the dashboard shortcuts.

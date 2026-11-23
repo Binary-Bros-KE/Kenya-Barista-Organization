@@ -11,6 +11,7 @@ import "./profile.css";
 import "./profile-studio.css";
 import "./cv-viewer.css";
 import "./job-create.css";
+import "./dashboard-jobs.css";
 import "./applications.css";
 import "./activity.css";
 import "./security.css";
