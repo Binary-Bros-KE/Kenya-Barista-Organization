@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.25.3 - 2026-11-23
+
+- Application page header back to the original light style (no dark green banner): recruiter name and job title in dark text on the page background, with the recruiter's photo or logo beside them.
+
 ## 2.25.2 - 2026-11-23
 
 - Application page: the **Keep your career toolkit ready** card moved to the very bottom, after responses and the withdraw option.
