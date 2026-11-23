@@ -9,14 +9,18 @@ import { LinkPending } from "./navigation-progress";
 type IconName = "account" | "profile" | "applications" | "payments" | "notifications" | "security" | "organisations" | "jobs" | "review" | "settings" | "queue" | "admin" | "menu" | "close" | "collapse" | "expand" | "external";
 // "also" lists other routes that belong to the item (it highlights there too).
 type Item = { label: string; href: string; icon: IconName; also?: string[] };
-const accountLinks: Item[] = [
-  { label: "My account", href: "/dashboard", icon: "account" },
+// Members: Dashboard on its own, then the everyday tabs, then account matters.
+const memberOverviewLinks: Item[] = [{ label: "Dashboard", href: "/dashboard", icon: "account" }];
+const memberLinks: Item[] = [
+  { label: "Find jobs", href: "/dashboard/jobs", icon: "jobs" },
   { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
   { label: "Applications", href: "/dashboard/applications", icon: "applications" },
   { label: "Payments", href: "/dashboard/payments", icon: "payments" },
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
-  { label: "Security", href: "/dashboard/security", icon: "security" },
-  { label: "Become a recruiter", href: "/dashboard/recruiter-request", icon: "jobs" },
+];
+const memberAccountLinks: Item[] = [
+  { label: "Become a recruiter", href: "/dashboard/recruiter-request", icon: "organisations" },
+  { label: "Settings", href: "/dashboard/security", icon: "settings" },
 ];
 const adminOverviewLinks: Item[] = [{ label: "Dashboard", href: "/dashboard", icon: "account" }];
 // Applicants are reviewed from each job's card, so recruiters have one tab for both.
@@ -40,7 +44,7 @@ const adminLinks: Item[] = [
 const adminAccountLinks: Item[] = [
   { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
-  { label: "Security", href: "/dashboard/security", icon: "security" },
+  { label: "Settings", href: "/dashboard/security", icon: "settings" },
 ];
 const exploreLinks: Item[] = [{ label: "Find jobs", href: "/dashboard/jobs", icon: "jobs" }];
 
@@ -87,7 +91,7 @@ export function Workspace({ name, admin, recruiter = false, badges = {}, photo =
     ? [["Overview", adminOverviewLinks], ["Administration", adminLinks], ["Your account", adminAccountLinks], ["Explore", exploreLinks]]
     : recruiter
       ? [["Overview", adminOverviewLinks], ["Recruiting", recruiterLinks], ["Job seeking", jobSeekerLinks], ["Your account", adminAccountLinks.filter(link => link.href !== "/dashboard/profile")], ["Explore", exploreLinks]]
-      : [["Your workspace", accountLinks], ["Explore", exploreLinks]];
+      : [["Overview", memberOverviewLinks], ["Your workspace", memberLinks], ["Account", memberAccountLinks]];
   const current = activeItem(pathname, groups.flatMap(([, links]) => links));
   const currentGroup = groups.find(([, links]) => current && links.includes(current))?.[0];
   const section = !currentGroup || currentGroup === "Overview" ? (admin ? "Administration" : recruiter ? "Recruiter workspace" : "Your workspace") : currentGroup;
@@ -151,7 +155,7 @@ export function Workspace({ name, admin, recruiter = false, badges = {}, photo =
         <div className="workspace-topbar-leading">
           <button type="button" className="workspace-icon-button workspace-desktop-toggle" onClick={toggleCollapsed} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} aria-controls="workspace-sidebar" title={collapsed ? "Expand sidebar" : "Collapse sidebar"}><Icon name={collapsed ? "expand" : "collapse"} /></button>
           <button ref={mobileTrigger} type="button" className="workspace-icon-button workspace-mobile-toggle" onClick={openMobile} aria-label="Open navigation" aria-haspopup="dialog" aria-expanded={mobileOpen} aria-controls="workspace-mobile-navigation"><Icon name="menu" /></button>
-          <div className="workspace-page-context"><span>{section}</span><strong>{current?.label || (admin ? "Dashboard" : "My account")}</strong></div>
+          <div className="workspace-page-context"><span>{section}</span><strong>{current?.label || "Dashboard"}</strong></div>
         </div>
         <div className="workspace-topbar-trailing">
           <Link href="/" className="workspace-website-link"><Icon name="external" /><span>Website</span></Link>

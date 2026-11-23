@@ -67,14 +67,14 @@ export function DashboardOverview({ data, user, now = new Date() }: { data: Dash
     { title: "Profile & CV", text: "Photo, skills, story and CV", href: "/dashboard/profile", icon: "profile" as const },
     { title: "Payments", text: "Application fees and receipts", href: "/dashboard/payments", icon: "applications" as const },
     { title: "Become a recruiter", text: data.recruiterRequest?.status === "PENDING" ? "Your request is being reviewed by KBO" : data.recruiterRequest?.status === "REJECTED" ? "See why and apply again" : "Hiring? Post jobs through KBO", href: "/dashboard/recruiter-request", icon: "briefcase" as const },
-    { title: "Security", text: user.twoFactorEnabled ? "Manage your sign-in protection" : "Add optional two-factor protection", href: "/dashboard/security", icon: "shield" as const },
+    { title: "Settings", text: user.twoFactorEnabled ? "Manage your sign-in protection" : "Add optional two-factor protection", href: "/dashboard/security", icon: "shield" as const },
   ];
   const hour = Number(new Intl.DateTimeFormat("en-KE", { timeZone: "Africa/Nairobi", hour: "numeric", hourCycle: "h23" }).format(now));
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const firstName = (user.name || "").trim().split(/\s+/)[0];
 
   return <div className="overview">
-    <h1 className="overview-sr-only">{admin ? "Dashboard" : "My account"}</h1>
+    <h1 className="overview-sr-only">Dashboard</h1>
     <div className="overview-greeting"><p>{greeting}{firstName ? `, ${firstName}` : ""}.{recruiting && (data.recruiterVerified ? <> <VerifiedBadge /></> : <> <span className="overview-unverified" title="KBO will contact you to confirm your details. Verified recruiters get a badge on their jobs.">Verification pending</span></>)}</p><time dateTime={now.toISOString()}><OverviewIcon name="calendar" />{new Intl.DateTimeFormat("en-KE", { timeZone: "Africa/Nairobi", weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(now)}</time></div>
 
     <section className="overview-stats" aria-label={admin ? "Platform at a glance" : recruiting ? "Recruiting at a glance" : "Your activity"}>{stats.map(card => <Link className={`overview-stat overview-stat-${card.color}`} href={card.href} key={card.label} aria-label={`${card.label}: ${card.value}`}><span className="overview-stat-icon"><OverviewIcon name={card.icon} /></span><span className="overview-stat-label">{card.label}</span><strong>{card.value}</strong><span className="overview-stat-hint">{card.hint}<OverviewIcon name="arrow" /></span><span className="overview-stat-mark" aria-hidden="true"><OverviewIcon name={card.icon} /></span></Link>)}</section>

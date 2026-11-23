@@ -10,6 +10,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.16.1 - 2026-11-23
+
+- Member sidebar reorganised: **Overview** (Dashboard, formerly My account), **Your workspace** (Find jobs, Profile & CV, Applications, Payments, Notifications) and **Account** (Become a recruiter, Settings). The separate Explore section is gone for members; Find jobs leads Your workspace.
+- "Security" is now called **Settings** everywhere (same page), including the dashboard shortcut.
+
 ## 2.16.0 - 2026-11-23
 
 - Recruiter (Jobs & applicants) and admin (Job review) job cards now use the same design as Find jobs: cover photo, gold fee badge, a coloured status badge (Published, Awaiting review, Changes requested, Draft, Closed), category colour, employer, tags and deadline, with the applicants button and a coloured Manage posting / Review button.
