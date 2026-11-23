@@ -10,6 +10,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.17.4 - 2026-11-23
+
+- Job review: the default fee widget is a single line (input with a "Default fee (KES)" placeholder and Save), so the toolbar stays slim. A short "Saved" or error note appears on the same line.
+
 ## 2.17.3 - 2026-11-23
 
 - Job review opens on **All statuses**. With no filter, jobs are ordered by what needs attention: awaiting review first, then live, then drafts, then returned (changes requested), closed and archived, newest first within each. This applies to the recruiter list too.

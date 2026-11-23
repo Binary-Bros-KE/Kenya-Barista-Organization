@@ -9,9 +9,10 @@ export function FeeSettings() {
     catch (error) { setError(error instanceof Error ? error.message : "Unable to save fee"); } finally { setBusy(false); }
   }
   // A compact control beside the status filter on Job review.
-  return <form className="fee-widget" onSubmit={save} title="The fee suggested to recruiters when they create a job. They can change it, and you can adjust any job’s fee while it waits for approval. Existing jobs keep their fees.">
-    <label htmlFor="default-fee">Default fee (KES)</label>
-    <div><input id="default-fee" type="number" min={1} max={250000} step={1} required value={value} onChange={event => { setValue(event.target.value); setMessage(""); }} disabled={loading || busy} placeholder={loading ? "…" : "e.g. 500"} /><button disabled={loading || busy} className="fee-widget-save">{busy ? "Saving…" : "Save"}</button></div>
-    {error ? <p role="alert" className="fee-widget-note is-error">{error}</p> : message ? <p role="status" className="fee-widget-note is-ok">Saved. Existing jobs keep their fees.</p> : <p className="fee-widget-note">Suggested for new jobs</p>}
+  return <form className="fee-widget" onSubmit={save} title="Default application fee: suggested to recruiters for new jobs. Existing jobs keep their fees.">
+    {value && <span className="fee-widget-prefix" aria-hidden="true">KES</span>}
+    <input type="number" min={1} max={250000} step={1} required value={value} onChange={event => { setValue(event.target.value); setMessage(""); setError(""); }} disabled={loading || busy} placeholder="Default fee (KES)" aria-label="Default application fee in KES" />
+    <button disabled={loading || busy} className="fee-widget-save">{busy ? "Saving…" : "Save"}</button>
+    {error ? <span role="alert" className="fee-widget-note is-error" title={error}>{error}</span> : message && <span role="status" className="fee-widget-note is-ok">✓ Saved</span>}
   </form>;
 }
