@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.27.3 - 2026-11-23
+
+- New-applicant email subject starts with 📋: "📋 Nyongesa Evans applied for Head Barista Position".
+
 ## 2.27.2 - 2026-11-23
 
 - The recruiter's new-applicant email subject names the applicant: "Nyongesa Evans applied for Head Barista Position" (was "New applicant for …").
