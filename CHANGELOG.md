@@ -11,6 +11,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.27.0 - 2026-11-23
+
+- Application page: **Responses & updates** is now an **Application timeline**, a chain of colour-coded nodes from "Application started" to the final decision. Each status change (submitted, under review, shortlisted, hired, not selected, withdrawn) shows its date, who made it and their message; messages without a status change get their own chat-style node. The current step pulses with a **Now** tag; the steps still ahead (submit, recruiter review, shortlist, final decision) are faded on a dashed line with **Up next** on the first. A decided application ends with an **Application closed** node in the outcome's colour.
+- The recruiter view of an application is unchanged.
+
 ## 2.26.3 - 2026-11-23
 
 - Removed the 30-character minimum for cover letters. A cover letter just needs to be filled in; the field is labelled **Required**.

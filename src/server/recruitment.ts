@@ -75,6 +75,16 @@ async function responses(db: PrismaClient, applicationId: string, rawPage: unkno
 export async function reviewResponses(db: PrismaClient, actor: Actor, id: string, page?: unknown) {
   await getReviewApplication(db, actor, id); return responses(db, id, page);
 }
+// Everything the applicant's timeline needs: status changes and responses, oldest first.
+export async function applicantTimeline(db: PrismaClient, actor: Actor, id: string) {
+  const application = await db.application.findFirst({ where: { id, userId: actor.user.id }, select: { status: true, createdAt: true } });
+  if (!application) throw new AccessError(404, "NOT_FOUND", "Application not found");
+  const [history, responses] = await Promise.all([
+    db.applicationStatusHistory.findMany({ where: { applicationId: id }, select: { toStatus: true, message: true, createdAt: true }, orderBy: [{ createdAt: "asc" }, { id: "asc" }], take: 200 }),
+    db.applicationResponse.findMany({ where: { applicationId: id }, select: responseSelect, orderBy: [{ createdAt: "asc" }, { id: "asc" }], take: 200 }),
+  ]);
+  return { ...application, history, responses };
+}
 export async function applicantResponses(db: PrismaClient, actor: Actor, id: string, page?: unknown) {
   if (!await db.application.findFirst({ where: { id, userId: actor.user.id }, select: { id: true } })) throw new AccessError(404, "NOT_FOUND", "Application not found");
   return responses(db, id, page);
