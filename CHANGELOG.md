@@ -11,6 +11,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.29.0 - 2026-11-23
+
+- CV scanning no longer holds anything up. Recruiters can view and download a CV straight away, including one whose virus scan hasn't finished. A pill next to the CV shows **Scan pending** or **Scanned ✓**. Only a CV the scan flags as infected stays blocked.
+- Applicant wording updated: recruiters can open a CV while its scan runs.
+
 ## 2.28.0 - 2026-11-23
 
 - Recruiters get an **Applications** tab again: every confirmed applicant across all their jobs, with search and filters by job and status. Opening an applicant highlights this tab. **Jobs & applicants** is now **My jobs**; the applicants popup on each job card still works.

@@ -56,8 +56,8 @@ export async function getReviewApplication(db: PrismaClient, actor: Actor, id: s
   }
   const cv = application.documents.find(item => item.document.id === snapshot.data.documentId)?.document;
   const cvMatches = application.status !== "WITHDRAWN" && cv?.userId === application.userId && cv.sha256 === snapshot.data.documentSha256;
-  // Recruiters only open CVs that passed the virus scan; one sent while still being scanned shows as "checking".
-  const cvAvailable = cvMatches && cv?.scanStatus === "CLEAN", cvScreening = cvMatches && cv?.scanStatus === "PENDING";
+  // Recruiters can open a CV straight away; "screening" marks one the virus scan hasn't finished. Only a CV the scan rejected is withheld.
+  const cvAvailable = cvMatches && (cv?.scanStatus === "CLEAN" || cv?.scanStatus === "PENDING"), cvScreening = cvMatches && cv?.scanStatus === "PENDING";
   return { id: application.id, userId: application.userId, status: application.status, version: application.version, submittedAt: application.submittedAt,
     job: application.job, profile: snapshot.data, cv: { available: Boolean(cvAvailable), screening: Boolean(cvScreening), filename: cv?.filename || "Submitted CV.pdf" },
     // The candidate's current photo and profile card; the submitted details above stay as they were at submission.
@@ -131,7 +131,7 @@ export async function withdrawApplication(db: PrismaClient, actor: Actor, id: st
 export async function downloadReviewCv(db: PrismaClient, actor: Actor, id: string, purpose: "download" | "view" = "download") {
   const app = await getReviewApplication(db, actor, id);
   if (!app.cv.available) throw new AccessError(404, "CV_UNAVAILABLE", "The submitted CV is unavailable");
-  const document = await db.document.findFirst({ where: { id: app.profile.documentId, scanStatus: "CLEAN", sha256: app.profile.documentSha256, applications: { some: { applicationId: id } } } });
+  const document = await db.document.findFirst({ where: { id: app.profile.documentId, scanStatus: { in: ["PENDING", "CLEAN"] }, sha256: app.profile.documentSha256, applications: { some: { applicationId: id } } } });
   if (!document) throw new AccessError(404, "CV_UNAVAILABLE", "The submitted CV is unavailable");
   const bytes = await readStoredCv(document).catch((error: unknown) => {
     if (error instanceof AccessError && error.code === "CV_UNAVAILABLE") throw new AccessError(404, "CV_UNAVAILABLE", "The submitted CV is unavailable");
