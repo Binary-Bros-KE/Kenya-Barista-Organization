@@ -65,7 +65,7 @@ export function DashboardOverview({ data, user, now = new Date() }: { data: Dash
     { title: "Wallet top-ups", text: "M-Pesa top-ups waiting to be confirmed", href: "/admin/wallet", icon: "money" as const },
   ] : [
     { title: "Profile & CV", text: "Photo, skills, story and CV", href: "/dashboard/profile", icon: "profile" as const },
-    { title: "Payments", text: "Application fees and receipts", href: "/dashboard/payments", icon: "applications" as const },
+    { title: "Wallet", text: "Balance, top-ups and fee receipts", href: "/dashboard/wallet", icon: "money" as const },
     { title: "Become a recruiter", text: data.recruiterRequest?.status === "PENDING" ? "Your request is being reviewed by KBO" : data.recruiterRequest?.status === "REJECTED" ? "See why and apply again" : "Hiring? Post jobs through KBO", href: "/dashboard/recruiter-request", icon: "briefcase" as const },
     { title: "Settings", text: user.twoFactorEnabled ? "Manage your sign-in protection" : "Add optional two-factor protection", href: "/dashboard/security", icon: "shield" as const },
   ];

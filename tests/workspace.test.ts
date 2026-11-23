@@ -17,9 +17,10 @@ function activeLinks(html: string) {
 
 test("normal account navigation preserves applicant routes and hides admin controls", () => {
   const html = render("/dashboard", false);
-  for (const route of ["/dashboard/profile", "/dashboard/applications", "/dashboard/payments", "/dashboard/notifications", "/dashboard/security", "/dashboard/jobs"])
+  for (const route of ["/dashboard/profile", "/dashboard/applications", "/dashboard/wallet", "/dashboard/notifications", "/dashboard/security", "/dashboard/jobs"])
     assert.ok(html.includes(`href="${route}"`), route);
   assert.ok(!html.includes('href="/admin'));
+  assert.ok(!html.includes('href="/dashboard/payments"'), "Payments was merged into Wallet");
   assert.ok(!html.includes('href="/employer'), "Job seekers without recruiter access see no employer tabs");
   assert.ok(html.includes("Existing tab content"));
   assert.ok(html.includes('src="/brand-logo.png"'));
@@ -35,7 +36,7 @@ test("administrator navigation includes restricted sections without duplicate ac
 });
 test("recruiters see recruiting and job-seeker tabs, and employer routes highlight the right one", () => {
   const html = render("/dashboard", false, true);
-  for (const route of ["/employer/jobs", "/dashboard/profile", "/dashboard/applications", "/dashboard/payments", "/dashboard/notifications", "/dashboard/security"]) assert.ok(html.includes(`href="${route}"`), route);
+  for (const route of ["/employer/jobs", "/dashboard/profile", "/dashboard/applications", "/dashboard/wallet", "/dashboard/notifications", "/dashboard/security"]) assert.ok(html.includes(`href="${route}"`), route);
   assert.ok(html.includes("Recruiter workspace"));
   assert.deepEqual(activeLinks(render("/employer/jobs/new", false, true)), ["/employer/jobs"]);
   assert.deepEqual(activeLinks(render("/employer/applications/example", false, true)), ["/employer/jobs"], "Applicant pages belong to Jobs & applicants");

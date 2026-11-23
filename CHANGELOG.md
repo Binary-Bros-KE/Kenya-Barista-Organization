@@ -11,6 +11,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.25.0 - 2026-11-23
+
+- The job seeker **Payments** tab is merged into **Wallet**, so there is one place for money. Application fees paid straight from M-Pesa (receipt, status, recorded reversals, with the same filters) now appear as an **M-Pesa application payments** section under the wallet, once someone has made such a payment.
+- Old `/dashboard/payments` links redirect to that section, keeping any filter. The dashboard card and the checkout's "View payment history" link point to Wallet. The admin Payments page is unchanged.
+
 ## 2.24.7 - 2026-11-23
 
 - My applications: each row shows the recruiter's profile photo instead of their initials. Jobs posted by KBO show the KBO logo and the name **Kenya Barista Organization** (previously "KBO Admin"). Initials remain for recruiters without a photo.

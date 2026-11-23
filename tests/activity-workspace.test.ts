@@ -15,7 +15,7 @@ test("payment queries validate filters, clamp pages and retain status on paginat
  for (const status of ["__proto__", "toString", "INVALID"]) assert.equal(historyQuery({ status }).status, undefined);
  assert.deepEqual(historyQuery({ page: "-1", status: "REFUNDED" }), { page: 1, status: "REFUNDED" });
  assert.equal(historyQuery({ page: "Infinity" }).page, 1); assert.equal(historyQuery({ page: "999999" }).page, 100000);
- assert.equal(historyHref(2, "REFUNDED"), "/dashboard/payments?status=REFUNDED&page=2");
+ assert.equal(historyHref(2, "REFUNDED"), "/dashboard/wallet?status=REFUNDED&page=2#mpesa-payments");
  assert.equal(paymentLabel("REFUNDED"), "Reversed");
 });
 test("payment rows, filtered total and summary counts preserve ownership and exclude private provider evidence", async () => {
@@ -29,7 +29,8 @@ test("payment rows, filtered total and summary counts preserve ownership and exc
 });
 test("payment history shows recorded manual reversals, honest missing receipts and retained pagination", () => {
  const html = render(createElement(PaymentHistory, { result: { orders: [{ id: "pay", status: "REFUNDED", reviewHold: false, amountMinor: 10000, createdAt: new Date("2026-10-29T10:00:00Z"), paidAt: null, attempts: [], refunds: [{ id: "refund", providerReference: "manual-ref", completedAt: new Date("2026-10-29T11:00:00Z") }], application: { id: "app", job: { title: "Barista", recruiter: { name: "Coffee Co" } } } }], total: 42, counts: { REFUNDED: 42 }, page: 2, status: "REFUNDED" } }));
- for (const value of ["Manual reversal recorded", "manual-ref", "Not available yet", "Reversed", "status=REFUNDED&amp;page=3"]) assert.ok(html.includes(value), value);
+ for (const value of ["Manual reversal recorded", "manual-ref", "Not available yet", "Reversed", "status=REFUNDED&amp;page=3", "M-Pesa application payments", 'id="mpesa-payments"', "/dashboard/wallet?"]) assert.ok(html.includes(value), value);
+ assert.ok(!html.includes("A clear view of every payment"), "Shown as a Wallet section, not its own page");
  assert.ok(html.includes('href="/dashboard/applications/app"'));
 });
 test("reversed checkout never claims the fee is confirmed and cannot request another payment", () => {

@@ -16,7 +16,6 @@ const memberLinks: Item[] = [
   { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
   { label: "Applications", href: "/dashboard/applications", icon: "applications" },
   { label: "Wallet", href: "/dashboard/wallet", icon: "wallet" },
-  { label: "Payments", href: "/dashboard/payments", icon: "payments" },
   { label: "Notifications", href: "/dashboard/notifications", icon: "notifications" },
 ];
 const memberAccountLinks: Item[] = [
@@ -32,7 +31,6 @@ const jobSeekerLinks: Item[] = [
   { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
   { label: "Applications", href: "/dashboard/applications", icon: "applications" },
   { label: "Wallet", href: "/dashboard/wallet", icon: "wallet" },
-  { label: "Payments", href: "/dashboard/payments", icon: "payments" },
 ];
 const adminLinks: Item[] = [
   { label: "Accounts", href: "/admin/accounts", icon: "profile" },
