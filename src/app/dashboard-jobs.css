@@ -2,12 +2,12 @@
 .djobs { max-width: 1440px; margin: auto; color: #2f2219; }
 .djobs .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .djobs-card, .djobs-chips a, .djobs-popup { --tint: #6b4329; --wash: #f6ede4; }
-.djobs .is-barista { --tint: #7a4a2b; --wash: #f6ece3; }
-.djobs .is-roasting { --tint: #b2432a; --wash: #fcebe5; }
-.djobs .is-hospitality { --tint: #0b766d; --wash: #e4f4f1; }
-.djobs .is-training { --tint: #a8761c; --wash: #fdf3dd; }
-.djobs .is-management { --tint: #2f7a4d; --wash: #e7f4ec; }
-.djobs .is-other { --tint: #4f5d6a; --wash: #edf0f3; }
+:is(.djobs-card, .djobs-chips a, .djobs-popup).is-barista { --tint: #7a4a2b; --wash: #f6ece3; }
+:is(.djobs-card, .djobs-chips a, .djobs-popup).is-roasting { --tint: #b2432a; --wash: #fcebe5; }
+:is(.djobs-card, .djobs-chips a, .djobs-popup).is-hospitality { --tint: #0b766d; --wash: #e4f4f1; }
+:is(.djobs-card, .djobs-chips a, .djobs-popup).is-training { --tint: #a8761c; --wash: #fdf3dd; }
+:is(.djobs-card, .djobs-chips a, .djobs-popup).is-management { --tint: #2f7a4d; --wash: #e7f4ec; }
+:is(.djobs-card, .djobs-chips a, .djobs-popup).is-other { --tint: #4f5d6a; --wash: #edf0f3; }
 
 .djobs-search { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto; gap: 10px; padding: 14px; border: 1px solid #d6c7b5; border-radius: 16px; background: #fffefa; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; }
 .djobs-search label { display: block; min-width: 0; }
@@ -34,9 +34,10 @@
 .djobs-card { position: relative; display: flex; flex-direction: column; width: 100%; padding: 0; overflow: hidden; border: 1px solid #d6c7b5; border-top: 4px solid var(--tint); border-radius: 16px; background: #fffefa; color: inherit; font: inherit; text-align: left; cursor: pointer; box-shadow: 0 1px 2px #3a281b14, 0 10px 24px -16px #3a281b40; transition: transform .15s, box-shadow .15s; }
 .djobs-card:hover { transform: translateY(-3px); box-shadow: 0 2px 4px #3a281b14, 0 20px 32px -18px color-mix(in srgb, var(--tint) 70%, #000); }
 .djobs-card:focus-visible { outline: 3px solid var(--tint); outline-offset: 3px; }
-.djobs-card > .job-cover { border-radius: 0; }
+.djobs-card-media { position: relative; display: block; }
+.djobs-card-media > .job-cover { border-radius: 0; }
 .djobs-card-fee { position: absolute; top: 14px; right: 12px; padding: 5px 11px; border-radius: 999px; background: linear-gradient(140deg, #f3d488, #d7a446); color: #3a2a10; font-size: 12.5px; font-weight: 800; box-shadow: 0 6px 14px -6px #0007; }
-.djobs-card-soon, .djobs-card-mine { position: absolute; top: 14px; left: 12px; padding: 5px 10px; border-radius: 999px; background: #ef3d62; color: #fff; font-size: 11.5px; font-weight: 800; box-shadow: 0 6px 14px -6px #0007; }
+.djobs-card-soon, .djobs-card-mine { position: absolute; bottom: 12px; left: 12px; padding: 5px 10px; border-radius: 999px; background: #ef3d62; color: #fff; font-size: 11.5px; font-weight: 800; box-shadow: 0 6px 14px -6px #0007; }
 .djobs-card-mine { background: #0b766d; }
 .djobs-card-mine.is-draft { background: #a8761c; }
 .djobs-card-mine.is-hired { background: #24804f; }
@@ -88,3 +89,29 @@
   .djobs-facts { grid-template-columns: 1fr; }
   .djobs-popup-body h2 { font-size: 19px; }
 }
+
+/* Verified recruiters: a green ribbon across the card's top-left corner. */
+.verified-ribbon { position: absolute; top: 33px; left: -46px; z-index: 3; display: flex; align-items: center; justify-content: center; gap: 5px; width: 180px; padding: 5px 0; transform: rotate(-45deg); background: linear-gradient(180deg, #2bb673, #17804f); color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; box-shadow: 0 4px 10px -3px #0b3d2580; pointer-events: none; }
+.verified-ribbon::before, .verified-ribbon::after { content: ""; position: absolute; left: 0; right: 0; height: 1px; background: #ffffff55; }
+.verified-ribbon::before { top: 2px; } .verified-ribbon::after { bottom: 2px; }
+.career-job-card { position: relative; overflow: hidden; }
+
+/* Recruiter and admin job cards (Jobs & applicants, Job review) share the Find jobs card design. */
+.managed-job-card { cursor: default; }
+.managed-job-card:hover { transform: none; }
+.djobs-card-status { position: absolute; bottom: 12px; left: 12px; padding: 5px 10px; border-radius: 999px; background: #6b6560; color: #fff; font-size: 11.5px; font-weight: 800; box-shadow: 0 6px 14px -6px #0007; }
+.djobs-card-status.status-published { background: #24804f; }
+.djobs-card-status.status-pending_review { background: #2f6fb0; }
+.djobs-card-status.status-changes_requested { background: #d9822b; }
+.djobs-card-status.status-draft { background: #a8761c; }
+.djobs-card-status.status-closed { background: #be1a41; }
+.managed-job-title { margin: 0; font-size: 17px; line-height: 1.3; }
+.managed-job-title a, .managed-job-title button { padding: 0; border: 0; background: none; color: #2a1d15; font: inherit; font-weight: 700; text-align: left; letter-spacing: -.01em; text-decoration: none; cursor: pointer; }
+.managed-job-title a:hover, .managed-job-title button:hover { color: var(--tint); text-decoration: underline; text-underline-offset: 3px; }
+.managed-job-deadline { margin: 0; color: #6f5a48; font-size: 12.5px; }
+.managed-job-deadline span { color: #9a8877; font-size: 11.5px; }
+.managed-job-foot { flex-wrap: wrap; }
+.managed-job-foot > a:not(.managed-job-cta) { color: #0b5f58; font-weight: 700; }
+.managed-job-cta { border: 0; text-decoration: none; cursor: pointer; font-family: inherit; }
+.managed-job-cta:hover { filter: brightness(1.1); }
+.verified-ribbon svg { flex-shrink: 0; width: 14px !important; height: 14px !important; margin: 0 !important; position: static !important; max-width: none !important; }

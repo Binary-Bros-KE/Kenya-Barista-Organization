@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { JobCover } from "./job-cover";
 import { EmployerLogo } from "./job-card";
-import { VerifiedBadge } from "./verified-badge";
+import { VerifiedBadge, VerifiedRibbon } from "./verified-badge";
 import { applicationStatusLabels } from "@/lib/application-format";
 import { categories, employmentTypes, formatDeadline, formatFee } from "@/lib/job-format";
 import type { getPublicJob, listPublicJobs } from "@/server/public-jobs";
@@ -57,9 +57,10 @@ export function DashboardJobs({ query, data, applied, invalid }: { query: Query;
         {!data.jobs.length ? <div className="djobs-empty"><strong>{filtered ? "No jobs match that search" : "No open jobs right now"}</strong><span>{filtered ? "Try fewer filters or another word." : "New coffee jobs are added often. Check back soon."}</span></div>
           : <ul className="djobs-grid">{data.jobs.map(job => { const mine = applied[job.id], soon = closing(job.deadline);
             return <li key={job.id}><button type="button" className={`djobs-card is-${job.category.toLowerCase()}`} onClick={() => setOpen(job)}>
-              <JobCover id={job.id} coverVersion={job.coverVersion} category={job.category} />
+              {job.employer.verified && <VerifiedRibbon />}
+              <span className="djobs-card-media"><JobCover id={job.id} coverVersion={job.coverVersion} category={job.category} />
               <span className="djobs-card-fee">{formatFee(job.applicationFeeMinor)}</span>
-              {mine ? <span className={`djobs-card-mine is-${mine.status.toLowerCase()}`}>{mine.status === "DRAFT" ? "Draft saved" : applicationStatusLabels[mine.status]}</span> : soon && <span className="djobs-card-soon">{soon}</span>}
+              {mine ? <span className={`djobs-card-mine is-${mine.status.toLowerCase()}`}>{mine.status === "DRAFT" ? "Draft saved" : applicationStatusLabels[mine.status]}</span> : soon && <span className="djobs-card-soon">{soon}</span>}</span>
               <span className="djobs-card-body">
                 <span className="djobs-card-employer"><EmployerLogo employer={job.employer} />{job.employer.name}{job.employer.verified && <VerifiedBadge />}</span>
                 <strong>{job.title}</strong>

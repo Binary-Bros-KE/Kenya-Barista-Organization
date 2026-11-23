@@ -6,14 +6,30 @@ import { JobManageModal } from "./job-manage-modal";
 import { JobApplicantsModal } from "./job-applicants";
 import { avatarSrc } from "@/lib/images";
 import { initialsOf } from "./profile-card";
-import { statusLabels, formatDeadline, formatFee } from "@/lib/job-format";
-type Row = { id: string; title: string; status: keyof typeof statusLabels; deadline: string; applicationFeeMinor: number; recruiter: { name: string | null }; _count: { applications: number }; newApplicants?: number; recentApplicants?: { id: string; name: string | null; avatarVersion: number | null }[] };
+import { statusLabels, formatDeadline, formatFee, categories, employmentTypes } from "@/lib/job-format";
+import { JobCover } from "./job-cover";
+import { EmployerLogo } from "./job-card";
+import { VerifiedBadge, VerifiedRibbon } from "./verified-badge";
+type Row = { id: string; title: string; status: keyof typeof statusLabels; deadline: string; applicationFeeMinor: number; coverVersion: number | null; category: string; employmentType: string; location: string; summary: string; recruiter: { id: string; name: string | null; avatarVersion: number | null; recruiterVerifiedAt: string | null }; _count: { applications: number }; newApplicants?: number; recentApplicants?: { id: string; name: string | null; avatarVersion: number | null }[] };
 // With onManage, the title and "Manage posting" open the manage popup; without it they link to the job page.
 // With onApplicants, the card shows applicant photos and opens the applicants popup; without it, it links to the applicants page.
 export function ManagedJobCards({ jobs, admin = false, onManage, onApplicants }: { jobs: Row[]; admin?: boolean; onManage?: (id: string) => void; onApplicants?: (job: Row) => void }) {
  const href = (id: string) => "/" + (admin ? "admin" : "employer") + "/jobs/" + id;
  const open = (id: string, className: string | undefined, children: React.ReactNode) => onManage ? <button type="button" className={className ? className + " is-button" : "employer-job-title-button"} onClick={() => onManage(id)}>{children}</button> : <Link className={className} href={href(id)}>{children}</Link>;
- return <div className="employer-job-grid">{jobs.map(job => <article className="employer-job-card" key={job.id}><header><span className={"employer-status status-"+job.status.toLowerCase()}>{statusLabels[job.status]}</span><span className="employer-job-fee">{formatFee(job.applicationFeeMinor)} <span>application fee</span></span></header>{admin && <p className="employer-job-org">{job.recruiter.name}</p>}<h3>{open(job.id, undefined, job.title)}</h3><p className="employer-job-deadline">Deadline: {formatDeadline(job.deadline)} <span>Nairobi time</span></p>{job.status === "PUBLISHED" && new Date(job.deadline) <= new Date() && <p className="employer-inline-warning">Deadline passed. New applications are unavailable.</p>}<footer>{onApplicants ? <ApplicantsButton job={job} onOpen={() => onApplicants(job)} /> : <Link href={"/employer/applications?jobId="+job.id}>{job._count.applications} confirmed {job._count.applications === 1 ? "application" : "applications"}</Link>}{open(job.id, "employer-card-action", <>{admin ? "Review / manage" : "Manage posting"} &#8599;</>)}</footer></article>)}</div>;
+ // Same design as the Find jobs cards: cover, fee, status, category colour, and the Verified ribbon for verified recruiters.
+ return <ul className="djobs-grid managed-job-grid">{jobs.map(job => { const passed = job.status === "PUBLISHED" && new Date(job.deadline) <= new Date(), verified = !!job.recruiter.recruiterVerifiedAt;
+  return <li key={job.id}><article className={`djobs-card managed-job-card is-${job.category.toLowerCase()}`}>
+   {verified && <VerifiedRibbon />}
+   <span className="djobs-card-media"><JobCover id={job.id} coverVersion={job.coverVersion} category={job.category} /><span className="djobs-card-fee">{formatFee(job.applicationFeeMinor)}</span><span className={"djobs-card-status status-" + job.status.toLowerCase()}>{statusLabels[job.status]}</span></span>
+   <div className="djobs-card-body">
+    <span className="djobs-card-employer"><EmployerLogo employer={{ id: job.recruiter.id, avatarVersion: job.recruiter.avatarVersion }} />{job.recruiter.name || "KBO recruiter"}{verified && <VerifiedBadge />}</span>
+    <h3 className="managed-job-title">{open(job.id, undefined, job.title)}</h3>
+    <span className="djobs-card-tags"><em className="is-category">{categories[job.category as keyof typeof categories] || job.category}</em><em>{employmentTypes[job.employmentType as keyof typeof employmentTypes] || job.employmentType}</em><em>{job.location}</em></span>
+    <p className="managed-job-deadline">Deadline: {formatDeadline(job.deadline)} <span>Nairobi time</span></p>
+    {passed && <p className="employer-inline-warning">Deadline passed. New applications are unavailable.</p>}
+    <footer className="djobs-card-foot managed-job-foot">{onApplicants ? <ApplicantsButton job={job} onOpen={() => onApplicants(job)} /> : <Link href={"/employer/applications?jobId=" + job.id}>{job._count.applications} confirmed {job._count.applications === 1 ? "application" : "applications"}</Link>}{open(job.id, "djobs-card-cta managed-job-cta", <>{admin ? "Review / manage" : "Manage posting"} &rarr;</>)}</footer>
+   </div>
+  </article></li>; })}</ul>;
 }
 export function JobList({ admin = false, imagesEnabled = false }: { admin?: boolean; imagesEnabled?: boolean }) {
  const [status, setStatus] = useState(admin ? "PENDING_REVIEW" : ""), [page, setPage] = useState(1);

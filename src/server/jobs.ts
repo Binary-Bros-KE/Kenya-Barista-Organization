@@ -191,14 +191,14 @@ export async function listManagedJobs(db: PrismaClient, actor: Actor, input: unk
   // Filters are ANDed with the ownership scope so a recruiter can never widen it (e.g. by passing another recruiterId).
   const where: Prisma.JobWhereInput = { AND: [managedScope(actor), query.status ? { status: query.status } : {}, query.recruiterId ? { recruiterId: query.recruiterId } : {}] };
   const [total, jobs] = await db.$transaction([
-    db.job.count({ where }), db.job.findMany({ where, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], skip: (query.page - 1) * 20, take: 20, select: { id: true, title: true, slug: true, status: true, version: true, deadline: true, applicationFeeMinor: true, recruiter: { select: { id: true, name: true } }, _count: { select: { applications: { where: paidSubmission } } },
+    db.job.count({ where }), db.job.findMany({ where, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], skip: (query.page - 1) * 20, take: 20, select: { id: true, title: true, slug: true, status: true, version: true, deadline: true, applicationFeeMinor: true, coverVersion: true, category: true, employmentType: true, location: true, description: true, recruiter: { select: { id: true, name: true, avatarVersion: true, recruiterVerifiedAt: true } }, _count: { select: { applications: { where: paidSubmission } } },
       // The newest applicants' photos for the card; the applicants popup loads the full list.
       applications: { where: paidSubmission, select: { user: { select: { id: true, name: true, avatarVersion: true } } }, orderBy: [{ submittedAt: "desc" }, { id: "asc" }], take: 4 } } }),
   ]);
   // Applications nobody has looked at yet ("new"), per job.
   const fresh = jobs.length ? await db.application.groupBy({ by: ["jobId"], where: { ...paidSubmission, status: "SUBMITTED", jobId: { in: jobs.map(job => job.id) } }, _count: { _all: true } }) : [];
   const newCount = new Map(fresh.map(row => [row.jobId, row._count._all]));
-  return { jobs: jobs.map(({ applications, ...job }) => ({ ...job, newApplicants: newCount.get(job.id) ?? 0, recentApplicants: applications.map(application => application.user) })), pagination: { page: query.page, total, pageCount: Math.ceil(total / 20) } };
+  return { jobs: jobs.map(({ applications, description, ...job }) => ({ ...job, summary: description.slice(0, 160), newApplicants: newCount.get(job.id) ?? 0, recentApplicants: applications.map(application => application.user) })), pagination: { page: query.page, total, pageCount: Math.ceil(total / 20) } };
 }
 
 export async function closeExpiredJobs(db: PrismaClient) {

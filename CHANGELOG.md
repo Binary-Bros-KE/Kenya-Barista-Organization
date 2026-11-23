@@ -10,6 +10,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.16.0 - 2026-11-23
+
+- Recruiter (Jobs & applicants) and admin (Job review) job cards now use the same design as Find jobs: cover photo, gold fee badge, a coloured status badge (Published, Awaiting review, Changes requested, Draft, Closed), category colour, employer, tags and deadline, with the applicants button and a coloured Manage posting / Review button.
+- Verified recruiters: every job card (Find jobs, recruiter and admin lists, and the public jobs page) shows a green diagonal **Verified** ribbon across its top-left corner.
+
 ## 2.15.0 - 2026-11-23
 
 - New **Find jobs** tab inside the workspace (the sidebar's Find jobs now opens it). Search by keyword, location, category and job type, or tap a coloured category chip. Each job card shows its cover, fee, employer, tags and deadline, plus "Draft saved" or your application status if you've already applied, or "N days left" when it closes soon.

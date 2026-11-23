@@ -6,7 +6,7 @@ import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared
 import { ManagedJobCards, JobList } from "../src/components/job-list";
 import { RecruitmentActions } from "../src/components/recruitment-actions";
 function render(component: ReactNode) { return renderToStaticMarkup(createElement(AppRouterContext.Provider, { value: { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} } as never }, component)); }
-const job = { id: "job", title: "<script>Barista</script>", status: "PUBLISHED" as const, deadline: "2020-01-01T10:00:00Z", applicationFeeMinor: 10000, recruiter: { name: "Coffee Co" }, _count: { applications: 3 } };
+const job = { id: "job", title: "<script>Barista</script>", status: "PUBLISHED" as const, deadline: "2020-01-01T10:00:00Z", applicationFeeMinor: 10000, coverVersion: null, category: "BARISTA", employmentType: "FULL_TIME", location: "Nairobi", summary: "Pull great shots.", recruiter: { id: "r1", name: "Coffee Co", avatarVersion: null, recruiterVerifiedAt: null as string | null }, _count: { applications: 3 } };
 test("posting cards retain management and applicant routes, accurate count labels and safe job text", () => {
  const html = render(createElement(ManagedJobCards, { jobs: [job] }));
  assert.ok(html.includes('href="/employer/jobs/job"')); assert.ok(html.includes('href="/employer/applications?jobId=job"'));
@@ -21,6 +21,11 @@ test("on the job list, the title and Manage posting open the popup instead of an
 test("admin cards preserve the review route without changing employer application review links", () => {
  const html = render(createElement(ManagedJobCards, { jobs: [job], admin: true }));
  assert.ok(html.includes('href="/admin/jobs/job"')); assert.ok(html.includes('Review / manage')); assert.ok(html.includes('href="/employer/applications?jobId=job"'));
+});
+test("job cards show a Verified ribbon only for verified recruiters", () => {
+ assert.ok(!render(createElement(ManagedJobCards, { jobs: [job] })).includes("verified-ribbon"));
+ const html = render(createElement(ManagedJobCards, { jobs: [{ ...job, recruiter: { ...job.recruiter, recruiterVerifiedAt: "2026-11-01T00:00:00Z" } }] }));
+ assert.ok(html.includes('class="verified-ribbon"')); assert.ok(html.includes("Verified"));
 });
 test("posting list has the create button, labeled filters and a loading state", () => {
  const html = render(createElement(JobList, {}));
