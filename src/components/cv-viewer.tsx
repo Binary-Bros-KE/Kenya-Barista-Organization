@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 import type { PDFDocumentLoadingTask, PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 
 // Views a CV in the page with pdf.js, so nobody has to download it. The file comes from the same
@@ -21,12 +21,40 @@ const icons = {
   download: "M12 4v11M7 11l5 5 5-5M5 20h14", close: "M6 6l12 12M18 6 6 18",
 };
 
-export function CvViewButton({ src, filename, downloadHref, label = "View CV", className = "cv-view-button" }: { src: string; filename: string; downloadHref?: string; label?: string; className?: string }) {
+export function CvViewButton({ src, filename, downloadHref, label = "View CV", className = "cv-view-button", children }: { src: string; filename: string; downloadHref?: string; label?: string; className?: string; children?: ReactNode }) {
   const [open, setOpen] = useState(false);
   return <>
-    <button type="button" className={className} onClick={() => setOpen(true)} onPointerEnter={() => void loadPdfJs()}><Icon d={icons.eye} />{label}</button>
+    <button type="button" className={className} onClick={() => setOpen(true)} onPointerEnter={() => void loadPdfJs()} aria-label={children ? `${label}: ${filename}` : undefined}>{children ?? <><Icon d={icons.eye} />{label}</>}</button>
     {open && <CvViewer src={src} filename={filename} downloadHref={downloadHref} onClose={() => setOpen(false)} />}
   </>;
+}
+
+// A small picture of the first page. Until it's drawn (or if it can't be), it shows a sketch of a document.
+export function PdfThumbnail({ src, width = 132 }: { src: string | null; width?: number }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const [state, setState] = useState<"loading" | "ready" | "failed">(src ? "loading" : "failed");
+  useEffect(() => {
+    if (!src) return;
+    let cancelled = false, loading: PDFDocumentLoadingTask | null = null;
+    (async () => {
+      const [lib, response] = await Promise.all([loadPdfJs(), fetch(src, { credentials: "same-origin", cache: "no-store" })]);
+      if (!response.ok) throw new Error("unavailable");
+      loading = lib.getDocument({ data: new Uint8Array(await response.arrayBuffer()), enableXfa: false, stopAtErrors: false });
+      const page = await (await loading.promise).getPage(1);
+      const ratio = Math.min(window.devicePixelRatio || 1, 3);
+      const viewport = page.getViewport({ scale: (width * ratio) / page.getViewport({ scale: 1 }).width });
+      if (cancelled || !canvas.current) return;
+      canvas.current.width = Math.floor(viewport.width); canvas.current.height = Math.floor(viewport.height);
+      await page.render({ canvas: canvas.current, viewport }).promise;
+      if (!cancelled) setState("ready");
+    })().catch(() => { if (!cancelled) setState("failed"); });
+    return () => { cancelled = true; void loading?.destroy(); };
+  }, [src, width]);
+  return <span className={`pdf-thumb is-${state}`} style={{ width }} aria-hidden="true">
+    <canvas ref={canvas} />
+    {state !== "ready" && <span className="pdf-thumb-sketch"><i /><i /><i /><i /><i /><i /><i /></span>}
+    <em>PDF</em>
+  </span>;
 }
 
 const ZOOMS = [0.5, 0.67, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3];

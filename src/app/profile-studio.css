@@ -140,3 +140,33 @@ a.workspace-avatar { text-decoration: none; }
 .employer-cover-actions { display: flex; align-items: center; gap: 16px; margin: 10px 0 4px; }
 @media (max-width: 699px) { .career-job-card > .job-cover { margin: -26px -26px 16px; } .job-cover.is-hero { aspect-ratio: 16 / 7; } }
 .employer-candidate-card { max-width: 460px; margin: 0 0 20px; }
+
+/* The current CV */
+.cv-card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; align-items: start; border: 1px solid #e9e0d7; border-radius: 16px; padding: 20px; background: linear-gradient(135deg, #fbf6ef, #fffdfa 60%); }
+.cv-card.is-blocked { background: #fff8f5; border-color: #f0d9d0; }
+.cv-card-preview { padding: 6px 4px 4px; }
+.cv-card-thumb { position: relative; display: block; padding: 0; border: 0; background: none; cursor: zoom-in; border-radius: 6px; transition: transform .18s ease; }
+.cv-card-thumb:hover { transform: translateY(-2px) rotate(-1deg); }
+.cv-card-thumb-hint { position: absolute; inset: auto 8px 8px auto; padding: 4px 9px; border-radius: 20px; background: #2b1d15d9; color: #fff; font-size: 11px; font-weight: 700; opacity: 0; transition: opacity .18s ease; }
+.cv-card-thumb:hover .cv-card-thumb-hint, .cv-card-thumb:focus-visible .cv-card-thumb-hint { opacity: 1; }
+.cv-card-body { min-width: 0; display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
+.cv-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.cv-card-name { font-size: 17px; font-weight: 700; letter-spacing: -.015em; color: #30251f; overflow-wrap: anywhere; line-height: 1.35; }
+.cv-card-meta { display: flex; flex-wrap: wrap; gap: 4px 0; font-size: 12px; color: #8f7f71; }
+.cv-card-meta span + span::before { content: "·"; margin: 0 8px; color: #c4b4a4; }
+.cv-card-detail { font-size: 12px; color: #7e6f63; line-height: 1.6; }
+.cv-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 8px; font-size: 13px; font-weight: 650; }
+.cv-card-link { color: #755334; }
+.cv-card-replace { border: 1px solid #d8c5b0; background: #fffdfa; color: #5d3f2a; border-radius: 9px; padding: 8px 14px; font-weight: 650; cursor: pointer; }
+.cv-card-replace:hover { background: #f5ece1; }
+.cv-card .profile-remove { margin-left: auto; font-size: 12px; }
+.cv-card .profile-confirm { grid-column: 1 / -1; margin-top: 0; }
+.profile-upload { margin-bottom: 18px; }
+.profile-upload-actions { display: flex; justify-content: center; align-items: center; gap: 18px; margin-top: 16px; }
+.profile-upload-actions .profile-primary { margin-top: 0; }
+.profile-documents .profile-empty { margin-bottom: 16px; }
+@media (max-width: 540px) {
+  .cv-card { grid-template-columns: 1fr; justify-items: center; padding: 18px 14px; gap: 14px; }
+  .cv-card-body { width: 100%; }
+  .cv-card .profile-remove { margin-left: 0; }
+}

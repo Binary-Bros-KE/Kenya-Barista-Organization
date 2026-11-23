@@ -44,3 +44,17 @@
 .textLayer .endOfContent { display: block; position: absolute; inset: 100% 0 0; z-index: 0; cursor: default; user-select: none; }
 .textLayer.selecting .endOfContent { top: 0; }
 .employer-cv-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+
+/* First-page thumbnail */
+.pdf-thumb { position: relative; display: block; aspect-ratio: 1 / 1.414; overflow: hidden; border-radius: 6px; background: #fff; border: 1px solid #e4d9cd; box-shadow: 0 1px 2px #3a281b14, 0 8px 22px -10px #3a281b40; }
+.pdf-thumb canvas { display: block; width: 100%; height: auto; }
+.pdf-thumb:not(.is-ready) canvas { visibility: hidden; position: absolute; }
+.pdf-thumb-sketch { position: absolute; inset: 14% 13% auto; display: grid; gap: 7px; }
+.pdf-thumb-sketch i { display: block; height: 5px; border-radius: 3px; background: #eee6dc; }
+.pdf-thumb-sketch i:first-child { width: 55%; height: 9px; background: #e4d6c6; margin-bottom: 4px; }
+.pdf-thumb-sketch i:nth-child(3n) { width: 78%; }
+.pdf-thumb-sketch i:nth-child(4) { margin-top: 6px; width: 40%; background: #e9ddcf; }
+.pdf-thumb.is-loading .pdf-thumb-sketch i { animation: pdf-thumb-pulse 1.3s ease-in-out infinite alternate; }
+@keyframes pdf-thumb-pulse { to { opacity: .45; } }
+.pdf-thumb em { position: absolute; left: 0; bottom: 10px; padding: 3px 8px 3px 7px; border-radius: 0 5px 5px 0; background: #c8412f; color: #fff; font-style: normal; font-size: 10px; font-weight: 800; letter-spacing: .06em; box-shadow: 0 2px 6px #c8412f55; }
+@media (prefers-reduced-motion: reduce) { .pdf-thumb.is-loading .pdf-thumb-sketch i { animation: none; } }

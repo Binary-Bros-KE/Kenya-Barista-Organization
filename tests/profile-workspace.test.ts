@@ -38,10 +38,13 @@ test("the CV panel hides blocked downloads, explains attached CVs and asks befor
  assert.ok(html.includes('Refresh status'));
  assert.equal((html.match(/class="cv-view-button is-light"/g) || []).length, 2, "Readable CVs can be viewed in the page; blocked ones can't");
 });
-test("one CV: an empty panel invites an upload, and an existing CV offers to replace it", () => {
+test("one CV: an empty panel invites an upload, and an existing CV shows as a card with a Replace button instead", () => {
  const empty = render(createElement(CvManager, { documents: [] }));
  assert.ok(empty.includes('Your next chapter starts here.')); assert.ok(empty.includes(">Upload CV<")); assert.ok(!empty.includes("Replace"));
+ assert.ok(empty.includes('type="file"'));
  const html = render(createElement(CvManager, { documents: [{ id: "1", filename: "cv.pdf", scanStatus: "CLEAN" }] }));
- assert.ok(html.includes("Replace your CV")); assert.ok(html.includes(">Replace CV<")); assert.ok(html.includes("draft applications switch to the new CV"));
- assert.doesNotMatch(html, /type="file"[^>]*disabled=""/, "Replacing is always possible");
+ assert.ok(!html.includes('type="file"'), "The upload box stays hidden until the member chooses to replace");
+ assert.match(html, /class="cv-card-replace"[^>]*>Replace CV</);
+ assert.ok(html.includes('class="pdf-thumb'), "Shows a preview of the first page");
+ assert.ok(!html.includes("Refresh status"), "Only screening CVs offer a status refresh");
 });

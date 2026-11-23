@@ -10,6 +10,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.13.0 - 2026-11-23
+
+- My profile: your CV now shows as a card with a preview of its first page, a PDF label, the file size, the upload date and its screening status. Click the preview (or View CV) to read it in the page.
+- The upload box only shows when you have no CV yet, or after you click **Replace CV** (with Cancel to close it again). Refresh status shows only while a CV is being screened.
+
 ## 2.12.0 - 2026-11-22
 
 - Jobs and applicants are one tab for recruiters (**Jobs & applicants**). Each job card shows the newest applicants' photos, the number of applicants and how many are new; clicking it opens the applicants popup.
