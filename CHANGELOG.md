@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.26.2 - 2026-11-23
+
+- Pay panels no longer show the "To apply, write a cover letter and attach your CV…" note. The pay buttons simply stay greyed out until the draft has both.
+
 ## 2.26.1 - 2026-11-23
 
 - Applying needs a cover letter (at least 30 characters) and a CV. Until the saved draft has both, **Pay from wallet** and **M-Pesa checkout** are disabled and say what is missing ("To apply, write a cover letter and attach your CV, then save your draft."). The server enforces the same rule.

@@ -86,8 +86,8 @@ test("paying waits for a saved cover letter and a usable CV", () => {
  assert.equal(missingMessage(["write a cover letter", "attach your CV"]), "To apply, write a cover letter and attach your CV, then save your draft.");
  const message = missingMessage(["attach your CV"]);
  const wallet = render(createElement(WalletPay, { applicationId: "a", version: 1, feeMinor: 50000, balanceMinor: 500000, missing: message }));
- assert.ok(/<button[^>]*disabled=""[^>]*>Pay Ksh/.test(wallet) || /<button[^>]*class="wallet-pay-button"[^>]*disabled/.test(wallet), "Wallet pay is disabled"); assert.ok(wallet.includes(message));
+ assert.ok(/<button[^>]*disabled=""[^>]*>Pay Ksh/.test(wallet) || /<button[^>]*class="wallet-pay-button"[^>]*disabled/.test(wallet), "Wallet pay is disabled"); assert.ok(!wallet.includes(message), "No note, just the greyed-out button");
  assert.ok(!/disabled=""[^>]*>Pay Ksh/.test(render(createElement(WalletPay, { applicationId: "a", version: 1, feeMinor: 50000, balanceMinor: 500000 }))), "Enabled once complete");
  const checkout = render(createElement(PaymentCheckout, { applicationId: "a", version: 1, amountMinor: 50000, phone: "", options: [{ id: "o", label: "KBO", kind: "TILL", tillNumber: "123", businessShortCode: null, environment: "SANDBOX" }] as never, status: null, applicationStatus: "DRAFT", receipt: null, reviewReason: null, missing: message }));
- assert.ok(/<button class="button" disabled="">Pay and submit application/.test(checkout), "M-Pesa pay is disabled"); assert.ok(checkout.includes(message));
+ assert.ok(/<button class="button" disabled="">Pay and submit application/.test(checkout), "M-Pesa pay is disabled"); assert.ok(!checkout.includes(message));
 });

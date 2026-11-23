@@ -163,7 +163,7 @@ export function WalletPay({ applicationId, version, feeMinor, balanceMinor, miss
     <dl><div><dt>Balance</dt><dd>{formatFee(balanceMinor)}</dd></div><div><dt>Application fee</dt><dd>−{formatFee(feeMinor)}</dd></div><div className="is-after"><dt>After applying</dt><dd>{enough ? formatFee(balanceMinor - feeMinor) : "—"}</dd></div></dl>
     {enough ? <>
       <button type="button" className={"wallet-pay-button" + (sure ? " is-sure" : "")} disabled={busy || !!missing} onClick={() => void pay()}>{busy ? "Submitting…" : sure ? `Tap again to pay ${formatFee(feeMinor)} and submit` : `Pay ${formatFee(feeMinor)} and submit`}</button>
-      {missing ? <p className="wallet-pay-missing" role="status">{missing}</p> : <p className="wallet-pay-note">Your application is sent to the recruiter straight away.</p>}
+      <p className="wallet-pay-note">Your application is sent to the recruiter straight away.</p>
     </> : <>
       <p className="wallet-pay-short">You need {formatFee(shortKes * 100)} more to apply.</p>
       <Link className="wallet-pay-button is-topup" href={`/dashboard/wallet?topup=${topUpKes}`}>Top up {formatFee(topUpKes * 100)}</Link>
