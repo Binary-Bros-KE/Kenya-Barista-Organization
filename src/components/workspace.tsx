@@ -39,10 +39,8 @@ const adminLinks: Item[] = [
   { label: "Recruiters", href: "/admin", icon: "organisations" },
   { label: "Job review", href: "/admin/jobs", icon: "jobs" },
   { label: "Applicants", href: "/employer/applications", icon: "review" },
-  { label: "Payment review", href: "/admin/payments/review", icon: "settings" },
   { label: "Wallet top-ups", href: "/admin/wallet", icon: "wallet" },
   { label: "Partner requests", href: "/admin/partners", icon: "organisations" },
-  { label: "Delivery queue", href: "/admin/notifications", icon: "queue" },
 ];
 const adminAccountLinks: Item[] = [
   { label: "Profile & CV", href: "/dashboard/profile", icon: "profile" },
@@ -81,7 +79,7 @@ function matches(pathname: string, href: string) {
   if (href === "/dashboard" || href === "/admin") return pathname === href;
   return pathname === href || pathname.startsWith(href + "/");
 }
-// The most specific matching link wins, so /admin/payments/review highlights only "Payment review".
+// The most specific matching link wins (e.g. /admin/payments/review highlights "Payments and M-Pesa").
 function activeItem(pathname: string, items: Item[]) {
   return items.filter(item => matches(pathname, item.href) || item.also?.some(href => matches(pathname, href))).sort((a, b) => b.href.length - a.href.length)[0];
 }

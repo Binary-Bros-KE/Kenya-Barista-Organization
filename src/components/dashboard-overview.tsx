@@ -62,7 +62,7 @@ export function DashboardOverview({ data, user, now = new Date() }: { data: Dash
     { title: "Recruiters", text: "Recruiter accounts, their jobs and applicants", href: "/admin", icon: "building" as const },
     { title: "Applicants", text: "Paid applications across all employers", href: "/employer/applications", icon: "applications" as const },
     { title: "Payments", text: "M-Pesa settings and payment history", href: "/admin/payments", icon: "money" as const },
-    { title: "Delivery queue", text: "Failed emails and notification retries", href: "/admin/notifications", icon: "bell" as const },
+    { title: "Wallet top-ups", text: "M-Pesa top-ups waiting to be confirmed", href: "/admin/wallet", icon: "money" as const },
   ] : [
     { title: "Profile & CV", text: "Photo, skills, story and CV", href: "/dashboard/profile", icon: "profile" as const },
     { title: "Payments", text: "Application fees and receipts", href: "/dashboard/payments", icon: "applications" as const },

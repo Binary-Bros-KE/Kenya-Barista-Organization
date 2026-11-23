@@ -30,7 +30,7 @@ test("nested account pages select their own section rather than the dashboard ov
 });
 test("administrator navigation includes restricted sections without duplicate active parents", () => {
   const html = render("/admin/jobs/example", true);
-  for (const route of ["/admin", "/admin/jobs", "/admin/payments", "/admin/notifications"]) assert.ok(html.includes(`href="${route}"`));
+  for (const route of ["/admin", "/admin/jobs", "/admin/payments", "/admin/wallet"]) assert.ok(html.includes(`href="${route}"`));
   assert.deepEqual(activeLinks(html), ["/admin/jobs"]);
 });
 test("recruiters see recruiting and job-seeker tabs, and employer routes highlight the right one", () => {

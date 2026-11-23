@@ -11,7 +11,7 @@ import { ManualReversal } from "../src/components/manual-reversal";
 import { PaymentReviewForm } from "../src/components/payment-review-form";
 function render(component: ReactNode) { return renderToStaticMarkup(createElement(AppRouterContext.Provider, { value: { refresh() {}, push() {}, replace() {}, back() {}, forward() {}, prefetch() {} } as never }, component)); }
 test("administration navigation links every operation, including Recruiters and Accounts", () => {
- const links = render(createElement(AdminQuickLinks)); for (const route of ["/admin", "/admin/accounts", "/admin/jobs", "/admin/payments", "/admin/notifications"]) assert.ok(links.includes('href="'+route+'"'));
+ const links = render(createElement(AdminQuickLinks)); for (const route of ["/admin", "/admin/accounts", "/admin/jobs", "/admin/payments"]) assert.ok(links.includes('href="'+route+'"'));
  assert.ok(links.includes('Recruiters')); assert.ok(links.includes('Accounts'));
 });
 test("access changes use a closed disclosure with distinct confirmation and cancellation controls", () => {

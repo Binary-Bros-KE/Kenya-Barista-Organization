@@ -11,6 +11,11 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.24.3 - 2026-11-23
+
+- Admin sidebar: removed **Delivery queue** and **Payment review**. Wallet top-ups is where payments are checked now. The payment review queue (for automatic M-Pesa prompt payments that need a look) is still reachable from Settings → Payments and M-Pesa, and the delivery queue page still works by its address.
+- Admin dashboard: the Delivery queue shortcut is replaced by Wallet top-ups; the Delivery queue card is also gone from the admin shortcut row.
+
 ## 2.24.2 - 2026-11-23
 
 - Admin Wallet top-ups is now a list instead of cards: one row per top-up with the member, M-Pesa code, time paid, amount and current wallet, and Confirm / Reject on the right (Reject opens a reason box under the row). Confirmed and rejected tabs show who processed each one, when, and any note. On narrow screens rows stack with labels.
