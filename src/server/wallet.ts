@@ -172,7 +172,8 @@ export async function payFromWallet(db: PrismaClient, actor: Actor, applicationI
     const profile = profileInput.safeParse(application.user.profile ? { fullName: application.user.profile.fullName, phone: application.user.profile.phone, location: application.user.profile.location, summary: application.user.profile.summary || "" } : {});
     if (!profile.success) throw new AccessError(409, "PROFILE_INCOMPLETE", "Complete your profile before paying");
     const document = application.documents.length === 1 ? application.documents[0].document : null;
-    if (!document || document.userId !== actor.user.id || document.scanStatus !== "CLEAN" || !document.sha256) throw new AccessError(409, "CV_NOT_READY", "Attach a CV that has passed security screening before paying");
+    // A CV still being virus-scanned can be sent; recruiters can open it once the scan passes.
+    if (!document || document.userId !== actor.user.id || !["PENDING", "CLEAN"].includes(document.scanStatus) || !document.sha256) throw new AccessError(409, "CV_NOT_READY", "This CV didn't pass the security check. Attach another PDF before paying");
     const fee = application.applicationFeeMinor;
     if (application.currency !== "KES" || fee < 100) throw new AccessError(409, "INVALID_FEE", "This application fee can't be paid from the wallet");
     if (application.user.walletBalanceMinor < fee) throw new AccessError(409, "INSUFFICIENT_BALANCE", `Your wallet has ${formatFee(application.user.walletBalanceMinor)}. Top up ${formatFee(fee - application.user.walletBalanceMinor)} more to apply.`);

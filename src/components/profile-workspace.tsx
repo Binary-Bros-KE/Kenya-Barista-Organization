@@ -5,7 +5,7 @@ import { CvViewButton, PdfThumbnail } from "./cv-viewer";
 export type ProfileCv = { id: string; filename: string; scanStatus: string; sizeBytes?: number; createdAt?: string; attachmentCount?: number };
 export function cvPresentation(status: string) {
   if (status === "CLEAN") return { label: "Ready to apply", detail: "Security screening complete.", tone: "ready", downloadable: true };
-  if (status === "PENDING") return { label: "Screening", detail: "Your original is available. Wait for screening before submitting an application.", tone: "pending", downloadable: true };
+  if (status === "PENDING") return { label: "Screening", detail: "We're running a quick security check. You can already apply with it; recruiters can open it once the check finishes.", tone: "pending", downloadable: true };
   return { label: status === "REJECTED" ? "Not approved" : "Unavailable", detail: "This file cannot be used. Remove it and upload another PDF.", tone: "blocked", downloadable: false };
 }
 export function validateCvSelection(file: { name: string; size: number }) {

@@ -32,7 +32,7 @@ export async function settlePayment(tx: Prisma.TransactionClient, attemptId: str
     && app.job.status === "PUBLISHED" && !!app.job.publishedAt && app.job.deadline > new Date() && app.job.recruiter.status === "ACTIVE"
     && app.applicationFeeMinor === order.amountMinor && app.currency === order.currency && order.currency === "KES"
     && !!snapshot && snapshot.jobVersion === app.job.version && snapshot.applicationVersion === app.version
-    && document?.id === snapshot.documentId && document.userId === app.userId && document.scanStatus === "CLEAN" && document.sha256 === snapshot.documentSha256;
+    && document?.id === snapshot.documentId && document.userId === app.userId && ["PENDING", "CLEAN"].includes(document.scanStatus) && document.sha256 === snapshot.documentSha256;
   await tx.paymentAttempt.update({ where: { id: attemptId }, data: { status: "SUCCEEDED", receiptNumber: receipt, ...(source === "PROVIDER" ? { resultCode: "0" } : {}), reviewReason: eligible ? null : "PAID_APPLICATION_UNAVAILABLE" } });
   await tx.paymentOrder.update({ where: { id: order.id }, data: { status: "SUCCEEDED", paidAt: order.paidAt || new Date(), version: { increment: 1 }, ...(!latest ? { reviewHold: true } : {}) } });
   if (eligible) {

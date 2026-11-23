@@ -43,7 +43,8 @@ export async function initiatePayment(db:PrismaClient,actor:Actor,applicationId:
   const profile=profileInput.safeParse(application.user.profile ? {fullName:application.user.profile.fullName,phone:application.user.profile.phone,location:application.user.profile.location,summary:application.user.profile.summary||""}:{});
   if(!profile.success)throw new AccessError(409,"PROFILE_INCOMPLETE","Complete your profile before paying");
   const document=application.documents.length===1?application.documents[0].document:null;
-  if(!document||document.userId!==actor.user.id||document.scanStatus!=="CLEAN"||!document.sha256)throw new AccessError(409,"CV_NOT_READY","Attach a CV that has passed security screening before paying");
+  // A CV still being virus-scanned can be sent; recruiters can open it once the scan passes.
+ if(!document||document.userId!==actor.user.id||!["PENDING","CLEAN"].includes(document.scanStatus)||!document.sha256)throw new AccessError(409,"CV_NOT_READY","This CV didn't pass the security check. Attach another PDF before paying");
   if(application.currency!=="KES"||application.applicationFeeMinor<100||application.applicationFeeMinor%100!==0||application.applicationFeeMinor>25000000)throw new AccessError(409,"INVALID_FEE","The application fee must be configured as whole KES within M-Pesa limits");
   const config=await tx.mpesaConfiguration.findFirst({where:{id:data.configurationId,enabled:true,...(process.env.NODE_ENV==="production"?{environment:"LIVE" as const}:{})}});
   if(!config)throw new AccessError(409,"PAYMENT_OPTION_UNAVAILABLE","This payment option is unavailable");

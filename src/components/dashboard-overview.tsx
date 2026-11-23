@@ -50,7 +50,7 @@ export function DashboardOverview({ data, user, now = new Date() }: { data: Dash
   const steps = [
     { title: "Email verified", hint: "Your sign-in address is confirmed", ready: user.emailVerified, href: "/dashboard/security" },
     { title: "Profile essentials", hint: "Name, mobile number and location", ready: data.profileReady, href: "/dashboard/profile" },
-    { title: "CV screening", hint: data.cleanCvs ? `${data.cleanCvs} CV${data.cleanCvs === 1 ? " has" : "s have"} passed screening` : "Upload a PDF CV for screening", ready: data.cleanCvs > 0, href: "/dashboard/profile" },
+    { title: "CV uploaded", hint: data.cleanCvs ? `${data.cleanCvs} CV${data.cleanCvs === 1 ? "" : "s"} ready to send` : "Upload a PDF CV to apply with", ready: data.cleanCvs > 0, href: "/dashboard/profile" },
   ];
   const completed = steps.filter(step => step.ready).length;
   const quickLinks = recruiting ? [

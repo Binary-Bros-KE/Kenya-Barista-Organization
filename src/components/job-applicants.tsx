@@ -15,7 +15,7 @@ type Detail = {
   id: string; userId: string; status: Status; version: number; submittedAt: string | null;
   job: { title: string; recruiter: { status: string } };
   profile: { fullName: string; email: string; phone: string; location: string; summary: string; coverLetter: string };
-  cv: { available: boolean; filename: string };
+  cv: { available: boolean; screening?: boolean; filename: string };
   candidate: { avatarVersion: number | null; headline?: string | null; experienceYears?: number | null; skills?: string[]; openToWork?: boolean; instagram?: string | null; linkedin?: string | null; website?: string | null; accent?: string };
 };
 type Response = { id: string; senderLabel: string; body: string; status: Status; createdAt: string };
@@ -115,7 +115,7 @@ function ApplicantDetail({ id, onBack, onChanged }: { id: string; onBack: () => 
     </dl>
     <section className="applicants-cv">
       <div><strong>CV</strong><span>{detail.cv.filename}</span></div>
-      {detail.cv.available ? <div className="applicants-cv-actions"><CvViewButton src={cvUrl} downloadHref={cvUrl} filename={detail.cv.filename} /><a className="employer-secondary" href={cvUrl}>Download</a></div> : <span className="applicants-muted">Unavailable</span>}
+      {detail.cv.available ? <div className="applicants-cv-actions"><CvViewButton src={cvUrl} downloadHref={cvUrl} filename={detail.cv.filename} /><a className="employer-secondary" href={cvUrl}>Download</a></div> : <span className="applicants-muted">{detail.cv.screening ? "Security check in progress. Available shortly." : "Unavailable"}</span>}
     </section>
     <section className="applicants-text"><h3>Cover letter</h3><p>{profile.coverLetter || "No cover letter."}</p></section>
     {profile.summary && <section className="applicants-text"><h3>About them</h3><p>{profile.summary}</p></section>}

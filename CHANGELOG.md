@@ -11,6 +11,12 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.26.0 - 2026-11-23
+
+- Job seekers can apply (wallet or M-Pesa) with a CV that is still going through its automatic virus scan. Only a CV that failed the scan is blocked. CV "screening" is the automatic ClamAV check run by the `cvs:scan` job, not a manual admin review.
+- Recruiters still only open or download CVs that passed the scan. A CV sent while still being scanned shows "Security check in progress. Available shortly" instead of "Unavailable".
+- Wording updated to match on the profile, the application form, the dashboard checklist ("CV uploaded") and the public apply page.
+
 ## 2.25.4 - 2026-11-23
 
 - Application page header: removed the recruiter logo, so it is exactly the original recruiter name and job title.

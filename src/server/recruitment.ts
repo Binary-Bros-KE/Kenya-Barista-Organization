@@ -55,9 +55,11 @@ export async function getReviewApplication(db: PrismaClient, actor: Actor, id: s
     throw new AccessError(409, "SUBMISSION_UNAVAILABLE", "The submitted application requires administrator review");
   }
   const cv = application.documents.find(item => item.document.id === snapshot.data.documentId)?.document;
-  const cvAvailable = application.status !== "WITHDRAWN" && cv?.userId === application.userId && cv.scanStatus === "CLEAN" && cv.sha256 === snapshot.data.documentSha256;
+  const cvMatches = application.status !== "WITHDRAWN" && cv?.userId === application.userId && cv.sha256 === snapshot.data.documentSha256;
+  // Recruiters only open CVs that passed the virus scan; one sent while still being scanned shows as "checking".
+  const cvAvailable = cvMatches && cv?.scanStatus === "CLEAN", cvScreening = cvMatches && cv?.scanStatus === "PENDING";
   return { id: application.id, userId: application.userId, status: application.status, version: application.version, submittedAt: application.submittedAt,
-    job: application.job, profile: snapshot.data, cv: { available: Boolean(cvAvailable), filename: cv?.filename || "Submitted CV.pdf" },
+    job: application.job, profile: snapshot.data, cv: { available: Boolean(cvAvailable), screening: Boolean(cvScreening), filename: cv?.filename || "Submitted CV.pdf" },
     // The candidate's current photo and profile card; the submitted details above stay as they were at submission.
     candidate: { avatarVersion: application.user.avatarVersion, ...application.user.profile } };
 }

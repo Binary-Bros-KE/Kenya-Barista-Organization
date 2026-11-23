@@ -39,10 +39,10 @@ test("filtered list pagination keeps status and escapes employer-provided text",
  assert.ok(html.includes('&lt;script&gt;unsafe&lt;/script&gt;')); assert.ok(!html.includes('<script>unsafe'));
  assert.ok(html.includes('aria-current="page"')); assert.ok(html.includes('1 response or update'));
 });
-test("draft editing permits pending CVs for saving but explains the screening gate and excludes rejected CVs", () => {
+test("drafts can use a CV still being scanned, explain the recruiter wait and exclude rejected CVs", () => {
  const html = render(createElement(DraftForm, { id: "a", version: 1, coverLetter: "", selected: "", editable: true, documents: [{ id: "pending", filename: "pending.pdf", scanStatus: "PENDING" }, { id: "blocked", filename: "blocked.pdf", scanStatus: "REJECTED" }] }));
  assert.ok(html.includes('value="pending"')); assert.ok(!html.includes('value="blocked"'));
- assert.ok(html.includes('It must pass screening before you pay and submit.')); assert.ok(html.includes('maxLength="6000"'));
+ assert.ok(html.includes('You can apply with a CV that is still going through its quick security check.')); assert.ok(!html.includes('must pass screening')); assert.ok(html.includes('maxLength="6000"'));
  assert.ok(html.includes('Save your changes before requesting payment.'));
 });
 test("locked application shows read-only saved details without a draft form or save control", () => {
