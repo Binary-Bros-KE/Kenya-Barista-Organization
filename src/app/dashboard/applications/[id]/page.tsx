@@ -18,7 +18,6 @@ import { paymentSummary } from "@/server/payments";
 import { applicationGuidance } from "@/lib/application-view";
 import { formatFee, formatDeadline } from "@/lib/job-format";
 import { asEmployer } from "@/lib/employer";
-import { CompanyMark } from "@/components/application-list";
 export default async function Page({ params,searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{responsePage?:string}> }) {
  const actor = await pageActor(); const db = getDb(); let application;
  try { application = await ownApplication(db,actor,(await params).id); } catch(e) { if(e instanceof AccessError && e.status===404) notFound(); throw e; }
@@ -32,7 +31,7 @@ export default async function Page({ params,searchParams }: { params: Promise<{ 
  const employer = asEmployer(application.job.recruiter);
  const open = application.job.status==="PUBLISHED" && application.job.deadline>new Date() && application.job.recruiter.status === "ACTIVE";
  return <div className="application-workspace"><Link className="application-back" href="/dashboard/applications">&larr; All applications</Link>
-  <header className="application-detail-heading application-hero"><div className="application-hero-who"><CompanyMark recruiter={employer} /><div><span className="application-eyebrow">{employer.name || "KBO recruiter"}</span><h1>{application.job.title}</h1></div></div><span className={"application-status status-"+application.status.toLowerCase()}>{applicationStatusLabels[application.status]}</span></header>
+  <header className="application-detail-heading"><div><span className="application-eyebrow">{employer.name || "KBO recruiter"}</span><h1>{application.job.title}</h1></div><span className={"application-status status-"+application.status.toLowerCase()}>{applicationStatusLabels[application.status]}</span></header>
   {/* A draft explains itself through the form and payment panel; other stages say what happens next. */}
   {!(application.status === "DRAFT" && editable) && <div className="application-guidance"><span aria-hidden="true"><SecurityMark/></span><div><h2>{application.status === "DRAFT" ? editable ? "Make this application yours" : "Your saved details are protected" : applicationStatusLabels[application.status]}</h2><p>{applicationGuidance(application.status, editable)}</p></div></div>}
   {!open && <p className="application-warning" role="status">This job is currently unavailable. New payments and submissions are paused. Your application history is still available below.</p>}
