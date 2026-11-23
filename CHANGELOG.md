@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.31.4 - 2026-11-23
+
+- Home hero: the gold corner lines are shorter on phones.
+
 ## 2.31.3 - 2026-11-23
 
 - Tests updated for CVs that can be sent while the virus scan runs and for the required cover letter, so the automatic checks pass again and staging can deploy.
