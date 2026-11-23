@@ -39,7 +39,7 @@
 .application-facts dt{color:var(--tint);font-weight:700;letter-spacing:.02em}
 .application-facts dd{font-size:15px;color:#2a1f17}
 .application-editor>.application-panel{border-top:4px solid #0b766d}
-.application-profile-link{margin-top:16px;padding:18px 20px;border:1px solid #9fd5cd;border-radius:16px;background:linear-gradient(140deg,#e4f4f1,#f4fbfa);justify-content:flex-start}
+.application-profile-link{margin-top:24px;padding:18px 20px;border:1px solid #9fd5cd;border-radius:16px;background:linear-gradient(140deg,#e4f4f1,#f4fbfa);justify-content:flex-start}
 .application-profile-link>div{flex:1;min-width:0}
 .application-profile-icon{width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:#0b766d;color:#fff}
 .application-profile-link strong{font-size:14px;color:#0b4f49}

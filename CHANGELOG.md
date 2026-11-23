@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.25.2 - 2026-11-23
+
+- Application page: the **Keep your career toolkit ready** card moved to the very bottom, after responses and the withdraw option.
+
 ## 2.25.1 - 2026-11-23
 
 - Application page has more colour: a deep green banner with the recruiter's photo (or KBO logo) and name in gold, the job title in white and the status as a white pill; colour-coded tiles with icons for the fee (gold), deadline (blue) and reference (purple); a teal accent on the application form; and the "Keep your career toolkit ready" link as a teal card with a button.
