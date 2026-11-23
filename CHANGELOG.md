@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.24.5 - 2026-11-23
+
+- Gallery: the **product showcase** starts open. Our philosophy: **Our organisation structure** starts open. Both can still be collapsed.
+
 ## 2.24.4 - 2026-11-23
 
 - Admin Wallet top-ups: search by M-Pesa code, member name or email, and filter by the date paid (from / to, Nairobi time). Tab counts and totals follow the search, and Clear resets it.
