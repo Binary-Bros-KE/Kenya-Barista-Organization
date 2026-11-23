@@ -1,13 +1,16 @@
 import { randomUUID } from "node:crypto";
+import { after } from "next/server";
 import { ZodError } from "zod";
 import { jsonInput } from "@/lib/api";
 import { getDb } from "@/lib/db";
 import { logEvent } from "@/lib/logger";
+import { sendNotificationsNow } from "@/server/notification-worker";
 import { receivePaymentCallback } from "@/server/payments";
 import { AccessError } from "@/server/errors";
 export const runtime="nodejs";
 export async function POST(request:Request,context:{params:Promise<{token:string}>}){
  const headers={"Cache-Control":"no-store"};
+ after(()=>sendNotificationsNow(getDb()));
  try{return Response.json(await receivePaymentCallback(getDb(),(await context.params).token,await jsonInput(request)),{headers});}
  catch(error){
  if(error instanceof AccessError)return Response.json({message:error.message},{status:error.status,headers});

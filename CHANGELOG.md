@@ -10,6 +10,16 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 
 Then add an entry below and restart the app.
 
+## 2.19.0 - 2026-11-23
+
+- Job and application emails now go out within seconds, instead of only when the background notification worker runs (which `npm run dev` doesn't start). After a job is submitted or published, or a payment is confirmed, the app sends the queued emails straight after replying; the worker still retries anything that fails.
+- Branded emails, matching the recruiter request emails, for four moments:
+  - **Recruiter submits a job for review**: "Your job is in review", with the job, location and deadline and what happens next. Admins still get "Job review requested".
+  - **Admin approves and publishes a job**: the recruiter gets "Your job is live", with the public link to share.
+  - **Job seeker's application is submitted** (fee confirmed): "Application received", with the job, recruiter and submission time.
+  - **Someone applies to a recruiter's job**: "New applicant", with the applicant's name and the number of applicants so far.
+- Dashboard notifications for these moments use the same wording and name the job, instead of the general "A job posting has an update".
+
 ## 2.18.0 - 2026-11-23
 
 - Recruiter and admin job cards are themed by status, so they are easy to tell apart at a glance: **Awaiting review** blue with a soft glow and a pulsing "Needs your review" tag (recruiters see "Waiting for KBO review"), **Published** green, **Draft** gold with a dashed edge, **Changes requested** orange with a "Sent back" tag, and **Closed / Archived** grey with a faded photo. The card edge, background tint, tags and button follow the status colour.

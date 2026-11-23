@@ -147,3 +147,94 @@ export function recruiterVerifiedEmail({ baseUrl, name }: { baseUrl: string; nam
       `Open your dashboard: ${new URL("/dashboard", baseUrl)}`, "", "Kenya Barista Organization"]),
   };
 }
+
+// Job and application emails. Sent by the notification worker, so they share its rule: no private
+// details (CV contents, messages or payments) in the email itself, only enough to know what happened.
+
+type JobFacts = { baseUrl: string; name: string | null; jobTitle: string; location: string; deadline: string; href: string };
+
+export function jobSubmittedEmail({ baseUrl, name, jobTitle, location, deadline, href }: JobFacts): Email {
+  const subject = `Your job "${jobTitle}" is in review`;
+  return {
+    subject,
+    html: layout({
+      baseUrl, preheader: "KBO checks every posting before it goes live. We'll email you when it's published.", eyebrow: "Job submitted for review", title: "Your job is in review",
+      intro: [`Hi ${escape(firstName(name))},`, "Thanks for posting with the Kenya Barista Organization. Your job has been sent to our team, who check every posting before it goes live."],
+      rows: [["Job", jobTitle], ["Location", location], ["Applications close", deadline]],
+      steps: [
+        ["We review your posting", "Usually within one working day. You can still edit it while it waits."],
+        ["We may send it back", "If something needs changing, we'll tell you what and you can resubmit."],
+        ["It goes live", "Once approved, job seekers can find it and apply. We'll email you when it's published."],
+      ],
+      button: { label: "View your job", href },
+      footnote: "Editing the job while it waits keeps it in review, and our team sees your latest version.",
+    }),
+    text: plain([`Hi ${firstName(name)},`, "", "Your job has been sent to the KBO team for review. We check every posting before it goes live.", "",
+      `Job: ${jobTitle}`, `Location: ${location}`, `Applications close: ${deadline}`, "",
+      "What happens next:", "1. We review your posting, usually within one working day.", "2. If something needs changing, we'll tell you what.", "3. Once approved, it goes live and we'll email you.", "",
+      `View your job: ${new URL(href, baseUrl)}`, "", "Kenya Barista Organization"]),
+  };
+}
+
+export function jobPublishedEmail({ baseUrl, name, jobTitle, location, deadline, href, publicHref }: JobFacts & { publicHref: string }): Email {
+  const subject = `Your job "${jobTitle}" is now live`;
+  return {
+    subject,
+    html: layout({
+      baseUrl, preheader: "KBO approved your posting. Job seekers can now find it and apply.", eyebrow: "Job approved", title: "Your job is live",
+      intro: [`Hi ${escape(firstName(name))},`, `Good news: KBO has approved <strong>${escape(jobTitle)}</strong>. It's now published on the KBO jobs board and open for applications.`],
+      rows: [["Job", jobTitle], ["Location", location], ["Applications close", deadline]],
+      stepsTitle: "Good to know",
+      steps: [
+        ["Share your job", `Send people the public link: <a href="${new URL(publicHref, baseUrl)}" style="color:${colors.teal}">${escape(new URL(publicHref, baseUrl).toString())}</a>`],
+        ["We'll tell you about applicants", "Each time someone applies, you'll get an email and see them in your dashboard."],
+        ["It closes on the deadline", "Applications stop automatically when the deadline passes."],
+      ],
+      button: { label: "Manage your job", href },
+      footnote: "Editing a live job takes it off the jobs board until KBO approves the changes.",
+    }),
+    text: plain([`Hi ${firstName(name)},`, "", `Good news: KBO has approved "${jobTitle}". It's now live on the KBO jobs board and open for applications.`, "",
+      `Job: ${jobTitle}`, `Location: ${location}`, `Applications close: ${deadline}`, "",
+      `Public link: ${new URL(publicHref, baseUrl)}`, "We'll email you each time someone applies.", "",
+      `Manage your job: ${new URL(href, baseUrl)}`, "", "Kenya Barista Organization"]),
+  };
+}
+
+export function applicationSubmittedEmail({ baseUrl, name, jobTitle, employer, location, submittedAt, href }: { baseUrl: string; name: string | null; jobTitle: string; employer: string; location: string; submittedAt: string; href: string }): Email {
+  const subject = `Application received: ${jobTitle}`;
+  return {
+    subject,
+    html: layout({
+      baseUrl, preheader: `Your application for ${jobTitle} was submitted successfully.`, eyebrow: "Application submitted", title: "Your application is in",
+      intro: [`Hi ${escape(firstName(name))},`, `Your application for <strong>${escape(jobTitle)}</strong> was submitted successfully and your fee was received. The recruiter can now see it.`],
+      rows: [["Job", jobTitle], ["Recruiter", employer], ["Location", location], ["Submitted", submittedAt]],
+      steps: [
+        ["The recruiter reviews it", "They see your profile, cover letter and CV."],
+        ["You hear back here", "When the recruiter updates your application or sends a message, we'll email you."],
+      ],
+      button: { label: "View your application", href },
+      footnote: "You can follow your application, or withdraw it, from your dashboard. If you didn't apply for this job, contact KBO from the website.",
+    }),
+    text: plain([`Hi ${firstName(name)},`, "", `Your application for "${jobTitle}" was submitted successfully and your fee was received.`, "",
+      `Job: ${jobTitle}`, `Recruiter: ${employer}`, `Location: ${location}`, `Submitted: ${submittedAt}`, "",
+      "The recruiter can now review it. We'll email you when they update your application or send a message.", "",
+      `View your application: ${new URL(href, baseUrl)}`, "", "Kenya Barista Organization"]),
+  };
+}
+
+export function newApplicantEmail({ baseUrl, name, jobTitle, applicant, applicants, href }: { baseUrl: string; name: string | null; jobTitle: string; applicant: string; applicants: number; href: string }): Email {
+  const subject = `New applicant for ${jobTitle}`;
+  return {
+    subject,
+    html: layout({
+      baseUrl, preheader: `${applicant} applied for ${jobTitle}.`, eyebrow: "New application", title: "Someone applied for your job",
+      intro: [`Hi ${escape(firstName(name))},`, `<strong>${escape(applicant)}</strong> has applied for <strong>${escape(jobTitle)}</strong>. Their profile, cover letter and CV are waiting in your dashboard.`],
+      rows: [["Job", jobTitle], ["Applicant", applicant], ["Applicants so far", String(applicants)]],
+      button: { label: "Review the application", href },
+      footnote: "Shortlist, reply to or decline applicants from your dashboard. They're emailed when you update their application.",
+    }),
+    text: plain([`Hi ${firstName(name)},`, "", `${applicant} has applied for "${jobTitle}".`, "",
+      `Job: ${jobTitle}`, `Applicant: ${applicant}`, `Applicants so far: ${applicants}`, "",
+      `Review the application: ${new URL(href, baseUrl)}`, "", "Kenya Barista Organization"]),
+  };
+}

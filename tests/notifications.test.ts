@@ -29,6 +29,8 @@ test("durable notifications, access, preferences, leases, retries and fanout", {
    assert.equal(await expandNotificationEvent(db,row.id),false);assert.equal((await notifications(row.id)).length,2);
    const target=items.find(n=>n.userId===candidate.user.id)!;const before=mail.length;
    await Promise.all([deliverNotification(db,target.id,deliver),deliverNotification(db,target.id,deliver)]);assert.equal(mail.length,before+1);assert.equal((await db.notification.findUniqueOrThrow({where:{id:target.id}})).deliveryStatus,"SENT");assert.ok(mail.at(-1)!.messageId?.includes(target.id));
+   assert.equal(target.title,"Application received");assert.equal(mail.at(-1)!.subject,"Application received: Notification role");assert.ok(mail.at(-1)!.html?.includes("Notification role"));
+   assert.equal(items.find(n=>n.userId===employer.user.id)!.title,"New applicant");
   });
   await t.test("only the owner can list or mark a notification read",async()=>{
    const items=(await listNotifications(db,candidate,{})).notifications;assert.equal(items.length,1);await assert.rejects(markNotificationRead(db,outsider,items[0].id),{status:404});
