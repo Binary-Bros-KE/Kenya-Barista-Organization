@@ -37,7 +37,7 @@ export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; a
     event.preventDefault(); setBusy(true); setError(""); setMessage("");
     try {
       const input = { title: draft.title, description: draft.description, location: draft.location, category: draft.category, employmentType: draft.employmentType, deadline: nairobiToIso(draft.deadline), applicationFeeKes: Number(draft.applicationFeeKes) };
-      const response = await fetch(id ? `/api/employer/jobs/${id}` : "/api/employer/jobs", { method: id ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(id ? { ...input, version: job!.version } : { ...(admin ? { recruiterId: draft.recruiterId } : {}), job: input }) });
+      const response = await fetch(id ? `/api/employer/jobs/${id}` : "/api/employer/jobs", { method: id ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(id ? { ...input, version: job!.version } : { job: input }) });
       const data = await response.json(); if (!response.ok) throw new Error(data.message);
       if (!id) { router.push(`/${admin ? "admin" : "employer"}/jobs/${data.id}`); }
       else { const wasInReview = job?.status === "PENDING_REVIEW"; await load(); setMessage(wasInReview ? "Changes saved. The job is still awaiting review, and KBO will see your latest version." : "Draft saved. Submit it for review when ready."); }
@@ -68,7 +68,7 @@ export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; a
   if (!loading && id && !job) return <p role="alert" className="notice error">{error || "Unable to load this posting."} <button className="underline" onClick={() => void load()}>Retry</button></p>;
   const verified = !!job?.recruiter.recruiterVerifiedAt;
   const reviewing = !!(admin && job?.status === "PENDING_REVIEW");
-  const saveDisabled = busy || Boolean(job && job.recruiter.status !== "ACTIVE") || (!id && admin && !draft.recruiterId);
+  const saveDisabled = busy || Boolean(job && job.recruiter.status !== "ACTIVE");
   const step = (number: string, title: string, text: string) => <header><span className="studio-step">{number}</span><div><h2>{title}</h2><p>{text}</p></div></header>;
   const photo = job ? avatarSrc(job.recruiter.id, job.recruiter.avatarVersion, 96) : null;
   return <div className="employer-job-editor jeditor"><div className="jeditor-content">
@@ -90,7 +90,6 @@ export function JobEditor({ id, admin, imagesEnabled = false }: { id?: string; a
       {editable && <form id="jeditor-form" onSubmit={save} className="studio-panel jeditor-form">
         {step(job ? "02" : "01", job ? "Role details" : "Create a draft", "What applicants read before they apply.")}
         <span className={"jeditor-save-state" + (dirty ? " is-dirty" : "")}>{dirty ? "Unsaved changes" : job ? "Saved" : "New posting"}</span>
-        {!id && admin && <label>Recruiter<select required value={draft.recruiterId} onChange={event => field("recruiterId", event.target.value)}><option value="" disabled>Choose the recruiter this job belongs to</option>{recruiters.map(recruiter => <option key={recruiter.id} value={recruiter.id}>{recruiter.name || recruiter.email}</option>)}</select>{!recruiters.length && <span className="jeditor-hint">No recruiter accounts yet. Make an account a recruiter from Accounts first.</span>}</label>}
         <label>Job title<input required minLength={5} maxLength={160} value={draft.title} onChange={event => field("title", event.target.value)} /></label>
         <div className="jeditor-pair"><label>Location<input required minLength={2} maxLength={120} value={draft.location} onChange={event => field("location", event.target.value)} placeholder="Nairobi" /></label><label>Employment type<select value={draft.employmentType} onChange={event => field("employmentType", event.target.value)}>{Object.entries(employmentTypes).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label></div>
         <div className="jeditor-pair"><label>Category<select value={draft.category} onChange={event => field("category", event.target.value)}>{Object.entries(categories).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label><label>Deadline (Nairobi time)<input type="datetime-local" required value={draft.deadline} onChange={event => field("deadline", event.target.value)} /></label></div>

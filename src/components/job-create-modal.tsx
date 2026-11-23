@@ -57,7 +57,6 @@ function JobCreateModal({ admin, onClose, onCreated }: { admin: boolean; onClose
     let job: { id: string; version: number } | null = null;
     try {
       job = await send("/api/employer/jobs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
-        ...(admin ? { recruiterId: text("recruiterId") } : {}),
         job: { title: text("title"), description: text("description"), location: text("location"), category: text("category"), employmentType: text("employmentType"), deadline: nairobiToIso(text("deadline")), applicationFeeKes: Number(fee) },
       }) });
       if (cover) {
@@ -65,9 +64,13 @@ function JobCreateModal({ admin, onClose, onCreated }: { admin: boolean; onClose
         catch (problem) { throw Object.assign(new Error(`Your job was saved, but the cover photo didn't upload (${(problem as Error).message}). You can add it from the job page.`), { saved: true }); }
       }
       if (action === "submit") {
-        try { await send(`/api/employer/jobs/${job!.id}/transitions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version: job!.version, action: "submit" }) }); }
-        catch (problem) { throw Object.assign(new Error(`Your job was saved as a draft, but it couldn't be submitted: ${(problem as Error).message}`), { saved: true }); }
-        onCreated("Job submitted for review. KBO will check it and publish it, or send it back with feedback.");
+        // Administrators post as KBO, so their job is approved straight away (submitted, then published).
+        try {
+          job = await send(`/api/employer/jobs/${job!.id}/transitions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version: job!.version, action: "submit" }) });
+          if (admin) await send(`/api/employer/jobs/${job!.id}/transitions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version: job!.version, action: "publish" }) });
+        }
+        catch (problem) { throw Object.assign(new Error(`Your job was saved, but it couldn't be ${admin ? "published" : "submitted"}: ${(problem as Error).message}`), { saved: true }); }
+        onCreated(admin ? "Job published. It's live on the jobs page as Kenya Barista Organization." : "Job submitted for review. KBO will check it and publish it, or send it back with feedback.");
         dialog.current?.close();
         return;
       }
@@ -83,7 +86,7 @@ function JobCreateModal({ admin, onClose, onCreated }: { admin: boolean; onClose
   const today = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
   return <dialog ref={dialog} className="job-create" aria-labelledby="job-create-title" onClose={onClose}>
     <form className="job-create-panel" onSubmit={event => void submit(event)} aria-busy={!!busy}>
-      <header className="job-create-head"><div><h2 id="job-create-title">Create a job posting</h2><p>KBO reviews every posting before it goes live.</p></div><button type="button" className="job-create-close" aria-label="Close" onClick={() => dialog.current?.close()}>&times;</button></header>
+      <header className="job-create-head"><div><h2 id="job-create-title">Create a job posting</h2><p>{admin ? "Posted as Kenya Barista Organization. Publish now, or save a draft to finish later." : "KBO reviews every posting before it goes live."}</p></div><button type="button" className="job-create-close" aria-label="Close" onClick={() => dialog.current?.close()}>&times;</button></header>
       <div className="job-create-body">
         <div className={`job-create-cover${cover ? " has-photo" : ""}`} onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); const file = event.dataTransfer.files[0]; if (file) chooseCover(file); }}>
           {cover ? <img src={cover.preview} alt="Cover preview" /> : <div><strong>Add a cover photo</strong><span>Optional. A wide photo of your café, team or coffee, at least 1600 × 520. JPG, PNG or WebP, up to 8 MB.</span></div>}
@@ -94,7 +97,6 @@ function JobCreateModal({ admin, onClose, onCreated }: { admin: boolean; onClose
           <input ref={coverInput} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={event => { const file = event.target.files?.[0]; if (file) chooseCover(file); event.target.value = ""; }} />
         </div>
         <fieldset disabled={!!busy} className="job-create-fields">
-          {admin && <label className="is-wide">Recruiter<select name="recruiterId" required defaultValue=""><option value="" disabled>Choose the recruiter this job belongs to</option>{options?.recruiters.map(recruiter => <option key={recruiter.id} value={recruiter.id}>{recruiter.name || recruiter.email}</option>)}</select></label>}
           <label className="is-wide">Job title<input name="title" required minLength={5} maxLength={160} placeholder="e.g. Head barista" /></label>
           <label>Location<input name="location" required minLength={2} maxLength={120} placeholder="e.g. Nairobi, Westlands" /></label>
           <label>Employment type<select name="employmentType" defaultValue="FULL_TIME">{Object.entries(employmentTypes).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
@@ -108,7 +110,7 @@ function JobCreateModal({ admin, onClose, onCreated }: { admin: boolean; onClose
       <footer className="job-create-foot">
         <button type="button" className="employer-text-button" onClick={() => dialog.current?.close()} disabled={!!busy}>Cancel</button>
         <button className="employer-secondary" name="action" value="draft" disabled={!!busy || !options}>{busy === "draft" ? "Saving…" : "Save draft"}</button>
-        <button className="employer-primary" name="action" value="submit" disabled={!!busy || !options}>{busy === "submit" ? "Submitting…" : "Submit for review"}</button>
+        <button className="employer-primary" name="action" value="submit" disabled={!!busy || !options}>{busy === "submit" ? (admin ? "Publishing…" : "Submitting…") : admin ? "Publish now" : "Submit for review"}</button>
       </footer>
     </form>
   </dialog>;

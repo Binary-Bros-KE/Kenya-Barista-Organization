@@ -7,6 +7,7 @@ import { paidSubmission } from "./submitted-application";
 import { checkImage, defaultImageStore, type ImageStore } from "./images";
 import { imagePublicId } from "../lib/images";
 import { formatFee } from "../lib/job-format";
+import { asEmployer } from "../lib/employer";
 
 const category = z.enum(["BARISTA", "ROASTING", "HOSPITALITY", "TRAINING", "MANAGEMENT", "OTHER"]);
 const employmentType = z.enum(["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP", "TEMPORARY"]);
@@ -53,16 +54,16 @@ export async function setDefaultFee(db: PrismaClient, actor: Actor, input: unkno
 }
 
 // Recruiters post as themselves; administrators post on behalf of a recruiter (recruiterId).
-export async function createJob(db: PrismaClient, actor: Actor, recruiterId: string | undefined, input: unknown) {
+// Recruiters post their own jobs; administrators post as KBO (the job belongs to the administrator's account).
+export async function createJob(db: PrismaClient, actor: Actor, input: unknown) {
   const isAdmin = actor.user.role === "ADMIN";
   if (isAdmin) assertAdmin(actor);
   const data = jobInput.parse(input);
   futureDeadline(data.deadline);
   return db.$transaction(async tx => {
-    const ownerId = isAdmin ? recruiterId : actor.user.id;
     if (!isAdmin && actor.user.role !== "RECRUITER") throw new AccessError(403, "FORBIDDEN", "Recruiter access required");
-    const owner = ownerId ? await tx.user.findFirst({ where: { id: ownerId, role: "RECRUITER", status: "ACTIVE" }, select: { id: true } }) : null;
-    if (!owner) throw new AccessError(404, "NOT_FOUND", "Active recruiter not found");
+    const owner = await tx.user.findFirst({ where: { id: actor.user.id, role: isAdmin ? "ADMIN" : "RECRUITER", status: "ACTIVE" }, select: { id: true } });
+    if (!owner) throw new AccessError(404, "NOT_FOUND", "Active account not found");
     const suppliedFee = "applicationFeeKes" in data && typeof data.applicationFeeKes === "number" ? data.applicationFeeKes * 100 : null;
     const amount = suppliedFee ?? (await tx.platformSettings.findUnique({ where: { id: "platform" } }))?.defaultApplicationFeeMinor;
     if (amount == null) throw new AccessError(409, "FEE_NOT_CONFIGURED", "Enter the application fee for this job");
@@ -181,9 +182,9 @@ export async function transitionJob(db: PrismaClient, actor: Actor, id: string, 
 }
 
 export async function getManagedJob(db: PrismaClient, actor: Actor, id: string) {
-  const job = await db.job.findFirst({ where: { id, ...managedScope(actor) }, include: { recruiter: { select: { id: true, name: true, email: true, status: true, avatarVersion: true, recruiterVerifiedAt: true } }, history: { orderBy: { createdAt: "desc" }, take: 30, select: { id: true, fromStatus: true, toStatus: true, note: true, createdAt: true } } } });
+  const job = await db.job.findFirst({ where: { id, ...managedScope(actor) }, include: { recruiter: { select: { id: true, name: true, email: true, status: true, role: true, avatarVersion: true, recruiterVerifiedAt: true } }, history: { orderBy: { createdAt: "desc" }, take: 30, select: { id: true, fromStatus: true, toStatus: true, note: true, createdAt: true } } } });
   if (!job) throw new AccessError(404, "NOT_FOUND", "Job not found");
-  return job;
+  return { ...job, recruiter: asEmployer(job.recruiter) };
 }
 
 const statusRank: Record<JobStatus, number> = { PENDING_REVIEW: 0, PUBLISHED: 1, DRAFT: 2, CHANGES_REQUESTED: 3, CLOSED: 4, ARCHIVED: 5 };
@@ -200,7 +201,7 @@ export async function listManagedJobs(db: PrismaClient, actor: Actor, input: unk
     pageWhere = { AND: [where, { id: { in: pageIds } }] }; skip = 0;
   }
   const [total, rows] = await db.$transaction([
-    db.job.count({ where }), db.job.findMany({ where: pageWhere, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], skip, take: 20, select: { id: true, title: true, slug: true, status: true, version: true, deadline: true, applicationFeeMinor: true, coverVersion: true, category: true, employmentType: true, location: true, description: true, recruiter: { select: { id: true, name: true, avatarVersion: true, recruiterVerifiedAt: true } }, _count: { select: { applications: { where: paidSubmission } } },
+    db.job.count({ where }), db.job.findMany({ where: pageWhere, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], skip, take: 20, select: { id: true, title: true, slug: true, status: true, version: true, deadline: true, applicationFeeMinor: true, coverVersion: true, category: true, employmentType: true, location: true, description: true, recruiter: { select: { id: true, name: true, role: true, avatarVersion: true, recruiterVerifiedAt: true } }, _count: { select: { applications: { where: paidSubmission } } },
       // The newest applicants' photos for the card; the applicants popup loads the full list.
       applications: { where: paidSubmission, select: { user: { select: { id: true, name: true, avatarVersion: true } } }, orderBy: [{ submittedAt: "desc" }, { id: "asc" }], take: 4 } } }),
   ]);
@@ -208,7 +209,7 @@ export async function listManagedJobs(db: PrismaClient, actor: Actor, input: unk
   // Applications nobody has looked at yet ("new"), per job.
   const fresh = jobs.length ? await db.application.groupBy({ by: ["jobId"], where: { ...paidSubmission, status: "SUBMITTED", jobId: { in: jobs.map(job => job.id) } }, _count: { _all: true } }) : [];
   const newCount = new Map(fresh.map(row => [row.jobId, row._count._all]));
-  return { jobs: jobs.map(({ applications, description, ...job }) => ({ ...job, summary: description.slice(0, 160), newApplicants: newCount.get(job.id) ?? 0, recentApplicants: applications.map(application => application.user) })), pagination: { page: query.page, total, pageCount: Math.ceil(total / 20) } };
+  return { jobs: jobs.map(({ applications, description, ...job }) => ({ ...job, recruiter: asEmployer(job.recruiter), summary: description.slice(0, 160), newApplicants: newCount.get(job.id) ?? 0, recentApplicants: applications.map(application => application.user) })), pagination: { page: query.page, total, pageCount: Math.ceil(total / 20) } };
 }
 
 export async function closeExpiredJobs(db: PrismaClient) {

@@ -28,21 +28,22 @@ test("job approval, public visibility, fees, concurrency, and recruiter isolatio
     }
     const admin = await actor("job-admin", "ADMIN"); const employer = await actor("job-employer", "RECRUITER"); const outsider = await actor("job-outsider", "RECRUITER"); const applicant = await actor("job-applicant");
     await t.test("only administrators set the default fee; recruiters choose their own job's fee", async () => {
-      await assert.rejects(createJob(db, employer, undefined, input), { code: "FEE_NOT_CONFIGURED" });
+      await assert.rejects(createJob(db, employer, input), { code: "FEE_NOT_CONFIGURED" });
       await assert.rejects(setDefaultFee(db, employer, { applicationFeeKes: 100 }), { status: 403 });
       await setDefaultFee(db, admin, { applicationFeeKes: 100 });
-      const ownFee = await createJob(db, outsider, undefined, { ...input, title: "Own fee posting", applicationFeeKes: 350 });
+      const ownFee = await createJob(db, outsider, { ...input, title: "Own fee posting", applicationFeeKes: 350 });
       assert.equal(ownFee.applicationFeeMinor, 35000, "A recruiter's own fee is used instead of the default");
-      await assert.rejects(createJob(db, outsider, undefined, { ...input, applicationFeeKes: 0 }), "Fees are at least KES 1");
+      await assert.rejects(createJob(db, outsider, { ...input, applicationFeeKes: 0 }), "Fees are at least KES 1");
       await db.jobStatusHistory.deleteMany({ where: { jobId: ownFee.id } }); await db.auditLog.deleteMany({ where: { entityId: ownFee.id } }); await db.job.delete({ where: { id: ownFee.id } });
-      await assert.rejects(createJob(db, applicant, undefined, input), { status: 403 }, "Job seekers cannot post jobs");
-      await assert.rejects(createJob(db, admin, undefined, input), { status: 404 }, "Administrators must choose a recruiter");
-      await assert.rejects(createJob(db, admin, applicant.user.id, input), { status: 404 }, "Jobs can only belong to recruiters");
-      await assert.rejects(createJob(db, employer, undefined, { ...input, status: "PUBLISHED" }));
+      await assert.rejects(createJob(db, applicant, input), { status: 403 }, "Job seekers cannot post jobs");
+      const kboPosting = await createJob(db, admin, { ...input, title: "KBO's own posting" });
+      assert.equal(kboPosting.recruiterId, admin.user.id, "Administrators post jobs as KBO, not for a recruiter");
+      assert.equal((await getManagedJob(db, admin, kboPosting.id)).recruiter.name, "Kenya Barista Organization");
+      await assert.rejects(createJob(db, employer, { ...input, status: "PUBLISHED" }));
     });
-    let job = await createJob(db, employer, undefined, input);
-    const otherJob = await createJob(db, outsider, undefined, { ...input, title: "Other coffee team posting" });
-    let adminJob = await createJob(db, admin, employer.user.id, { ...input, title: "Administrator posting", applicationFeeKes: 200 });
+    let job = await createJob(db, employer, input);
+    const otherJob = await createJob(db, outsider, { ...input, title: "Other coffee team posting" });
+    let adminJob = await createJob(db, employer, { ...input, title: "Second employer posting", applicationFeeKes: 200 });
     assert.equal(adminJob.recruiterId, employer.user.id);
     await t.test("drafts are private and management queries are scoped to the recruiter", async () => {
       assert.equal(job.applicationFeeMinor, 10000); assert.equal(adminJob.applicationFeeMinor, 20000);
@@ -95,7 +96,7 @@ test("job approval, public visibility, fees, concurrency, and recruiter isolatio
       await assert.rejects(updateJob(db, admin, job.id, { ...input, version: job.version, applicationFeeKes: 250 }), { code: "FEE_LOCKED" });
       await setDefaultFee(db, admin, { applicationFeeKes: 150 });
       assert.equal((await db.job.findUniqueOrThrow({ where: { id: job.id } })).applicationFeeMinor, 12000);
-      const created = await createJob(db, employer, undefined, { ...input, title: "New fee posting" }); assert.equal(created.applicationFeeMinor, 15000);
+      const created = await createJob(db, employer, { ...input, title: "New fee posting" }); assert.equal(created.applicationFeeMinor, 15000);
     });
     await t.test("deadlines hide expired jobs immediately and scheduled closing is replay-safe", async () => {
       job = await db.job.update({ where: { id: job.id }, data: { deadline: new Date(Date.now() - 1000) } });
@@ -124,7 +125,7 @@ test("job approval, public visibility, fees, concurrency, and recruiter isolatio
       adminJob = await transitionJob(db, admin, adminJob.id, { version: adminJob.version, action: "archive" });
       await assert.rejects(transitionJob(db, admin, adminJob.id, { version: adminJob.version, action: "submit" }), { code: "INVALID_JOB_STATE" });
       await assert.rejects(updateJob(db, admin, adminJob.id, { ...input, version: adminJob.version }), { code: "INVALID_JOB_STATE" }, "Archived jobs cannot be edited");
-      await assert.rejects(createJob(db, admin, employer.user.id, { ...input, deadline: new Date(Date.now() - 1000).toISOString() }), { code: "DEADLINE_PASSED" });
+      await assert.rejects(createJob(db, admin, { ...input, deadline: new Date(Date.now() - 1000).toISOString() }), { code: "DEADLINE_PASSED" });
     });
     await t.test("public search is filtered and paginated without exposing private fields", async () => {
       await db.job.createMany({ data: Array.from({ length: 13 }, (_, i) => ({ recruiterId: employer.user.id, title: `Paged-${suffix} ${i}`, slug: `paged-${suffix}-${i}`, description: input.description, location: "Mombasa", category: "ROASTING", employmentType: "CONTRACT", deadline: new Date(input.deadline), applicationFeeMinor: 10000, status: "PUBLISHED" as const, publishedAt: new Date(), reviewNote: "Private draft notes" })) });

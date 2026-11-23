@@ -20,6 +20,12 @@ Then add an entry below and restart the app.
   - **Someone applies to a recruiter's job**: "New applicant", with the applicant's name and the number of applicants so far.
 - Dashboard notifications for these moments use the same wording and name the job, instead of the general "A job posting has an update".
 
+## 2.19.0 - 2026-11-23
+
+- Administrators post jobs as KBO itself: no more choosing a recruiter. The job belongs to the administrator account and appears to job seekers as **Kenya Barista Organization**, always with the Verified badge and ribbon (and in the public employer filter).
+- The admin create popup offers **Publish now** (saved, submitted and approved in one step) or Save draft.
+- Fixed the create popup squeezing the job title and description to a narrow column (toolbar label styles were leaking into the popup).
+
 ## 2.18.0 - 2026-11-23
 
 - Recruiter and admin job cards are themed by status, so they are easy to tell apart at a glance: **Awaiting review** blue with a soft glow and a pulsing "Needs your review" tag (recruiters see "Waiting for KBO review"), **Published** green, **Draft** gold with a dashed edge, **Changes requested** orange with a "Sent back" tag, and **Closed / Archived** grey with a faded photo. The card edge, background tint, tags and button follow the status colour.
