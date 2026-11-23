@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.20.6 - 2026-11-23
+
+- Home hero: **Find a coffee job** and **Explore our courses** are now the same height, width and text size (17px bold, 64px tall, at least 272px wide; 16px and 58px tall on phones). Only the colour differs: gold fill and white outline.
+
 ## 2.20.5 - 2026-11-23
 
 - The website header **My account** link has a profile icon before the text, and turns KBO green on hover.
