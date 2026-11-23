@@ -80,7 +80,7 @@ test("top-ups are claimed, confirmed once, and pay for applications from the bal
     const job = await db.job.create({ data: { recruiterId: recruiter.user.id, slug: `wallet-${suffix}`, title: "Wallet barista", description: "Coffee role", location: "Nairobi", category: "BARISTA", employmentType: "FULL_TIME", status: "PUBLISHED", publishedAt: new Date(), deadline: new Date(Date.now() + 86400000 * 7), applicationFeeMinor: 50000 } }); jobs.push(job.id);
     await db.applicantProfile.create({ data: { userId: member.user.id, fullName: "Wallet Member", phone: "+254712345678", location: "Nairobi", summary: "Barista" } });
     const doc = await db.document.create({ data: { userId: member.user.id, storageKey: randomUUID(), filename: "cv.pdf", mimeType: "application/pdf", sizeBytes: 100, scanStatus: "CLEAN", sha256: "b".repeat(64) } });
-    const app = await db.application.create({ data: { userId: member.user.id, jobId: job.id, applicationFeeMinor: 50000, documents: { create: { documentId: doc.id } } } });
+    const app = await db.application.create({ data: { userId: member.user.id, jobId: job.id, applicationFeeMinor: 50000, coverLetter: "I would love to join the team.", documents: { create: { documentId: doc.id } } } });
     await assert.rejects(payFromWallet(db, member, app.id, { version: app.version }), { code: "INSUFFICIENT_BALANCE" }, "KES 450 doesn't cover a KES 500 fee");
     const third = (await listTopUps(db, admin, { status: "PENDING" })).claims.find(claim => claim.user.id === member.user.id)!;
     await reviewTopUp(db, admin, third.id, { decision: "confirm", creditedKes: 100 }, mail);

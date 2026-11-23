@@ -33,14 +33,14 @@ test("dashboard overview preserves ownership, CV status and administrator MFA bo
       { userId: owner.user.id, storageKey: "overview-pending-" + suffix, filename: "pending.pdf", mimeType: "application/pdf", sizeBytes: 100, scanStatus: "PENDING" },
       { userId: other.user.id, storageKey: "overview-other-" + suffix, filename: "other.pdf", mimeType: "application/pdf", sizeBytes: 100, scanStatus: "CLEAN" },
     ] });
-    await t.test("personal summaries include only owned applications, updates and screened CVs", async () => {
+    await t.test("personal summaries include only owned applications, updates and sendable CVs", async () => {
       const data = await getDashboardOverview(db, owner);
       assert.deepEqual(data.counts, { applications: 1, drafts: 1, active: 0, unread: 1 });
       assert.equal(data.applications[0].id, own.id); assert.equal(data.applications.length, 1);
       assert.deepEqual(data.notifications.map(item => item.title), ["Your application update"]);
-      assert.equal(data.cleanCvs, 0); assert.equal(data.recruiting?.liveJobs, 1); assert.equal(data.recruiting?.awaitingApproval, 1); assert.equal(data.platform, null);
+      assert.equal(data.cleanCvs, 1); assert.equal(data.recruiting?.liveJobs, 1); assert.equal(data.recruiting?.awaitingApproval, 1); assert.equal(data.platform, null);
     });
-    await t.test("profile readiness follows validation and pending CVs do not count as screened", async () => {
+    await t.test("profile readiness follows validation and only the current CV counts", async () => {
       assert.equal((await getDashboardOverview(db, owner)).profileReady, false);
       await db.applicantProfile.create({ data: { userId: owner.user.id, fullName: "Coffee Professional", phone: "+254712345678", location: "Nairobi", summary: "" } });
       // A newer CV replaces the pending one (each account has one current CV).

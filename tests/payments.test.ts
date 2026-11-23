@@ -55,8 +55,8 @@ test("payment lifecycle, merchant settings, idempotency, and transactional submi
    const stored=await db.mpesaConfiguration.findUniqueOrThrow({where:{id:config.id}});assert.ok(!stored.credentialsCipher.includes("test-key-only"));
    await assert.rejects(saveMpesaSettings(db,admin,{...settings,kind:"TILL",tillNumber:null}));
   });
-  await t.test("checkout rejects incomplete profiles, pending CVs and client fee overrides",async()=>{
-   const app=await fixture();await db.document.update({where:{id:doc.id},data:{scanStatus:"PENDING"}});await assert.rejects(begin(app),{code:"CV_NOT_READY"});await db.document.update({where:{id:doc.id},data:{scanStatus:"CLEAN"}});
+  await t.test("checkout rejects incomplete profiles, rejected CVs and client fee overrides",async()=>{
+   const app=await fixture();await db.document.update({where:{id:doc.id},data:{scanStatus:"REJECTED"}});await assert.rejects(begin(app),{code:"CV_NOT_READY"});await db.document.update({where:{id:doc.id},data:{scanStatus:"CLEAN"}});
    await db.applicantProfile.update({where:{userId:applicant.user.id},data:{fullName:null}});await assert.rejects(begin(app),{code:"PROFILE_INCOMPLETE"});await db.applicantProfile.update({where:{userId:applicant.user.id},data:{fullName:"Test Applicant"}});
    await assert.rejects(initiatePayment(db,applicant,app.id,{configurationId:config.id,phone:"254712345678",version:1,idempotencyKey:randomUUID(),amount:1}));
    await assert.rejects(initiatePayment(db,other,app.id,{configurationId:config.id,phone:"254712345678",version:1,idempotencyKey:randomUUID()}),{status:404});
@@ -197,7 +197,7 @@ test("payment lifecycle, merchant settings, idempotency, and transactional submi
    await assert.rejects(resolvePaymentException(db,admin,a.paymentOrderId,await reviewData(app.id,"CONFIRM_RECEIPT",{receipt:"DIFFERENT1234",amountMinor:10000,phone:"254712345678",merchant:"654321"})),{code:"RECEIPT_CONFLICT"});
   });
   await t.test("paid but unavailable cases stay in queue; retry uses the original snapshot and never overrides changed terms",async()=>{
-   const app=await fixture();await begin(app);const a=await attempt(app.id);await db.document.update({where:{id:doc.id},data:{scanStatus:"PENDING"}});
+   const app=await fixture();await begin(app);const a=await attempt(app.id);await db.document.update({where:{id:doc.id},data:{scanStatus:"REJECTED"}});
    const data=await reviewData(app.id,"CONFIRM_RECEIPT",{receipt:randomBytes(6).toString("hex").toUpperCase(),amountMinor:10000,phone:"254712345678",merchant:"654321"});
    assert.equal((await resolvePaymentException(db,admin,a.paymentOrderId,data)).submitted,false);
    const queue=await listPaymentExceptions(db,admin);assert.ok(queue.orders.some(order=>order.id===a.paymentOrderId));
