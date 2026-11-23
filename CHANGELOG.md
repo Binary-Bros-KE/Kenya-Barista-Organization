@@ -11,6 +11,10 @@ npm.cmd version major --no-git-tag-version   # 1.0.0 -> 2.0.0: big changes
 Then add an entry below and restart the app.
 
 
+## 2.24.7 - 2026-11-23
+
+- My applications: each row shows the recruiter's profile photo instead of their initials. Jobs posted by KBO show the KBO logo and the name **Kenya Barista Organization** (previously "KBO Admin"). Initials remain for recruiters without a photo.
+
 ## 2.24.6 - 2026-11-23
 
 - Courses & registration: removed **View course brochures**, its availability note and both brochure images. The Barista Course card no longer mentions brochures ("Learn the modules above, from the bean to latte art, and enquire about joining an upcoming course.").

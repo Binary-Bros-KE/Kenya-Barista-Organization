@@ -18,3 +18,6 @@
 .application-filters a.is-withdrawn { --tint: #6b6560; --wash: #f1efed; }
 .application-empty .application-secondary { background: linear-gradient(140deg, #14a397, #0b5f58); border: 0; color: #fff; box-shadow: 0 10px 20px -12px #0b5f58; }
 .application-empty > span[aria-hidden] { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(140deg, #ecc576, #d7a446); color: #3a2a10; font-size: 24px; }
+/* Recruiter photo (or the KBO logo) in place of initials */
+.application-company-mark.has-photo{overflow:hidden;padding:0;background:#fff}
+.application-company-mark.has-photo img{width:100%;height:100%;object-fit:cover;display:block}

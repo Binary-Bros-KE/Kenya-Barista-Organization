@@ -64,3 +64,12 @@ test("withdrawal stays an explicit confirmed action with optional reason and man
  assert.ok(html.includes('does not automatically refund')); assert.ok(html.includes('maxLength="2000"'));
  assert.ok(html.includes('Confirm withdrawal')); assert.ok(!/<textarea[^>]*required/.test(html));
 });
+test("applications show the recruiter's photo, the KBO logo for KBO's own jobs, or initials", () => {
+ const item = (recruiter: { id?: string; name: string | null; role?: string; avatarVersion?: number | null }) => ({ id: recruiter.name || "x", status: "DRAFT" as const, applicationFeeMinor: 10000, updatedAt: new Date("2026-10-29T10:00:00Z"), _count: { responses: 0 }, job: { title: "Barista", recruiter } });
+ const previous = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME = "demo";
+ try {
+  const html = render(createElement(ApplicationList, { items: [item({ id: "rec_1", name: "Coffee Co", role: "RECRUITER", avatarVersion: 7 }), item({ id: "adm_1", name: "Kenya Barista Organization", role: "ADMIN", avatarVersion: null }), item({ id: "rec_2", name: "Bean Bar", role: "RECRUITER", avatarVersion: null })], total: 3, counts: { DRAFT: 3 }, page: 1 }));
+  assert.ok(html.includes("res.cloudinary.com/demo/") && html.includes("/avatars/rec_1"), "Recruiter photo");
+  assert.ok(html.includes('src="/brand-logo.png"'), "KBO logo for KBO's own jobs"); assert.ok(html.includes(">BE<"), "Initials when there's no photo");
+ } finally { if (previous === undefined) delete process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; else process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME = previous; }
+});
